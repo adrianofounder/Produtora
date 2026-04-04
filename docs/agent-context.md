@@ -6,7 +6,7 @@
 
 **Workflow ativo**: `brownfield-ui.yaml` (`.aiox-core/development/workflows/`)
 **Fase atual**: Phase 3 — Development Cycle (iterativo por Epics)
-**Último commit**: `Epic 6` — feat(ui): Epic 6 — HQ God Mode + Fechamento da Fase 3
+**Último commit**: `Epic 7` — feat(ui): Epic 7 — Configurações + Fechamento Definitivo da Fase 3
 
 ---
 
@@ -20,6 +20,7 @@
 | Epic 4 | Laboratório `/laboratorio` — Análise de tendências | ✅ Concluído |
 | Epic 5 | Tendências `/tendencias` — Market insights | ✅ Concluído |
 | Epic 6 | HQ `/hq` — God Mode / visão global | ✅ Concluído |
+| Epic 7 | Configurações `/configuracoes` — Integrações & APIs | ✅ Concluído |
 
 ---
 

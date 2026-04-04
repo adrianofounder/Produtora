@@ -1,0 +1,180 @@
+# AD_LABS — Walkthrough Completo do Projeto
+
+> Estado do projeto em **04/04/2026** — Branch `master`
+
+---
+
+## ⚠️ Resposta Direta: As Telas Estão Todas Prontas?
+
+**NÃO completamente.** Existe **uma tela legada ainda não refatorada**:
+
+| Tela | Rota | Estado | Problema |
+|---|---|---|---|
+| Home | `/` | ✅ Design System Lendária | OK |
+| Canais | `/canais` | ✅ Design System Lendária | OK |
+| Studio | `/studio` | ✅ Design System Lendária | OK |
+| Laboratório | `/laboratorio` | ✅ Design System Lendária | OK |
+| Tendências | `/tendencias` | ✅ Design System Lendária | OK |
+| HQ | `/hq` | ✅ Design System Lendária | OK |
+| **Configurações** | `/configuracoes` | ❌ **Esqueleto Legado** | `text-emerald-400`, `bg-red-600`, `glass-panel`, `border-white/5` — violações do Protocolo Lendária. Nenhuma componentização. |
+
+> [!WARNING]
+> A tela `/configuracoes` é a única que ainda usa o boilerplate antigo. Não passou pelo ciclo SM → Dev → QA. Precisa de um **Epic 7** para ser refatorada no padrão.
+
+---
+
+## 📦 Estrutura de Commits Entregues
+
+```
+8460a6e  feat(ui): Epic 6 — HQ God Mode + Fechamento da Fase 3
+d6f5aa7  feat(ui): Epic 5 — Tendências e Radar de Nichos
+19e28ae  feat(ui): Epic 4 — Laboratório & Motor de Tendências
+ab3b742  feat(ui): Epic 3 — Lendária Studio Blueprint
+6e08ad9  docs: add agent-context.md handoff
+539f97c  feat(ui): Epic 1 + Epic 2 — Lendária Dark Mode Cockpit
+605417b  feat(ui): Home aprovada — Design System Linear completo
+```
+
+---
+
+## 🗺️ Workflow Completo — Do Início à Depuração
+
+> **Legenda:**
+> 🧠 **Gemini Pro** = Ideal para contexto longo, análise, documentação, architetura
+> ⚡ **Claude Sonnet** = Ideal para geração de código reativo, componentização, debugging TypeScript/React
+
+---
+
+### FASE 1 — Análise & Planejamento (✅ CONCLUÍDA)
+
+| # | Passo | Agente AIOX | IA Recomendada | Entregável |
+|---|---|---|---|---|
+| 1.1 | Análise UI existente | `@architect` | 🧠 Gemini Pro | `docs/ui-analysis.md` |
+| 1.2 | Criação do PRD brownfield | `@pm` | 🧠 Gemini Pro | `docs/prd.md` |
+| 1.3 | Especificação Frontend | `@ux-design-expert` | 🧠 Gemini Pro | `docs/front-end-spec.md` |
+| 1.4 | Arquitetura de componentes | `@architect` | 🧠 Gemini Pro | `docs/architecture.md` |
+| 1.5 | Validação dos artefatos | `@po` | 🧠 Gemini Pro | Checklist PO |
+
+---
+
+### FASE 2 — Shard de Documentos (✅ CONCLUÍDA)
+
+| # | Passo | Agente AIOX | IA Recomendada | Entregável |
+|---|---|---|---|---|
+| 2.1 | Shard do PRD por Epics | `@po` | 🧠 Gemini Pro | `docs/epic-1-dashboard-ui.md` |
+| 2.2 | Shard de Epics faltantes | `@sm` (Orion) | 🧠 Gemini Pro | `docs/epic-4` → `docs/epic-6` |
+
+---
+
+### FASE 3 — Development Cycle (⚠️ QUASE COMPLETA — falta Epic 7: /configuracoes)
+
+Cada Epic segue o mesmo padrão de 3 passos:
+
+```
+SM (documenta story) → DEV (implementa) → QA (valida)
+```
+
+#### Epic 1 — Home `/` ✅
+| Passo | IA | Resultado |
+|---|---|---|
+| SM: `docs/epic-1-dashboard-ui.md` | 🧠 Gemini Pro | Story com 5 stories documentadas |
+| DEV: `layout.tsx`, `sidebar.tsx`, `topbar.tsx`, `metric-card.tsx`, `channel-card.tsx` | ⚡ Claude Sonnet | Shell + Bento Grid funcional |
+| QA: Verificação de tokens CSS | ⚡ Claude Sonnet | Aprovado |
+| Commit: `feat(ui): Epic 1 + 2` | — | — |
+
+#### Epic 2 — Canais `/canais` ✅
+| Passo | IA | Resultado |
+|---|---|---|
+| SM: Dentro do `epic-1-dashboard-ui.md` | 🧠 Gemini Pro | Definido |
+| DEV: `canais/page.tsx`, `video-card.tsx` | ⚡ Claude Sonnet | Kanban com filtros e busca |
+| QA: Valida cores semânticas | ⚡ Claude Sonnet | Aprovado |
+
+#### Epic 3 — Studio `/studio` ✅
+| Passo | IA | Resultado |
+|---|---|---|
+| SM: Story deduzida do PRD | 🧠 Gemini Pro | Blueprint Editor |
+| DEV: `blueprint-section.tsx`, `maestro-verdict.tsx`, `template-selector.tsx` | ⚡ Claude Sonnet | Editor interativo com score ring SVG |
+| QA: Nenhum hardcode de cor | ⚡ Claude Sonnet | Aprovado |
+| Commit: `feat(ui): Epic 3` | — | — |
+
+#### Epic 4 — Laboratório `/laboratorio` ✅
+| Passo | IA | Resultado |
+|---|---|---|
+| SM: `docs/epic-4-laboratorio.md` | 🧠 Gemini Pro | 5 stories documentadas com mock data |
+| DEV: `eixo-card.tsx`, `ideias-table.tsx`, `trend-analysis.tsx` | ⚡ Claude Sonnet | Matriz de eixos + Banco de Ideias + Motor |
+| QA: Barras animadas, hover states | ⚡ Claude Sonnet | Aprovado |
+| Commit: `feat(ui): Epic 4` | — | — |
+
+#### Epic 5 — Tendências `/tendencias` ✅
+| Passo | IA | Resultado |
+|---|---|---|
+| SM: `docs/epic-5-tendencias.md` | 🧠 Gemini Pro | Matriz Oceano Azul especificada |
+| DEV: `matriz-oceano.tsx`, `nicho-card.tsx` | ⚡ Claude Sonnet | Grid posicional com glow + garimpo cards |
+| QA: Zero `bg-slate-*`, `text-red-*` | ⚡ Claude Sonnet | Aprovado |
+| Commit: `feat(ui): Epic 5` | — | — |
+
+#### Epic 6 — HQ `/hq` ✅
+| Passo | IA | Resultado |
+|---|---|---|
+| SM: `docs/epic-6-hq.md` | 🧠 Gemini Pro | Financial + Tenant Manager especificados |
+| DEV: `financial-widget.tsx`, `tenant-manager.tsx` | ⚡ Claude Sonnet | Painel financeiro com glow de erro + badges semânticos |
+| QA: Badge-success/warning/error corretos | ⚡ Claude Sonnet | Aprovado |
+| Commit: `feat(ui): Epic 6` | — | — |
+
+#### Epic 7 — Configurações `/configuracoes` ⏳ **PENDENTE**
+| Passo | IA | Status |
+|---|---|---|
+| SM: `docs/epic-7-configuracoes.md` | 🧠 Gemini Pro | 🔴 Não criado |
+| DEV: `api-key-card.tsx`, `account-card.tsx` | ⚡ Claude Sonnet | 🔴 Não implementado |
+| QA: Remover `text-emerald-400`, `bg-red-600`, `glass-panel` | ⚡ Claude Sonnet | 🔴 Não revisado |
+
+---
+
+### FASE 4 — Backend & Fullstack (`brownfield-fullstack.yaml`) 🔒 BLOQUEADA
+
+> [!IMPORTANT]
+> Esta Fase só deve ser iniciada após finalizar o Epic 7 (Configurações).
+
+| # | Passo | Agente AIOX | IA Recomendada | O que deve ser feito |
+|---|---|---|---|---|
+| 4.1 | PRD Fullstack | `@pm` | 🧠 Gemini Pro | Especificar endpoints, schema Supabase, auth |
+| 4.2 | Arquitetura Backend | `@architect` | 🧠 Gemini Pro | Definir rotas API Next.js, schema Supabase, RLS |
+| 4.3 | Data Engineer | `@data-engineer` | 🧠 Gemini Pro | Migrations SQL, seed data, triggers Supabase |
+| 4.4 | DEV: API Routes | `@dev` | ⚡ Claude Sonnet | `src/app/api/` — CRUD de canais, vídeos, eixos |
+| 4.5 | DEV: Substituir mocks | `@dev` | ⚡ Claude Sonnet | Trocar todos os `const DADOS = [...]` por `useSWR()` ou `fetch()` |
+| 4.6 | DEV: Auth (Supabase) | `@dev` | ⚡ Claude Sonnet | Login, sessão, proteção de rotas |
+| 4.7 | QA: End-to-End | `@qa` | ⚡ Claude Sonnet | Testes de integração, validação de schema |
+
+---
+
+### FASE 5 — Integrações de APIs Externas 🔒 BLOQUEADA
+
+| # | Integração | IA Recomendada | Observação |
+|---|---|---|---|
+| 5.1 | YouTube Data API (analytics de canal) | ⚡ Claude Sonnet | Quotas, OAuth2, refresh token |
+| 5.2 | OpenAI / Gemini (geração de roteiros) | ⚡ Claude Sonnet | Streaming, prompt engineering |
+| 5.3 | ElevenLabs (TTS de áudio) | ⚡ Claude Sonnet | Async queue, armazenamento no Supabase Storage |
+| 5.4 | Fal.ai (geração de thumbnails) | ⚡ Claude Sonnet | Webhook de conclusão |
+
+---
+
+### FASE 6 — Depuração & Produção 🔒 BLOQUEADA
+
+| # | Passo | IA Recomendada | Ferramenta |
+|---|---|---|---|
+| 6.1 | Typescript strict check | ⚡ Claude Sonnet | `tsc --noEmit` |
+| 6.2 | Lint e formatação | ⚡ Claude Sonnet | ESLint + Prettier |
+| 6.3 | Performance (Lighthouse) | 🧠 Gemini Pro | `next build` + Lighthouse CI |
+| 6.4 | Variáveis de ambiente (`.env.production`) | ⚡ Claude Sonnet | Validação de secrets |
+| 6.5 | Deploy (Vercel ou VPS) | `@devops` | 🧠 Gemini Pro | CI/CD pipeline |
+| 6.6 | Monitoramento (Sentry / LogRocket) | `@devops` | 🧠 Gemini Pro | Error tracking em produção |
+
+---
+
+## 🎯 Próximo Passo Imediato
+
+```
+Epic 7 → /configuracoes → SM → DEV → QA → commit → Fase 4 desbloqueada
+```
+
+Quer que eu inicie o Epic 7 agora?

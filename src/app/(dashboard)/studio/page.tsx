@@ -1,17 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Loader2 } from "lucide-react";
 import { BlueprintSection } from "@/components/studio/blueprint-section";
 import { MaestroVerdict } from "@/components/studio/maestro-verdict";
 import { TemplateSelector, TriggerGrid } from "@/components/studio/template-selector";
 
-/* ─── Mock Data ─────────────────────────────────────────── */
-
-const CANAIS = [
-  { id: "c1", nome: "Histórias Ocultas", avatar: "🏛️", niche: "Mistério" },
-  { id: "c2", nome: "Crimes Reais BR",   avatar: "🔍", niche: "True Crime" },
-  { id: "c3", nome: "Fronteiras do Tempo", avatar: "⏳", niche: "História" },
-];
+/* ─── Types ─────────────────────────────────────────────── */
+interface CanalReal { id: string; nome: string; mare_status: string; }
 
 const VOZES = [
   "Marcus (Drama Hushed)",
@@ -57,7 +53,8 @@ const VERDICT_ITEMS = [
 /* ─── Page ────────────────────────────────────────────────── */
 
 export default function StudioPage() {
-  const [canalId, setCanalId] = useState("c1");
+  const [canaisReais, setCanaisReais] = useState<CanalReal[]>([]);
+  const [canalId, setCanalId] = useState("");
   const [templateId, setTemplateId] = useState("t1");
   const [triggers, setTriggers] = useState(TRIGGERS_INICIAL);
   const [voz, setVoz] = useState(VOZES[0]);
@@ -71,8 +68,73 @@ export default function StudioPage() {
   const [cta, setCta] = useState(
     "Encerrar com uma pergunta aberta ao espectador e convite para comentar a opinião. Link para próximo vídeo aparecer."
   );
+  const [urlAnalise, setUrlAnalise] = useState("");
+  const [loadingAnalise, setLoadingAnalise] = useState(false);
+  const [savingBlueprint, setSavingBlueprint] = useState(false);
 
-  const canalAtivo = CANAIS.find((c) => c.id === canalId) ?? CANAIS[0];
+  // Carrega canais reais
+  useEffect(() => {
+    fetch('/api/canais')
+      .then(r => r.ok ? r.json() : [])
+      .then((data: CanalReal[]) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setCanaisReais(data);
+          setCanalId(data[0].id);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  // Carrega blueprint do canal selecionado
+  useEffect(() => {
+    if (!canalId) return;
+    fetch(`/api/blueprints/${canalId}`)
+      .then(r => r.ok ? r.json() : null)
+      .then((bp) => {
+        if (bp) {
+          if (bp.hook) setHook(bp.hook);
+          if (bp.tipo_narrativa) setDesenvolvimento(bp.tipo_narrativa);
+          if (bp.emocao_dominante) setEmocao(bp.emocao_dominante);
+          if (bp.voz_narrador) setVoz(bp.voz_narrador);
+        }
+      })
+      .catch(() => {});
+  }, [canalId]);
+
+  async function analisarUrl() {
+    if (!urlAnalise) return;
+    setLoadingAnalise(true);
+    try {
+      const res = await fetch('/api/ia/analisar-canal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: urlAnalise, canal_id: canalId }),
+      });
+      const bp = await res.json();
+      if (bp.hook) setHook(bp.hook);
+      if (bp.emocao_dominante) setEmocao(bp.emocao_dominante);
+      if (bp.tipo_narrativa) setDesenvolvimento(bp.tipo_narrativa);
+      if (bp.voz_narrador) setVoz(bp.voz_narrador);
+    } finally {
+      setLoadingAnalise(false);
+    }
+  }
+
+  async function salvarBlueprint() {
+    if (!canalId) return;
+    setSavingBlueprint(true);
+    try {
+      await fetch(`/api/blueprints/${canalId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ hook, tipo_narrativa: desenvolvimento, emocao_dominante: emocao, voz_narrador: voz }),
+      });
+    } finally {
+      setSavingBlueprint(false);
+    }
+  }
+
+  const canalAtivo = canaisReais.find((c) => c.id === canalId) ?? canaisReais[0];
 
   function toggleTrigger(id: string) {
     setTriggers((prev) =>
@@ -125,7 +187,6 @@ export default function StudioPage() {
             border: "1px solid rgba(255,255,255,0.08)",
           }}
         >
-          <span className="text-lg leading-none">{canalAtivo.avatar}</span>
           <div className="flex flex-col">
             <p className="text-[11px]" style={{ color: "var(--color-text-3)" }}>Canal Alvo</p>
             <select
@@ -134,14 +195,17 @@ export default function StudioPage() {
               className="text-[13px] font-bold bg-transparent border-none outline-none cursor-pointer"
               style={{ color: "var(--color-text-1)" }}
             >
-              {CANAIS.map((c) => (
-                <option key={c.id} value={c.id} style={{ background: "#121214" }}>
-                  {c.nome}
-                </option>
-              ))}
+              {canaisReais.length === 0
+                ? <option value="">Carregando...</option>
+                : canaisReais.map((c) => (
+                    <option key={c.id} value={c.id} style={{ background: "#121214" }}>
+                      {c.nome}
+                    </option>
+                  ))
+              }
             </select>
           </div>
-          <span className="badge badge-accent ml-2">{canalAtivo.niche}</span>
+          {canalAtivo && <span className="badge badge-accent ml-2">{canalAtivo.mare_status}</span>}
         </div>
       </header>
 
@@ -161,12 +225,14 @@ export default function StudioPage() {
         </span>
         <input
           type="url"
-          placeholder="Cole a URL do vídeo viral para análise (ex: https://youtube.com/watch?v=...)"
-          defaultValue="https://youtube.com/watch?v=dQw4w9WgXcQ"
+          placeholder="Cole a URL do benchmark para engenharia reversa com IA"
+          value={urlAnalise}
+          onChange={(e) => setUrlAnalise(e.target.value)}
           className="input flex-1 h-8 px-3 text-[12px]"
         />
-        <button className="btn-primary h-8 px-4 text-[12px] flex-shrink-0">
-          ⚡ Analisar com Extrator IA
+        <button onClick={analisarUrl} disabled={loadingAnalise || !urlAnalise} className="btn-primary h-8 px-4 text-[12px] flex-shrink-0">
+          {loadingAnalise ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
+          {loadingAnalise ? 'Analisando...' : 'Analisar com Extrator IA'}
         </button>
       </div>
 
@@ -318,7 +384,7 @@ export default function StudioPage() {
           <MaestroVerdict
             score={8.5}
             verdict={VERDICT_ITEMS}
-            onInject={() => alert("Blueprint injetado no motor de produção!")}
+            onInject={salvarBlueprint}
           />
 
           {/* Histórico de Blueprints */}

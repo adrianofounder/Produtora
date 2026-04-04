@@ -6,7 +6,7 @@
 
 **Workflow ativo**: `brownfield-ui.yaml` (`.aiox-core/development/workflows/`)
 **Fase atual**: Phase 3 — Development Cycle (iterativo por Epics)
-**Último commit**: `539f97c` — feat(ui): Epic 1 + Epic 2 — Lendária Dark Mode Cockpit
+**Último commit**: `ab3b742` — feat(ui): Epic 3 — Lendária Studio Blueprint
 
 ---
 
@@ -16,9 +16,9 @@
 |------|------|--------|
 | Epic 1 | Dashboard `/` — Base Shell, Design Tokens, Bento Grid | ✅ Concluído |
 | Epic 2 | Canais `/canais` — Kanban de vídeos, filtros, pipeline | ✅ Concluído |
-| Epic 3 | Studio `/studio` — Blueprint e montagem de roteiros | ⏳ Próximo |
-| Epic 4 | Laboratório `/laboratorio` — Análise de tendências | ⏳ Pendente |
-| Epic 5 | Tendências `/tendencias` — Market insights | ⏳ Pendente |
+| Epic 3 | Studio `/studio` — Blueprint e montagem de roteiros | ✅ Concluído |
+| Epic 4 | Laboratório `/laboratorio` — Análise de tendências | ✅ Concluído |
+| Epic 5 | Tendências `/tendencias` — Market insights | ⏳ Próximo |
 | Epic 6 | HQ `/hq` — God Mode / visão global | ⏳ Pendente |
 
 ---
@@ -49,6 +49,10 @@ src/
 │       ├── metric-card.tsx     ← KPI card reutilizável
 │       ├── channel-card.tsx    ← Card do canal com métricas de pipeline
 │       └── video-card.tsx      ← Card de vídeo com progress bar e steps
+│   └── studio/
+│       ├── blueprint-section.tsx ← Seção editável do roteiro (A/B/C)
+│       ├── maestro-verdict.tsx   ← Painel de veredito com score ring SVG
+│       └── template-selector.tsx ← TemplateSelector + TriggerGrid
 └── app/globals.css             ← Design System Lendária completo
 ```
 
@@ -95,6 +99,6 @@ npm run dev
 
 Em seguida, o agente deve:
 1. Ler este arquivo e os docs em `docs/`
-2. Confirmar o Epic atual (Epic 3 — `/studio`)
-3. Ver a tela atual em `src/app/(dashboard)/studio/page.tsx`
+2. Confirmar o Epic atual (Epic 4 — `/laboratorio`)
+3. Ver a tela atual em `src/app/(dashboard)/laboratorio/page.tsx`
 4. Seguir o ciclo: SM → Dev → QA do `brownfield-ui.yaml`

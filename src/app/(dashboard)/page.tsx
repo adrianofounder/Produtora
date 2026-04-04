@@ -4,12 +4,14 @@ import {
   AlertOctagon, Activity, Unplug, Clock, Plus,
   LayoutGrid, Tv2, CheckCircle2, CalendarClock, AlertCircle,
 } from "lucide-react";
+import { MetricCard } from "@/components/dashboard/metric-card";
+import { ChannelCard } from "@/components/dashboard/channel-card";
 
 /* ── dados mock ─────────────────────────────────────────── */
 const canais = [
-  { nome: "Histórias Ocultas", mare: "Aguardando",         ativa: false, plan:4, prod:2, pronto:1, agend:3, atras:0, pub:12 },
-  { nome: "Jesus Reage",       mare: "Ativada no Eixo 05!", ativa: true,  plan:0, prod:5, pronto:2, agend:6, atras:2, pub:48 },
-  { nome: "Escola Drama",      mare: "Testes rodando",     ativa: false, plan:8, prod:1, pronto:2, agend:1, atras:0, pub:5  },
+  { nome: "Histórias Ocultas", mare: "Aguardando",         ativa: false, dados: { plan:4, prod:2, pronto:1, agend:3, atras:0, pub:12 } },
+  { nome: "Jesus Reage",       mare: "Ativada no Eixo 05!", ativa: true,  dados: { plan:0, prod:5, pronto:2, agend:6, atras:2, pub:48 } },
+  { nome: "Escola Drama",      mare: "Testes rodando",     ativa: false, dados: { plan:8, prod:1, pronto:2, agend:1, atras:0, pub:5 } },
 ];
 
 const kpis = [
@@ -31,14 +33,6 @@ const publicacoes = [
   { titulo: "Jesus Reage #15",       quando: "Hoje, 18:00" },
   { titulo: "Relatos de Escola #02", quando: "Amanhã, 12:00" },
   { titulo: "Histórias Ocultas #08", quando: "Sábado, 19:00" },
-];
-
-const metricas = [
-  { label: "Em Planejamento", cor: "var(--color-text-1)",    bg: null },
-  { label: "Em Produção",     cor: "var(--color-accent)",    bg: "rgba(94,106,210,.07)" },
-  { label: "Prontos",         cor: "var(--color-success)",   bg: "rgba(16,185,129,.07)" },
-  { label: "Agendados",       cor: "#60A5FA",                bg: "rgba(96,165,250,.07)" },
-  { label: "Atrasados",       cor: "var(--color-error)",     bg: "rgba(239,68,68,.07)" },
 ];
 
 /* ═══════════════════════════════════════════════════════════
@@ -66,26 +60,16 @@ export default function Home() {
 
       {/* ── KPIs ─────────────────────────────────────────── */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-        {kpis.map((k) => {
-          const Icon = k.icon;
-          return (
-            <div key={k.label} className="card p-4 flex flex-col gap-3 cursor-default group">
-              {/* Icon container */}
-              <span className={`icon-box ${k.box}`}>
-                <Icon className="w-4 h-4" />
-              </span>
-              <div className="flex flex-col gap-0.5">
-                <span className="section-label">{k.label}</span>
-                <span
-                  className="text-[28px] font-mono font-bold leading-none mt-1"
-                  style={{ color: k.num }}
-                >
-                  {k.value}
-                </span>
-              </div>
-            </div>
-          );
-        })}
+        {kpis.map((k) => (
+          <MetricCard
+            key={k.label}
+            label={k.label}
+            value={k.value}
+            icon={k.icon}
+            boxColorClass={k.box}
+            numberColor={k.num}
+          />
+        ))}
       </div>
 
       {/* ── Maré Banner ──────────────────────────────────── */}
@@ -137,10 +121,7 @@ export default function Home() {
           <h2 className="section-label mb-1">Próximas Publicações</h2>
           <div className="flex flex-col gap-2">
             {publicacoes.map((p, i) => (
-              <div
-                key={i}
-                className="card-inner flex items-center gap-3 px-3 py-3 cursor-pointer"
-              >
+              <div key={i} className="card-inner flex items-center gap-3 px-3 py-3 cursor-pointer">
                 <span className="icon-box-sm icon-box-muted" style={{ width: 26, height: 26, borderRadius: 6 }}>
                   <Clock className="w-3.5 h-3.5" />
                 </span>
@@ -161,70 +142,7 @@ export default function Home() {
         <h2 className="section-label mb-3">A Tropa — Grid de Canais</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {canais.map((c) => (
-            <div
-              key={c.nome}
-              className={c.ativa ? "card-accent" : "card"}
-              style={{ padding: "20px", cursor: "pointer", display: "flex", flexDirection: "column", gap: 16 }}
-            >
-              {/* Nome + Badge Maré */}
-              <div className="flex flex-col gap-2">
-                <span
-                  className="text-[15px] font-bold tracking-tight"
-                  style={{ color: c.ativa ? "var(--color-accent)" : "var(--color-text-1)" }}
-                >
-                  {c.nome}
-                </span>
-                <span className={`badge self-start ${c.ativa ? "badge-accent" : "badge-muted"}`}>
-                  🌊 {c.mare}
-                </span>
-              </div>
-
-              {/* Métricas por linha */}
-              <div className="flex flex-col gap-1.5">
-                {metricas.map((m, i) => {
-                  const vals = [c.plan, c.prod, c.pronto, c.agend, c.atras];
-                  return (
-                    <div
-                      key={m.label}
-                      className="flex items-center justify-between px-3 py-2 rounded-lg"
-                      style={{ background: m.bg ?? "var(--color-surface-2)" }}
-                    >
-                      <span className="text-[12px]" style={{ color: "var(--color-text-3)" }}>
-                        {m.label}
-                      </span>
-                      <span
-                        className="font-mono text-[14px] font-bold"
-                        style={{ color: m.cor }}
-                      >
-                        {vals[i]}
-                      </span>
-                    </div>
-                  );
-                })}
-
-                {/* Publicados */}
-                <div
-                  className="flex items-center justify-between px-3 py-2.5 rounded-lg mt-0.5"
-                  style={{
-                    background: c.ativa ? "rgba(94,106,210,0.07)" : "rgba(255,255,255,0.03)",
-                    border: `1px solid ${c.ativa ? "rgba(94,106,210,0.18)" : "rgba(255,255,255,0.07)"}`,
-                  }}
-                >
-                  <span
-                    className="text-[11px] font-bold uppercase tracking-widest"
-                    style={{ color: "var(--color-text-3)" }}
-                  >
-                    Publicados
-                  </span>
-                  <span
-                    className="font-mono text-[17px] font-bold"
-                    style={{ color: c.ativa ? "var(--color-accent)" : "var(--color-text-1)" }}
-                  >
-                    {c.pub}
-                  </span>
-                </div>
-              </div>
-            </div>
+            <ChannelCard key={c.nome} {...c} />
           ))}
         </div>
       </div>

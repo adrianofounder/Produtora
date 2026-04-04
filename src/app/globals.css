@@ -2,20 +2,21 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-background: #0A0A0A;
-  --color-surface:    #141414;
-  --color-surface-2:  #1C1C1E;
-  --color-surface-3:  #252528;
-  --color-border:     rgba(255,255,255,0.10);
-  --color-border-2:   rgba(255,255,255,0.06);
-  --color-accent:     #5E6AD2;
-  --color-accent-dim: #4C58C0;
+  --color-background: #050505;
+  --color-surface:    #121214;
+  --color-surface-2:  #1A1A1E;
+  --color-surface-3:  #202024;
+  --color-border:     rgba(255,255,255,0.05);
+  --color-border-2:   rgba(255,255,255,0.10);
+  --color-accent:     #7C3AED;
+  --color-accent-dim: #6D28D9;
+  --color-premium:    #EAB308;
   --color-success:    #10B981;
   --color-warning:    #F59E0B;
   --color-error:      #EF4444;
-  --color-text-1:     #F0F0F0;
-  --color-text-2:     #A1A1AA;
-  --color-text-3:     #71717A;
+  --color-text-1:     #F8FAFC;
+  --color-text-2:     #94A3B8;
+  --color-text-3:     #475569;
   --font-sans:        'Inter', sans-serif;
   --font-mono:        'JetBrains Mono', monospace;
 }
@@ -32,6 +33,19 @@
 }
 
 @layer utilities {
+  /* ─── Mesh Background (Lendária Spec) ─── */
+  .mesh-bg {
+    position: absolute;
+    top: -10%;
+    left: -10%;
+    width: 60vw;
+    height: 60vh;
+    background: radial-gradient(circle, rgba(124, 58, 237, 0.15) 0%, rgba(37, 99, 235, 0.05) 50%, transparent 80%);
+    filter: blur(120px);
+    z-index: -1;
+    pointer-events: none;
+  }
+
 
   /* ─── Card Principal ─── */
   .card {
@@ -82,28 +96,28 @@
 
   /* ─── Card Accent (destaque: canal com maré ativa, etc.) ─── */
   .card-accent {
-    background: linear-gradient(160deg, #1C1C24 0%, #141418 100%);
+    background: linear-gradient(160deg, #1A1020 0%, #110D18 100%);
     border-radius: 12px;
     position: relative;
     overflow: hidden;
     box-shadow:
-      0 0 0 1px rgba(94,106,210,0.28),
-      inset 0 1px 0 rgba(94,106,210,0.25),
+      0 0 0 1px rgba(124,58,237,0.28),
+      inset 0 1px 0 rgba(124,58,237,0.25),
       inset 0 -1px 0 rgba(0,0,0,0.40),
       0 4px 16px rgba(0,0,0,0.50),
       0 12px 32px rgba(0,0,0,0.30),
-      0 0 60px rgba(94,106,210,0.10);
+      0 0 60px rgba(124,58,237,0.12);
     transition: box-shadow 0.25s ease, transform 0.2s ease;
   }
   .card-accent:hover {
-    transform: translateY(-1px);
+    transform: translateY(-2px);
     box-shadow:
-      0 0 0 1px rgba(94,106,210,0.40),
-      inset 0 1px 0 rgba(94,106,210,0.30),
+      0 0 0 1px rgba(124,58,237,0.45),
+      inset 0 1px 0 rgba(124,58,237,0.30),
       inset 0 -1px 0 rgba(0,0,0,0.45),
       0 8px 24px rgba(0,0,0,0.55),
       0 20px 48px rgba(0,0,0,0.35),
-      0 0 80px rgba(94,106,210,0.15);
+      0 0 90px rgba(124,58,237,0.20);
   }
 
   /* ─── Ícone com Container ─── */
@@ -126,8 +140,8 @@
     flex-shrink: 0;
   }
   .icon-box-accent {
-    background: rgba(94,106,210,0.14);
-    border-color: rgba(94,106,210,0.22);
+    background: rgba(124,58,237,0.14);
+    border-color: rgba(124,58,237,0.22);
     color: var(--color-accent);
   }
   .icon-box-success {
@@ -156,7 +170,7 @@
     background: linear-gradient(180deg, var(--color-accent) 0%, var(--color-accent-dim) 100%);
     box-shadow:
       inset 0 1px 0 rgba(255,255,255,0.18),
-      0 4px 14px rgba(94,106,210,0.38);
+      0 4px 14px rgba(124,58,237,0.40);
     color: #fff;
     font-size: 13px;
     font-weight: 600;
@@ -171,11 +185,11 @@
     letter-spacing: -0.01em;
   }
   .btn-primary:hover {
-    filter: brightness(1.1);
+    filter: brightness(1.12);
     transform: translateY(-1px);
     box-shadow:
       inset 0 1px 0 rgba(255,255,255,0.22),
-      0 6px 20px rgba(94,106,210,0.48);
+      0 8px 24px rgba(124,58,237,0.55);
   }
   .btn-primary:active { transform: translateY(0); }
 
@@ -215,7 +229,7 @@
   .input:focus {
     background: rgba(255,255,255,0.04);
     border-color: var(--color-accent);
-    box-shadow: 0 0 0 3px rgba(94,106,210,0.18);
+    box-shadow: 0 0 0 3px rgba(124,58,237,0.20);
   }
 
   /* ─── Badges ─── */
@@ -230,7 +244,7 @@
     letter-spacing: 0.05em;
     text-transform: uppercase;
   }
-  .badge-accent  { background: rgba(94,106,210,0.13);  color: #8B96E5; border: 1px solid rgba(94,106,210,0.20); }
+  .badge-accent  { background: rgba(124,58,237,0.13);  color: #A78BFA; border: 1px solid rgba(124,58,237,0.22); }
   .badge-success { background: rgba(16,185,129,0.10);  color: #34D399; border: 1px solid rgba(16,185,129,0.18); }
   .badge-warning { background: rgba(245,158,11,0.10);  color: #FBBF24; border: 1px solid rgba(245,158,11,0.18); }
   .badge-error   { background: rgba(239,68,68,0.10);   color: #F87171; border: 1px solid rgba(239,68,68,0.18); }
@@ -243,10 +257,10 @@
 
   /* ─── Sidebar States ─── */
   .nav-active {
-    background: rgba(94,106,210,0.10);
+    background: rgba(124,58,237,0.12);
     color: var(--color-text-1);
     border-left: 2px solid var(--color-accent);
-    box-shadow: inset 0 1px 0 rgba(94,106,210,0.08);
+    box-shadow: inset 0 1px 0 rgba(124,58,237,0.10);
   }
   .nav-item {
     color: var(--color-text-3);

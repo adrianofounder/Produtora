@@ -1,187 +1,275 @@
+"use client";
+
+import { useState } from "react";
+import { Plus, Search, LayoutGrid, Activity, Filter } from "lucide-react";
+import { VideoCard, VideoCardProps, VideoStatus } from "@/components/dashboard/video-card";
+
+/* ── dados mock ─────────────────────────────────────────── */
+const STEPS_BASE = ["Título", "Roteiro", "Áudio", "Imagens", "Montagem", "Thumb", "Agendado"];
+
+const videos: VideoCardProps[] = [
+  {
+    titulo: "O chefe que não sabia de nada",
+    eixo: "Relatos TRABALHO",
+    dataPrevisao: "06/04",
+    status: "producao",
+    steps: [
+      { label: "Título",   done: true  },
+      { label: "Roteiro",  done: true  },
+      { label: "Áudio",    done: false },
+      { label: "Imagens",  done: false },
+      { label: "Montagem", done: false },
+      { label: "Thumb",    done: false },
+      { label: "Agendado", done: false },
+    ],
+    acaoPrimaria: "Aprovar Áudio",
+  },
+  {
+    titulo: "Fui demitida e olha no que deu",
+    eixo: "Relatos TRABALHO",
+    dataPrevisao: "07/04",
+    status: "planejamento",
+    steps: [
+      { label: "Título",   done: true  },
+      { label: "Roteiro",  done: false },
+      { label: "Áudio",    done: false },
+      { label: "Imagens",  done: false },
+      { label: "Montagem", done: false },
+      { label: "Thumb",    done: false },
+      { label: "Agendado", done: false },
+    ],
+    acaoPrimaria: "Revisar Ideia",
+  },
+  {
+    titulo: "O colega que roubava ideias",
+    eixo: "Relatos TRABALHO",
+    dataPrevisao: "05/04",
+    status: "agendado",
+    steps: STEPS_BASE.map((label) => ({ label, done: true })),
+    acaoPrimaria: "Ver no Calendário",
+  },
+  {
+    titulo: "Minha chefe me humilhava na frente de todos",
+    eixo: "Relatos TRABALHO",
+    dataPrevisao: "08/04",
+    status: "planejamento",
+    steps: [
+      { label: "Título",   done: true  },
+      { label: "Roteiro",  done: false },
+      { label: "Áudio",    done: false },
+      { label: "Imagens",  done: false },
+      { label: "Montagem", done: false },
+      { label: "Thumb",    done: false },
+      { label: "Agendado", done: false },
+    ],
+  },
+  {
+    titulo: "O dia que pedi demissão ao vivo",
+    eixo: "Relatos TRABALHO",
+    dataPrevisao: "04/04",
+    status: "publicado",
+    steps: STEPS_BASE.map((label) => ({ label, done: true })),
+  },
+];
+
+const filtros: { label: string; value: VideoStatus | "todos" }[] = [
+  { label: "Todos",        value: "todos"      },
+  { label: "Planejamento", value: "planejamento" },
+  { label: "Em Produção",  value: "producao"   },
+  { label: "Prontos",      value: "pronto"     },
+  { label: "Agendados",    value: "agendado"   },
+  { label: "Publicados",   value: "publicado"  },
+];
+
+const canais = [
+  { nome: "Histórias Ocultas", ativa: false, stats: { plan:4, prod:2, pronto:1, agend:3, pub:12 } },
+  { nome: "Jesus Reage",       ativa: true,  stats: { plan:0, prod:5, pronto:2, agend:6, pub:48 } },
+  { nome: "Escola Drama",      ativa: false, stats: { plan:8, prod:1, pronto:2, agend:1, pub:5  } },
+];
+
+/* ── Componente principal ─── */
 export default function Canais() {
+  const [filtroAtivo, setFiltroAtivo] = useState<VideoStatus | "todos">("todos");
+  const [busca, setBusca] = useState("");
+  const [canalAtivo, setCanalAtivo] = useState(0);
+
+  const canal = canais[canalAtivo];
+
+  const videosFiltrados = videos.filter((v) => {
+    const matchFiltro = filtroAtivo === "todos" || v.status === filtroAtivo;
+    const matchBusca  = v.titulo.toLowerCase().includes(busca.toLowerCase());
+    return matchFiltro && matchBusca;
+  });
+
+  const countPorStatus = (s: VideoStatus | "todos") =>
+    s === "todos" ? videos.length : videos.filter((v) => v.status === s).length;
+
   return (
-    <div className="flex flex-col gap-6 w-full h-full">
-      {/* Top Bar Específico da Tela de Canais */}
-      <div className="flex justify-between items-center bg-white/5 p-4 rounded-xl border border-white/10">
-        <div className="flex items-center gap-3 text-sm font-medium text-white">
-          <span>Selecionar Canal:</span>
-          <select className="bg-surface-1 border border-white/20 rounded-md px-3 py-1.5 text-white outline-none focus:border-primary">
-            <option>Histórias Ocultas</option>
-            <option>Jesus Reage</option>
-            <option>Escola Drama</option>
-          </select>
+    <div className="p-6 max-w-[1280px] mx-auto flex flex-col gap-5">
+
+      {/* ── Header ─────────────────────────────────────────── */}
+      <div className="flex items-center justify-between pt-1">
+        <div>
+          <h1 className="text-[20px] font-bold tracking-tight" style={{ color: "var(--color-text-1)" }}>
+            Gestão de Canais
+          </h1>
+          <p className="text-[13px] mt-0.5" style={{ color: "var(--color-text-3)" }}>
+            Pipeline de produção e status dos vídeos
+          </p>
         </div>
-        <button className="bg-primary hover:bg-primary/80 transition-colors text-white px-4 py-2 rounded-md font-bold text-sm shadow-glow">
-          + Novo Canal
+        <button className="btn-primary h-9">
+          <Plus className="w-4 h-4" />
+          Novo Canal
         </button>
       </div>
 
-      {/* Header do Canal / KPIs / Dados Gerais */}
-      <div className="glass-panel p-6 rounded-2xl flex flex-col gap-5 border border-white/5 relative overflow-hidden">
-        <div className="absolute top-0 right-0 p-8 opacity-10">
-           <div className="w-32 h-32 rounded-full bg-primary blur-3xl"></div>
+      {/* ── Seletor de Canal ────────────────────────────────── */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        {canais.map((c, i) => (
+          <button
+            key={c.nome}
+            onClick={() => setCanalAtivo(i)}
+            className="text-left p-4 rounded-xl transition-all duration-300"
+            style={{
+              background: canalAtivo === i
+                ? (c.ativa ? "rgba(124,58,237,0.12)" : "rgba(255,255,255,0.07)")
+                : "rgba(255,255,255,0.02)",
+              border: canalAtivo === i
+                ? (c.ativa ? "1px solid rgba(124,58,237,0.35)" : "1px solid rgba(255,255,255,0.15)")
+                : "1px solid rgba(255,255,255,0.05)",
+            }}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span
+                className="text-[13px] font-bold"
+                style={{ color: c.ativa ? "var(--color-accent)" : "var(--color-text-1)" }}
+              >
+                {c.nome}
+              </span>
+              {c.ativa && (
+                <span className="badge badge-accent">
+                  <Activity className="w-2.5 h-2.5" />
+                  Maré Ativa
+                </span>
+              )}
+            </div>
+            <div className="flex gap-3 text-[11px]" style={{ color: "var(--color-text-3)" }}>
+              <span>Plan: <strong style={{ color: "var(--color-text-2)" }}>{c.stats.plan}</strong></span>
+              <span>Prod: <strong style={{ color: "var(--color-accent)" }}>{c.stats.prod}</strong></span>
+              <span>OK: <strong style={{ color: "var(--color-success)" }}>{c.stats.pronto}</strong></span>
+              <span>Pub: <strong style={{ color: "var(--color-text-1)" }}>{c.stats.pub}</strong></span>
+            </div>
+          </button>
+        ))}
+      </div>
+
+      {/* ── Info do Canal Selecionado ───────────────────────── */}
+      <div
+        className="p-5 rounded-xl flex flex-wrap items-center gap-x-6 gap-y-2"
+        style={{
+          background: canal.ativa ? "rgba(124,58,237,0.06)" : "rgba(255,255,255,0.02)",
+          border: canal.ativa ? "1px solid rgba(124,58,237,0.20)" : "1px solid rgba(255,255,255,0.06)",
+        }}
+      >
+        <div className="flex-1 min-w-[200px]">
+          <p className="text-[12px] font-bold uppercase tracking-wider" style={{ color: "var(--color-text-3)" }}>
+            Canal Ativo
+          </p>
+          <p className="text-[17px] font-bold mt-0.5" style={{ color: "var(--color-text-1)" }}>
+            {canal.nome}
+          </p>
+        </div>
+        <div className="flex gap-5 text-[12px]">
+          {[
+            { l: "Idioma",      v: "PT-BR"            },
+            { l: "Frequência",  v: "1/dia"             },
+            { l: "Horário",     v: "18h00"             },
+          ].map(({ l, v }) => (
+            <div key={l} className="flex flex-col gap-0.5">
+              <span style={{ color: "var(--color-text-3)" }}>{l}</span>
+              <span className="font-semibold" style={{ color: "var(--color-text-1)" }}>{v}</span>
+            </div>
+          ))}
+        </div>
+        <button className="btn-ghost h-8 text-[12px]">
+          <LayoutGrid className="w-3.5 h-3.5" />
+          Analytics & X-Ray
+        </button>
+      </div>
+
+      {/* ── Abas / Filtros ─────────────────────────────────── */}
+      <div
+        className="flex items-center justify-between p-3 rounded-xl gap-3 flex-wrap"
+        style={{
+          background: "rgba(255,255,255,0.02)",
+          border: "1px solid rgba(255,255,255,0.06)",
+        }}
+      >
+        {/* Filtros de status */}
+        <div className="flex gap-1.5 flex-wrap">
+          {filtros.map((f) => {
+            const ativo = filtroAtivo === f.value;
+            return (
+              <button
+                key={f.value}
+                onClick={() => setFiltroAtivo(f.value)}
+                className="text-[11px] font-semibold px-3 py-1.5 rounded-lg transition-all duration-200"
+                style={{
+                  background: ativo ? "rgba(124,58,237,0.15)" : "transparent",
+                  border: ativo ? "1px solid rgba(124,58,237,0.30)" : "1px solid transparent",
+                  color: ativo ? "var(--color-accent)" : "var(--color-text-3)",
+                }}
+              >
+                {f.label}
+                <span className="ml-1.5 opacity-60">({countPorStatus(f.value)})</span>
+              </button>
+            );
+          })}
         </div>
 
-        <div>
-          <h1 className="text-2xl font-sans font-bold text-white tracking-tight">🎬 Canal: HISTÓRIAS OCULTAS</h1>
-          <p className="text-primary font-bold text-sm mt-1">🌊 STATUS DA MARÉ: Eixo "Relatos TRABALHO" bombando!</p>
-        </div>
-
-        {/* Estatísticas Macro */}
-        <div className="flex gap-4 text-sm font-medium text-slate-300">
-           <span>Planejamento: <strong className="text-white">4</strong></span> |
-           <span>Produção: <strong className="text-white">2</strong></span> |
-           <span>Prontos: <strong className="text-white">1</strong></span> |
-           <span>Agendados: <strong className="text-white">3</strong></span> |
-           <span>Atrasados: <strong className="text-white">0</strong></span> |
-           <span>Publicados: <strong className="text-white">12</strong></span>
-        </div>
-
-        {/* Dados do Canal */}
-        <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-400 bg-black/20 p-4 rounded-xl border border-white/5">
-           <span>Idioma: <strong className="text-slate-200">PT-BR</strong></span>
-           <span>Frequência: <strong className="text-slate-200">1/dia</strong></span>
-           <span>Horário padrão: <strong className="text-slate-200">18h00</strong></span>
-           <span>E-mail: <strong className="text-slate-200">contato@historias.com</strong></span>
-           <span className="w-full mt-2">Anotações/Descrição: <em className="text-slate-300">Canal focado em relatos dark. Não usar narração com voz aguda.</em></span>
-        </div>
-
-        <div className="flex gap-3">
-          <button className="text-xs bg-white/10 hover:bg-white/20 text-white font-semibold px-4 py-2 rounded border border-white/5 transition-colors flex items-center gap-2">
-            📊 Visualizar Analytics e X-Ray do Canal
+        {/* Busca + CTA */}
+        <div className="flex items-center gap-2.5">
+          <div className="relative flex items-center">
+            <Search
+              className="absolute left-2.5 w-3.5 h-3.5 pointer-events-none"
+              style={{ color: "var(--color-text-3)" }}
+            />
+            <input
+              type="text"
+              placeholder="Buscar títulos..."
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
+              className="input pl-8 pr-3 h-8 text-[12px] w-44"
+            />
+          </div>
+          <button className="btn-ghost h-8 text-[11px]">
+            <Filter className="w-3.5 h-3.5" />
+            Filtrar
+          </button>
+          <button className="btn-primary h-8 text-[11px]">
+            <Plus className="w-3.5 h-3.5" />
+            Novo Vídeo
           </button>
         </div>
       </div>
 
-      {/* Abas de Configuração Específica do Canal (Ref Seção 4.3 / 10.2 do PRD) */}
-      <div className="flex gap-2 border-b border-white/10 pb-3 mt-2">
-        <button className="px-4 py-2 rounded-md font-semibold text-sm bg-white/10 text-white">👤 Perfil Geral</button>
-        <button className="px-4 py-2 rounded-md font-semibold text-sm text-slate-400 hover:text-white hover:bg-white/5">👥 Equipe</button>
-        <button className="px-4 py-2 rounded-md font-semibold text-sm text-slate-400 hover:text-white hover:bg-white/5 flex items-center gap-1">🤖 Automação (Auto-Refill)</button>
-        <button className="px-4 py-2 rounded-md font-semibold text-sm text-slate-400 hover:text-white hover:bg-white/5">▶️ Integrações YouTube</button>
+      {/* ── Lista de Vídeos (Kanban vertical) ──────────────── */}
+      <div className="flex flex-col gap-2.5 pb-6">
+        {videosFiltrados.length === 0 ? (
+          <div
+            className="text-center py-16 rounded-xl"
+            style={{
+              border: "1px dashed rgba(255,255,255,0.08)",
+              color: "var(--color-text-3)",
+            }}
+          >
+            <p className="text-[14px]">Nenhum vídeo encontrado para este filtro.</p>
+          </div>
+        ) : (
+          videosFiltrados.map((v, i) => <VideoCard key={i} {...v} />)
+        )}
       </div>
 
-      {/* Área da Fábrica / Gestão de Vídeos Específicos */}
-      <div className="flex flex-col gap-4 mt-2">
-        {/* Filtros e Controles do Kanban */}
-        <div className="flex justify-between items-center bg-black/20 p-3 rounded-lg border border-white/5">
-           <div className="flex gap-2">
-              <button className="px-3 py-1 text-xs font-bold bg-white text-black rounded">Todos (22)</button>
-              <button className="px-3 py-1 text-xs font-medium text-slate-400 hover:text-white">Planejamento (4)</button>
-              <button className="px-3 py-1 text-xs font-medium text-slate-400 hover:text-white">Produção (2)</button>
-              <button className="px-3 py-1 text-xs font-medium text-slate-400 hover:text-white">Finalizados (1)</button>
-              <button className="px-3 py-1 text-xs font-medium text-slate-400 hover:text-white">Agendados/Publicados (15)</button>
-           </div>
-           <div className="flex items-center gap-4">
-              <input type="text" placeholder="🔍 Buscar títulos..." className="bg-transparent border border-white/20 text-sm text-white px-3 py-1 rounded outline-none focus:border-primary" />
-              <div className="text-xs font-medium text-slate-300 flex items-center gap-2 border-l border-white/10 pl-4">
-                 <span>Visualização:</span>
-                 <span className="text-primary font-bold">(•) KANBAN</span>
-                 <span className="hover:text-white cursor-pointer">( ) CALENDÁRIO</span>
-              </div>
-              <button className="bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold px-3 py-1.5 rounded shadow-[0_0_10px_rgba(16,185,129,0.3)]">
-                 + Adicionar Novo Vídeo
-              </button>
-           </div>
-        </div>
-
-        {/* Kanban: Lista de Vídeos */}
-        <div className="flex flex-col gap-3">
-          {/* Card Vídeo 1 */}
-          <div className="glass-panel p-4 rounded-xl border-l-4 border-l-primary flex items-center justify-between hover:bg-white/5 transition-colors cursor-pointer group">
-            <div className="flex flex-col gap-2">
-              <div className="flex gap-3 items-center">
-                <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded uppercase border border-primary/20">Em Produção</span>
-                <span className="text-xs font-medium text-slate-500">Data Prevista: 06/04</span>
-                <span className="text-xs font-medium text-slate-400 ml-4">Eixo: Relatos TRABALHO</span>
-              </div>
-              <h3 className="font-sans font-bold text-white text-lg">O chefe que não sabia de nada</h3>
-              <div className="flex gap-2 text-xs font-medium mt-1">
-                 <span className="text-emerald-400">✅ Título</span>
-                 <span className="text-emerald-400">✅ Roteiro</span>
-                 <span className="text-amber-400 animate-pulse">⏳ Áudio</span>
-                 <span className="text-slate-500">[ ] Imagens</span>
-                 <span className="text-slate-500">[ ] Montagem</span>
-                 <span className="text-slate-500">[ ] Thumb</span>
-                 <span className="text-slate-500">[ ] Agendado</span>
-              </div>
-            </div>
-            
-            <div className="flex flex-col items-end gap-2">
-              <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button className="text-xs bg-white/5 hover:bg-white/10 text-white px-2 py-1 rounded border border-white/10">✏️ Editar</button>
-                <button className="text-xs bg-destructive/10 hover:bg-destructive/20 text-destructive px-2 py-1 rounded border border-destructive/20">🗑️ Excluir</button>
-              </div>
-              <button className="text-xs bg-primary hover:bg-primary/80 text-white font-bold shadow-glow px-4 py-2 rounded transition-colors mt-2">
-                Aprovar Áudio
-              </button>
-            </div>
-          </div>
-
-          {/* Card Vídeo 2 */}
-          <div className="glass-panel p-4 rounded-xl border-l-4 border-l-slate-600 flex items-center justify-between hover:bg-white/5 transition-colors cursor-pointer group">
-            <div className="flex flex-col gap-2">
-              <div className="flex gap-3 items-center">
-                <span className="text-xs font-bold text-slate-300 bg-slate-700/50 px-2 py-0.5 rounded uppercase border border-white/10">Planejamento</span>
-                <span className="text-xs font-medium text-slate-500">Data Prevista: 07/04</span>
-                <span className="text-xs font-medium text-slate-400 ml-4">Eixo: Relatos TRABALHO</span>
-              </div>
-              <h3 className="font-sans font-bold text-white text-lg">Fui demitida e olha no que deu</h3>
-              <div className="flex gap-2 text-xs font-medium mt-1">
-                 <span className="text-emerald-400">✅ Título</span>
-                 <span className="text-amber-400 animate-pulse">⏳ Roteiro</span>
-                 <span className="text-slate-500">[ ] Áudio</span>
-                 <span className="text-slate-500">[ ] Imagens</span>
-                 <span className="text-slate-500">[ ] Montagem</span>
-                 <span className="text-slate-500">[ ] Thumb</span>
-                 <span className="text-slate-500">[ ] Agendado</span>
-              </div>
-            </div>
-            
-            <div className="flex flex-col items-end gap-2">
-              <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button className="text-xs bg-white/5 hover:bg-white/10 text-white px-2 py-1 rounded border border-white/10">✏️ Editar</button>
-                <button className="text-xs bg-destructive/10 hover:bg-destructive/20 text-destructive px-2 py-1 rounded border border-destructive/20">🗑️ Excluir</button>
-              </div>
-              <button className="text-xs bg-white/10 hover:bg-white/20 text-white font-bold px-4 py-2 rounded transition-colors mt-2">
-                Revisar Ideia
-              </button>
-            </div>
-          </div>
-          
-          {/* Card Vídeo 3 */}
-          <div className="glass-panel p-4 rounded-xl border-l-4 border-l-emerald-500 flex items-center justify-between hover:bg-white/5 transition-colors cursor-pointer group bg-emerald-900/5">
-            <div className="flex flex-col gap-2">
-              <div className="flex gap-3 items-center">
-                <span className="text-xs font-bold text-emerald-400 bg-emerald-900/50 px-2 py-0.5 rounded uppercase border border-emerald-500/20">Agendado</span>
-                <span className="text-xs font-medium text-slate-500">Data Prevista: 05/04</span>
-                <span className="text-xs font-medium text-slate-400 ml-4">Eixo: Relatos TRABALHO</span>
-              </div>
-              <h3 className="font-sans font-bold text-white text-lg">O colega que roubava ideias</h3>
-              <div className="flex gap-2 text-xs font-medium mt-1 opacity-70">
-                 <span className="text-emerald-400">✅ Título</span>
-                 <span className="text-emerald-400">✅ Roteiro</span>
-                 <span className="text-emerald-400">✅ Áudio</span>
-                 <span className="text-emerald-400">✅ Imagens</span>
-                 <span className="text-emerald-400">✅ Montagem</span>
-                 <span className="text-emerald-400">✅ Thumb</span>
-                 <span className="text-emerald-400">✅ Agendado</span>
-              </div>
-            </div>
-            
-            <div className="flex flex-col items-end gap-2">
-              <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button className="text-xs bg-white/5 hover:bg-white/10 text-white px-2 py-1 rounded border border-white/10">✏️ Editar</button>
-                <button className="text-xs bg-destructive/10 hover:bg-destructive/20 text-destructive px-2 py-1 rounded border border-destructive/20">🗑️ Excluir</button>
-              </div>
-              <button className="text-xs bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 border border-emerald-500/20 font-bold px-4 py-2 rounded transition-colors mt-2">
-                📅 Ver no Calendário
-              </button>
-            </div>
-          </div>
-
-        </div>
-      </div>
     </div>
   );
 }

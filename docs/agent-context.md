@@ -18,8 +18,8 @@
 | Epic 2 | Canais `/canais` — Kanban de vídeos, filtros, pipeline | ✅ Concluído |
 | Epic 3 | Studio `/studio` — Blueprint e montagem de roteiros | ✅ Concluído |
 | Epic 4 | Laboratório `/laboratorio` — Análise de tendências | ✅ Concluído |
-| Epic 5 | Tendências `/tendencias` — Market insights | ⏳ Próximo |
-| Epic 6 | HQ `/hq` — God Mode / visão global | ⏳ Pendente |
+| Epic 5 | Tendências `/tendencias` — Market insights | ✅ Concluído |
+| Epic 6 | HQ `/hq` — God Mode / visão global | ⏳ Próximo |
 
 ---
 

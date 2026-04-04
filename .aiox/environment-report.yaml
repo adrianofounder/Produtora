@@ -1,0 +1,15 @@
+bootstrap:
+  version: 1.1.0
+  date: 2026-04-04
+  os: Windows
+  tools:
+    git: OK
+    gh: OK
+    node: OK
+    npm: OK
+    pnpm: OK
+    railway: OK
+    supabase: MISSING # or pending depending on method
+  git:
+    initialized: true
+    remote_url: https://github.com/adlabsaioS/Produtora-AD_LABS

@@ -1,30 +1,41 @@
+"use client";
+
+import React from "react";
+
 export default function Login() {
   return (
-    <div className="flex-center min-h-screen">
-      <div className="glass-panel p-8 rounded-2xl w-full max-w-sm flex flex-col gap-6 !border-primary/20 shadow-glow">
-        <div className="text-center">
-          <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-primary to-blue-600 shadow-glow mx-auto mb-4" />
-          <h1 className="text-2xl font-sans font-bold text-white text-gradient">Bem-vindo ao AD_LABS</h1>
+    <div className="flex items-center justify-center min-h-screen p-4">
+      <div className="linear-card p-8 w-full max-w-sm flex flex-col gap-6 relative">
+        {/* Glow de fundo sutil */}
+        <div className="absolute -top-10 -left-10 w-32 h-32 bg-[var(--color-accent)] blur-[80px] opacity-20 pointer-events-none" />
+
+        <div className="text-center z-10">
+          <div className="w-10 h-10 rounded shadow-[0_0_15px_rgba(94,106,210,0.5)] bg-[var(--color-accent)] mx-auto mb-5" />
+          <h1 className="text-xl font-sans font-semibold text-[#E4E4E7] tracking-tight">Entrar no AD_LABS</h1>
         </div>
         
-        <form className="flex flex-col gap-4">
+        <form className="flex flex-col gap-4 z-10">
           <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium text-slate-300">E-mail</label>
-            <input type="email" required className="bg-surface-1 border border-white/10 rounded-md p-3 text-white focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" />
+            <label className="text-xs font-medium text-[#71717A] uppercase tracking-wider">E-mail Corporativo</label>
+            <input type="email" required className="linear-input w-full h-10 rounded text-sm px-3" />
           </div>
           <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium text-slate-300">Senha</label>
-            <input type="password" required className="bg-surface-1 border border-white/10 rounded-md p-3 text-white focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" />
+            <label className="text-xs font-medium text-[#71717A] uppercase tracking-wider">Senha de Acesso</label>
+            <input type="password" required className="linear-input w-full h-10 rounded text-sm px-3" />
           </div>
           
-          <button type="button" onClick={() => window.location.href = '/'} className="mt-2 bg-primary hover:bg-primary/80 transition-colors py-3 rounded-md font-semibold text-white shadow-glow">
-            Entrar no Sistema
+          <button 
+            type="button" 
+            onClick={() => window.location.href = '/'} 
+            className="btn-linear-primary w-full h-10 mt-2"
+          >
+            Conectar
           </button>
         </form>
         
-        <div className="text-center text-sm text-slate-500">
-          Você não usou a Kiwify na compra? <br/>
-          <a href="#" className="text-primary hover:underline">Recupere seu acesso</a>
+        <div className="text-center text-[12px] text-[#71717A] mt-2 z-10">
+          Problemas de acesso? <br/>
+          <a href="#" className="text-[var(--color-accent)] hover:underline opacity-80">Restaure sua conta</a>
         </div>
       </div>
     </div>

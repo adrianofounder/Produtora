@@ -37,6 +37,7 @@ export function VideoDrawer({ videoId, titulo, eixo, canalId, onClose, onUpdate 
   const [loadingTitulos, setLoadingTitulos] = useState(false);
   const [aprovado, setAprovado] = useState({ roteiro: false, audio: false, thumb: false });
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const drawerRef = useRef<HTMLDivElement>(null);
 
   // Auto-resize textarea
   useEffect(() => {
@@ -65,6 +66,45 @@ export function VideoDrawer({ videoId, titulo, eixo, canalId, onClose, onUpdate 
       setLoadingRoteiro(false);
     }
   }
+
+  // Acessibilidade: Focus Trap & Escape key
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+        return;
+      }
+      
+      if (e.key === 'Tab') {
+        if (!drawerRef.current) return;
+        const focusableElements = drawerRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusableElements.length === 0) return;
+        
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+
+        if (e.shiftKey) {
+          if (document.activeElement === firstElement || document.activeElement === drawerRef.current) {
+            e.preventDefault();
+            lastElement.focus();
+          }
+        } else {
+          if (document.activeElement === lastElement) {
+            e.preventDefault();
+            firstElement.focus();
+          }
+        }
+      }
+    };
+    
+    // Focus in the drawer when opened
+    drawerRef.current?.focus();
+
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [onClose]);
 
   async function gerarTitulos() {
     setLoadingTitulos(true);
@@ -106,7 +146,12 @@ export function VideoDrawer({ videoId, titulo, eixo, canalId, onClose, onUpdate 
     >
       {/* Drawer */}
       <div
-        className="h-full w-full max-w-2xl flex flex-col overflow-hidden"
+        ref={drawerRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="video-drawer-title"
+        tabIndex={-1}
+        className="h-full w-full max-w-2xl flex flex-col overflow-hidden outline-none"
         style={{
           background: 'var(--color-surface)',
           borderLeft: '1px solid rgba(255,255,255,0.07)',
@@ -120,7 +165,7 @@ export function VideoDrawer({ videoId, titulo, eixo, canalId, onClose, onUpdate 
               <span className="badge badge-accent text-[10px]">LINHA DE MONTAGEM</span>
               <span className="text-xs" style={{ color: 'var(--color-text-3)' }}>{eixo}</span>
             </div>
-            <h2 className="text-[15px] font-bold leading-tight truncate" style={{ color: 'var(--color-text-1)' }}>
+            <h2 id="video-drawer-title" className="text-[15px] font-bold leading-tight truncate" style={{ color: 'var(--color-text-1)' }}>
               {titulo}
             </h2>
             {/* Barra de progresso */}
@@ -134,13 +179,13 @@ export function VideoDrawer({ videoId, titulo, eixo, canalId, onClose, onUpdate 
               <span className="text-[10px]" style={{ color: 'var(--color-text-3)' }}>{progresso}/3 etapas</span>
             </div>
           </div>
-          <button onClick={onClose} className="btn-ghost h-8 w-8 ml-3 shrink-0" style={{ padding: 0 }}>
+          <button aria-label="Fechar" onClick={onClose} className="btn-ghost h-8 w-8 ml-3 shrink-0" style={{ padding: 0 }}>
             <X className="h-4 w-4" />
           </button>
         </div>
 
         {/* Abas */}
-        <div className="flex border-b overflow-x-auto" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
+        <div role="tablist" aria-label="Abas de Edição do Vídeo" className="flex border-b overflow-x-auto" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
           {ABAS.map((aba, i) => {
             const isActive = abaAtiva === aba.id;
             const isAprovado =
@@ -151,6 +196,11 @@ export function VideoDrawer({ videoId, titulo, eixo, canalId, onClose, onUpdate 
             return (
               <button
                 key={aba.id}
+                role="tab"
+                aria-selected={isActive}
+                aria-controls={`panel-${aba.id}`}
+                id={`tab-${aba.id}`}
+                tabIndex={isActive ? 0 : -1}
                 onClick={() => setAbaAtiva(aba.id)}
                 className="flex items-center gap-1.5 px-4 py-3 text-[11px] font-medium shrink-0 border-b-2 transition-all"
                 style={{
@@ -170,7 +220,12 @@ export function VideoDrawer({ videoId, titulo, eixo, canalId, onClose, onUpdate 
         </div>
 
         {/* Conteúdo das Abas */}
-        <div className="flex-1 overflow-y-auto p-5 space-y-4">
+        <div 
+          id={`panel-${abaAtiva}`} 
+          role="tabpanel" 
+          aria-labelledby={`tab-${abaAtiva}`}
+          className="flex-1 overflow-y-auto p-5 space-y-4"
+        >
 
           {/* ABA: IDEIA/TÍTULO */}
           {abaAtiva === 'ideia' && (
@@ -303,8 +358,8 @@ export function VideoDrawer({ videoId, titulo, eixo, canalId, onClose, onUpdate 
 
                   {/* Voz selecionada */}
                   <div className="space-y-2">
-                    <label className="section-label">Voz do Blueprint</label>
-                    <select className="input w-full">
+                    <label htmlFor="voz-blueprint" className="section-label">Voz do Blueprint</label>
+                    <select id="voz-blueprint" className="input w-full">
                       <option>Marcus — Drama Hushed (Padrão do Blueprint)</option>
                       <option>Sarah — Angry Voice</option>
                       <option>Kid — Criança Inocente</option>
@@ -398,12 +453,12 @@ export function VideoDrawer({ videoId, titulo, eixo, canalId, onClose, onUpdate 
               <div className="card-inner p-4 space-y-3">
                 <h3 className="section-label">Metadados Finais</h3>
                 <div className="space-y-1.5">
-                  <label className="text-xs" style={{ color: 'var(--color-text-3)' }}>Título Oficial</label>
-                  <input defaultValue={titulo} className="input w-full text-sm" />
+                  <label htmlFor="titulo-oficial" className="text-xs" style={{ color: 'var(--color-text-3)' }}>Título Oficial</label>
+                  <input id="titulo-oficial" defaultValue={titulo} className="input w-full text-sm" />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs" style={{ color: 'var(--color-text-3)' }}>Descrição YouTube (gerada pela IA)</label>
-                  <textarea className="input w-full min-h-[80px] text-sm resize-none" placeholder="Descrição com SEO tags..." />
+                  <label htmlFor="descricao-youtube" className="text-xs" style={{ color: 'var(--color-text-3)' }}>Descrição YouTube (gerada pela IA)</label>
+                  <textarea id="descricao-youtube" className="input w-full min-h-[80px] text-sm resize-none" placeholder="Descrição com SEO tags..." />
                 </div>
               </div>
 

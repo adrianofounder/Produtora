@@ -406,3 +406,9 @@ git add -A && git commit -m "chore(story-3.5): renomear temp-app para produtora 
 
 *Guia gerado por @pm (Morgan) e @dev (Dex) — EPIC-01 Brownfield Discovery Workflow*
 *Referência técnica completa: `docs/prd/technical-debt-assessment.md`*
+
+
+
+
+
+*test-design {story}

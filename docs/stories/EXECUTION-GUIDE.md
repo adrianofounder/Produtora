@@ -79,7 +79,8 @@ git add -A && git commit -m "fix(story-1.4): implementar ARIA completo e acessib
 
 ---
 
-### ⏳ Story 1.5 — Refatorar VideoDrawer — Decomposição em Componentes
+### ✅ Story 1.5 — Refatorar VideoDrawer — Decomposição em Componentes
+> **Status:** 🛡️ Validada pelo QA. Aguardando commit.
 > **FE-01** + **FE-02** — 444 linhas em 1 arquivo, 19 inline styles | ~12h
 > ℹ️ Story maior — o agente pode dividir em múltiplas sessões
 
@@ -388,7 +389,7 @@ git add -A && git commit -m "chore(story-3.5): renomear temp-app para produtora 
 | 1.2 | Hardening Database (DB-08/01) | 1 | ✅ Concluída |
 | 1.3 | Auditoria API endpoints | 1 | ⏳ Aguardando |
 | 1.4 | ARIA acessibilidade | 1 | ⏳ Aguardando |
-| 1.5 | Refatorar VideoDrawer | 1 | ⏳ Aguardando |
+| 1.5 | Refatorar VideoDrawer | 1 | 🛡️ Validada |
 | 1.6 | Criptografar tokens OAuth | 1 | ⏳ Após 1.3 |
 | 2.1 | Sincronizar database.types.ts | 2 | ⏳ Aguardando |
 | 2.2 | Resolver linting | 2 | ⏳ Aguardando |

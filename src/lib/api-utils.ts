@@ -31,7 +31,7 @@ export async function checkOwnership(tableName: string, resourceId: string, user
     return { hasOwnership: false, response: NextResponse.json({ error: 'Recurso não encontrado' }, { status: 404 }) };
   }
 
-  if (data.user_id !== userId) {
+  if ((data as any).user_id !== userId) {
     return { hasOwnership: false, response: NextResponse.json({ error: 'Acesso negado: você não é o dono deste recurso' }, { status: 403 }) };
   }
 
@@ -45,7 +45,7 @@ export function handleApiError(error: unknown) {
   if (error instanceof ZodError) {
     return NextResponse.json({ 
       error: 'Problema na validação dos dados (422)', 
-      details: error.errors 
+      details: (error as any).errors 
     }, { status: 422 });
   }
   

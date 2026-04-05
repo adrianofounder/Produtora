@@ -1,11 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import { User } from "lucide-react";
+import { User, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 export function Topbar() {
-  // We can fetch the current user dynamically later
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const supabase = createClient();
+
   const today = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'long' }).format(new Date());
+
+  useEffect(() => {
+    async function getUser() {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+      setLoading(false);
+    }
+    getUser();
+  }, [supabase.auth]);
 
   return (
     <header
@@ -22,9 +36,13 @@ export function Topbar() {
       </span>
 
       <div className="flex items-center gap-3">
-        <span className="text-[13px] font-semibold" style={{ color: "var(--color-text-1)" }}>
-          Olá, Maestro
-        </span>
+        {loading ? (
+          <Loader2 className="w-3 h-3 animate-spin opacity-40" />
+        ) : (
+          <span className="text-[13px] font-semibold" style={{ color: "var(--color-text-1)" }}>
+            Olá, {user?.user_metadata?.full_name?.split(' ')[0] || user?.email?.split('@')[0] || "Maestro"}
+          </span>
+        )}
         <Link
           href="/configuracoes"
           className="w-8 h-8 rounded-full flex items-center justify-center transition-colors"

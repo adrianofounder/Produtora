@@ -14,6 +14,9 @@ interface Canal {
   mare_eixo_ativo: string | null;
 }
 
+import { CanalModal } from '@/components/modals/canal-modal';
+import { VideoModal } from '@/components/modals/video-modal';
+
 interface Video {
   id: string;
   canal_id: string;
@@ -76,23 +79,31 @@ export default function Canais() {
   const [loadingVideos, setLoadingVideos] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
 
+  // Estados dos Modais
+  const [isCanalModalOpen, setIsCanalModalOpen] = useState(false);
+  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
+
   // Carrega canais do usuário
-  useEffect(() => {
-    async function carregarCanais() {
-      setLoadingCanais(true);
-      try {
-        const res = await fetch('/api/canais');
-        if (!res.ok) throw new Error('Falha ao carregar canais');
-        const data = await res.json();
-        setCanais(data);
-      } catch {
-        setErro('Não foi possível carregar os canais. Verifique sua conexão.');
-      } finally {
-        setLoadingCanais(false);
+  const carregarCanais = useCallback(async () => {
+    setLoadingCanais(true);
+    try {
+      const res = await fetch('/api/canais');
+      if (!res.ok) throw new Error('Falha ao carregar canais');
+      const data = await res.json();
+      setCanais(data || []);
+      if (data && data.length > 0 && !canais[canalAtivo]) {
+        // Mantém o canal ativo se possível
       }
+    } catch {
+      setErro('Não foi possível carregar os canais. Verifique sua conexão.');
+    } finally {
+      setLoadingCanais(false);
     }
+  }, [canalAtivo, canais]);
+
+  useEffect(() => {
     carregarCanais();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Carrega vídeos do canal ativo
   const carregarVideos = useCallback(async (canalId: string) => {
@@ -209,164 +220,255 @@ export default function Canais() {
   }
 
   return (
-    <div className="p-6 max-w-[1280px] mx-auto flex flex-col gap-5">
-      {/* Header */}
-      <div className="flex items-center justify-between pt-1">
+    <div className="relative p-6 max-w-[1400px] mx-auto flex flex-col gap-8 min-h-screen">
+      {/* Background Effect */}
+      <div className="mesh-bg opacity-30" />
+
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pt-4">
         <div>
-          <h1 className="text-[20px] font-bold tracking-tight" style={{ color: 'var(--color-text-1)' }}>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="badge badge-accent">Operacional</span>
+            <span className="text-[10px] uppercase tracking-widest font-bold opacity-30">v1.2</span>
+          </div>
+          <h1 className="text-3xl font-bold tracking-tight text-white">
             Gestão de Canais
           </h1>
-          <p className="text-[13px] mt-0.5" style={{ color: 'var(--color-text-3)' }}>
-            Pipeline de produção e status dos vídeos
+          <p className="text-sm mt-1 text-[var(--color-text-3)] max-w-md">
+            Monitore o pipeline de produção e a saúde das suas marés em tempo real.
           </p>
         </div>
-        <button className="btn-primary h-9">
-          <Plus className="w-4 h-4" /> Novo Canal
-        </button>
+        <div className="flex gap-3">
+          <button onClick={() => alert('Histórico de Marés em desenvolvimento')} className="btn-ghost h-10 px-4">
+             Histórico
+          </button>
+          <button 
+            onClick={() => setIsCanalModalOpen(true)} 
+            className="btn-primary h-10 px-6 shadow-xl shadow-purple-500/20"
+          >
+            <Plus className="w-4 h-4" /> Novo Canal
+          </button>
+        </div>
       </div>
 
-      {/* Seletor de Canal */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        {canais.map((c, i) => (
-          <button
-            key={c.id}
-            onClick={() => setCanalAtivo(i)}
-            className="text-left p-4 rounded-xl transition-all duration-300"
-            style={{
-              background: canalAtivo === i
-                ? (c.mare_status === 'ativa' ? 'rgba(124,58,237,0.12)' : 'rgba(255,255,255,0.07)')
-                : 'rgba(255,255,255,0.02)',
-              border: canalAtivo === i
-                ? (c.mare_status === 'ativa' ? '1px solid rgba(124,58,237,0.35)' : '1px solid rgba(255,255,255,0.15)')
-                : '1px solid rgba(255,255,255,0.05)',
-            }}
-          >
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[13px] font-bold" style={{ color: c.mare_status === 'ativa' ? 'var(--color-accent)' : 'var(--color-text-1)' }}>
-                {c.nome}
-              </span>
-              {c.mare_status === 'ativa' && (
-                <span className="badge badge-accent">
-                  <Activity className="w-2.5 h-2.5" /> Maré Ativa
+      {/* Seletor de Canal - Horizontal Bento Grid */}
+      <section>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="section-label">Seus Canais</h2>
+          <span className="text-[10px] font-mono opacity-40">{canais.length} canais conectados</span>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {canais.map((c, i) => (
+            <button
+              key={c.id}
+              onClick={() => setCanalAtivo(i)}
+              className={`
+                text-left p-5 transition-all duration-300
+                ${canalAtivo === i ? 'card-accent scale-[1.02]' : 'card hover:scale-[1.01]'}
+              `}
+            >
+              <div className="flex items-center justify-between mb-3">
+                <span className={`text-sm font-bold tracking-tight ${canalAtivo === i ? 'text-[var(--color-accent)]' : 'text-white'}`}>
+                  {c.nome}
                 </span>
-              )}
+                {c.mare_status === 'ativa' ? (
+                  <div className="dot-live" title="Maré Ativa" />
+                ) : (
+                  <div className="w-1.5 h-1.5 rounded-full bg-white/10" />
+                )}
+              </div>
+              
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] uppercase font-bold opacity-40">Status</span>
+                  <span className={`badge ${c.mare_status === 'ativa' ? 'badge-accent' : 'badge-muted'} scale-90 origin-right`}>
+                    {c.mare_status}
+                  </span>
+                </div>
+                {c.mare_eixo_ativo && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] uppercase font-bold opacity-40">Eixo Ativo</span>
+                    <span className="text-[10px] font-mono font-bold text-[var(--color-text-2)]">
+                      {c.mare_eixo_ativo}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </button>
+          ))}
+          
+          {/* Action Card */}
+          <button 
+            onClick={() => setIsCanalModalOpen(true)}
+            className="card border-dashed border-white/10 bg-transparent flex flex-col items-center justify-center gap-2 p-5 group hover:border-purple-500/30 transition-colors"
+          >
+            <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-purple-500/10 transition-colors">
+              <Plus className="w-4 h-4 opacity-40 group-hover:opacity-100 transition-opacity" />
             </div>
-            <div className="flex gap-3 text-[11px]" style={{ color: 'var(--color-text-3)' }}>
-              <span>Status: <strong style={{ color: 'var(--color-text-1)' }}>{c.mare_status}</strong></span>
-              {c.mare_eixo_ativo && (
-                <span>Eixo: <strong style={{ color: 'var(--color-accent)' }}>{c.mare_eixo_ativo}</strong></span>
-              )}
-            </div>
+            <span className="text-[11px] font-bold opacity-40 group-hover:opacity-100 uppercase tracking-wider">Adicionar Canal</span>
           </button>
-        ))}
-      </div>
+        </div>
+      </section>
 
       {canal && (
-        <>
-          {/* Info do canal ativo */}
-          <div
-            className="p-5 rounded-xl flex flex-wrap items-center gap-x-6 gap-y-2"
-            style={{
-              background: canal.mare_status === 'ativa' ? 'rgba(124,58,237,0.06)' : 'rgba(255,255,255,0.02)',
-              border: canal.mare_status === 'ativa' ? '1px solid rgba(124,58,237,0.20)' : '1px solid rgba(255,255,255,0.06)',
-            }}
-          >
-            <div className="flex-1 min-w-[200px]">
-              <p className="text-[12px] font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-3)' }}>
-                Canal Ativo
-              </p>
-              <p className="text-[17px] font-bold mt-0.5" style={{ color: 'var(--color-text-1)' }}>
-                {canal.nome}
-              </p>
+        <section className="flex flex-col gap-6">
+          {/* Info do canal ativo - Bento Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+            {/* Main Info */}
+            <div className={`lg:col-span-8 p-6 ${canal.mare_status === 'ativa' ? 'card-accent' : 'card'} flex flex-col md:flex-row items-center gap-8`}>
+              <div className="flex-1">
+                <p className="section-label opacity-40 mb-1">Visão Geral do Canal</p>
+                <h2 className="text-2xl font-bold text-white mb-2">{canal.nome}</h2>
+                <div className="flex items-center gap-4">
+                   <div className="flex items-center gap-1.5">
+                     <div className={`w-2 h-2 rounded-full ${canal.mare_status === 'ativa' ? 'bg-[var(--color-accent)] animate-pulse shadow-[0_0_8px_var(--color-accent)]' : 'bg-white/20'}`} />
+                     <span className="text-xs font-bold uppercase tracking-wide">{canal.mare_status}</span>
+                   </div>
+                   <div className="h-4 w-[1px] bg-white/10" />
+                   <span className="text-xs text-[var(--color-text-3)]">
+                     ID: <span className="font-mono text-[10px] uppercase">{canal.id.split('-')[0]}...</span>
+                   </span>
+                </div>
+              </div>
+              
+              <div className="flex gap-8 border-l border-white/5 pl-8 h-full items-center">
+                <div className="flex flex-col">
+                  <span className="section-label opacity-40">Vídeos</span>
+                  <span className="text-2xl font-mono font-bold text-white">{videos.length}</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="section-label opacity-40">Em Produção</span>
+                  <span className="text-2xl font-mono font-bold text-[var(--color-accent)]">
+                    {videos.filter(v => v.status === 'producao').length}
+                  </span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="section-label opacity-40">Publicados</span>
+                  <span className="text-2xl font-mono font-bold text-[var(--color-success)]">
+                    {videos.filter(v => v.status === 'publicado').length}
+                  </span>
+                </div>
+              </div>
             </div>
-            <div className="flex gap-5 text-[12px]">
-              <div className="flex flex-col gap-0.5">
-                <span style={{ color: 'var(--color-text-3)' }}>Vídeos</span>
-                <span className="font-semibold" style={{ color: 'var(--color-text-1)' }}>{videos.length}</span>
+
+            {/* Quick Stats Card - Real Data Integration */}
+            <div className="lg:col-span-4 card p-6 flex flex-col justify-between group">
+              <div className="flex items-center justify-between mb-4">
+                 <h3 className="text-sm font-bold text-white">Performance do Canal</h3>
+                 <Activity className="w-4 h-4 text-[var(--color-accent)]" />
               </div>
-              <div className="flex flex-col gap-0.5">
-                <span style={{ color: 'var(--color-text-3)' }}>Em Produção</span>
-                <span className="font-semibold" style={{ color: 'var(--color-accent)' }}>
-                  {videos.filter(v => v.status === 'producao').length}
-                </span>
+              <div className="space-y-4">
+                 <div className="flex items-center justify-between text-[11px]">
+                    <span className="opacity-40 uppercase font-bold">Saúde da Maré</span>
+                    <span className={`font-mono font-bold ${videos.length > 0 ? 'text-[var(--color-success)]' : 'text-[var(--color-warning)]'}`}>
+                      {videos.length > 10 ? 'Estável' : videos.length > 0 ? 'Em Maturação' : 'Inativa'}
+                    </span>
+                 </div>
+                 <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-gradient-to-r from-purple-500 to-blue-500 rounded-full shadow-[0_0_10px_rgba(124,58,237,0.3)] transition-all duration-1000" 
+                      style={{ width: `${Math.min((videos.length / 20) * 100, 100)}%` }}
+                    />
+                 </div>
               </div>
-              <div className="flex flex-col gap-0.5">
-                <span style={{ color: 'var(--color-text-3)' }}>Publicados</span>
-                <span className="font-semibold" style={{ color: 'var(--color-success)' }}>
-                  {videos.filter(v => v.status === 'publicado').length}
-                </span>
-              </div>
+              <button 
+                onClick={() => alert('Relatórios detalhados em processamento (Fase 4)')}
+                className="btn-ghost w-full h-9 text-[11px] font-bold mt-6 group-hover:border-[var(--color-accent)]/50 transition-colors"
+              >
+                Ver Relatórios Detalhados
+              </button>
             </div>
-            <button className="btn-ghost h-8 text-[12px]">
-              <LayoutGrid className="w-3.5 h-3.5" /> Analytics & X-Ray
-            </button>
           </div>
 
-          {/* Filtros */}
-          <div
-            className="flex items-center justify-between p-3 rounded-xl gap-3 flex-wrap"
-            style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
-          >
-            <div className="flex gap-1.5 flex-wrap">
+          {/* Pipeline Controls */}
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div className="flex items-center gap-1.5 p-1 bg-white/5 rounded-xl border border-white/5">
               {filtros.map((f) => {
                 const ativo = filtroAtivo === f.value;
                 return (
                   <button
                     key={f.value}
                     onClick={() => setFiltroAtivo(f.value)}
-                    className="text-[11px] font-semibold px-3 py-1.5 rounded-lg transition-all duration-200"
-                    style={{
-                      background: ativo ? 'rgba(124,58,237,0.15)' : 'transparent',
-                      border: ativo ? '1px solid rgba(124,58,237,0.30)' : '1px solid transparent',
-                      color: ativo ? 'var(--color-accent)' : 'var(--color-text-3)',
-                    }}
+                    className={`
+                      text-[10px] font-bold uppercase tracking-wider px-4 py-2 rounded-lg transition-all duration-200
+                      ${ativo ? 'bg-white/10 text-white shadow-sm' : 'text-[var(--color-text-3)] hover:text-white'}
+                    `}
                   >
-                    {f.label} <span className="ml-1.5 opacity-60">({countPorStatus(f.value)})</span>
+                    {f.label} <span className="ml-1 opacity-30">({countPorStatus(f.value)})</span>
                   </button>
                 );
               })}
             </div>
-            <div className="flex items-center gap-2.5">
-              <div className="relative flex items-center">
-                <Search className="absolute left-2.5 w-3.5 h-3.5 pointer-events-none" style={{ color: 'var(--color-text-3)' }} />
+            
+            <div className="flex items-center gap-3">
+              <div className="relative group">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[var(--color-text-3)] group-focus-within:text-[var(--color-accent)] transition-colors" />
                 <input
                   type="text"
-                  placeholder="Buscar títulos..."
+                  placeholder="Pesquisar vídeos..."
                   value={busca}
                   onChange={(e) => setBusca(e.target.value)}
-                  className="input pl-8 pr-3 h-8 text-[12px] w-44"
+                  className="input pl-9 pr-4 h-10 text-xs w-64 bg-white/5 border-white/5 focus:bg-white/10"
                 />
               </div>
-              <button className="btn-ghost h-8 text-[11px]">
-                <Filter className="w-3.5 h-3.5" /> Filtrar
+              <button onClick={() => alert('Filtros avançados em breve')} className="btn-ghost h-10 px-4">
+                <Filter className="w-4 h-4 mr-2 opacity-40" /> Filtros
               </button>
-              <button className="btn-primary h-8 text-[11px]">
-                <Plus className="w-3.5 h-3.5" /> Novo Vídeo
+              <button 
+                onClick={() => setIsVideoModalOpen(true)} 
+                className="btn-primary h-10 px-6"
+              >
+                <Plus className="w-4 h-4 mr-2" /> Novo Vídeo
               </button>
             </div>
           </div>
 
-          {/* Lista de Vídeos */}
-          <div className="flex flex-col gap-2.5 pb-6">
+          {/* Video Grid/List Section */}
+          <div className="flex flex-col gap-3 pb-12">
             {loadingVideos ? (
-              <div className="flex flex-col gap-3">
-                {[1, 2, 3].map((i) => (
-                  <Skeleton key={i} className="h-24 w-full rounded-xl" />
+              <div className="space-y-4">
+                {[1, 2, 3, 4].map((i) => (
+                  <Skeleton key={i} className="h-32 w-full rounded-2xl" />
                 ))}
               </div>
             ) : videosFiltrados.length === 0 ? (
-              <div
-                className="text-center py-16 rounded-xl"
-                style={{ border: '1px dashed rgba(255,255,255,0.08)', color: 'var(--color-text-3)' }}
-              >
-                <p className="text-[14px]">Nenhum vídeo encontrado para este filtro.</p>
+              <div className="card-inner py-32 flex flex-col items-center justify-center gap-4 border-dashed border-white/10">
+                <div className="p-4 rounded-full bg-white/5">
+                  <LayoutGrid className="w-8 h-8 opacity-20" />
+                </div>
+                <div className="text-center">
+                  <p className="font-bold text-white uppercase tracking-widest text-[10px]">Nada encontrado</p>
+                  <p className="text-xs text-[var(--color-text-3)] mt-1">Não há vídeos que correspondam à sua busca.</p>
+                </div>
+                <button 
+                  onClick={() => {setBusca(''); setFiltroAtivo('todos');}}
+                  className="btn-ghost text-[10px] h-8 px-4"
+                >
+                  Limpar Filtros
+                </button>
               </div>
             ) : (
-              videosFiltrados.map((v) => <VideoCard key={v.id} {...videoToCardProps(v)} />)
+              <div className="grid grid-cols-1 gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                 {videosFiltrados.map((v) => <VideoCard key={v.id} {...videoToCardProps(v)} />)}
+              </div>
             )}
           </div>
-        </>
+        </section>
       )}
+
+      {/* Modais de Ação */}
+      <CanalModal 
+        isOpen={isCanalModalOpen} 
+        onClose={() => setIsCanalModalOpen(false)}
+        onSuccess={carregarCanais}
+      />
+
+      <VideoModal 
+        isOpen={isVideoModalOpen} 
+        onClose={() => setIsVideoModalOpen(false)}
+        onSuccess={() => canal && carregarVideos(canal.id)}
+        canalId={canal?.id || ''}
+      />
     </div>
   );
 }

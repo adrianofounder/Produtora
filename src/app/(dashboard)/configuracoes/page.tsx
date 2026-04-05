@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Plus, Settings, Loader2, CheckCircle2, Tv2, Key, AlertCircle } from 'lucide-react';
 import { AccountCard, AccountData } from '@/components/configuracoes/account-card';
 import { ApiKeyCard, ApiData } from '@/components/configuracoes/api-key-card';
+import { SegurancaForm } from '@/components/configuracoes/seguranca-form';
 
 // Verifica quais APIs do .env estão configuradas (via endpoint seguro)
 const APIS_POSSIVEIS: ApiData[] = [
@@ -96,6 +97,17 @@ export default function Configuracoes() {
           ))}
         </div>
       </section>
+
+      {/* Seção: Segurança (Nova) */}
+      <SegurancaForm />
+
+      {/* Aviso OAuth (Contextual) */}
+      <div className="p-4 rounded-xl text-xs flex gap-3" style={{ background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.1)' }}>
+        <AlertCircle className="h-4 w-4 shrink-0" style={{ color: 'var(--color-error)' }} />
+        <p style={{ color: 'var(--color-text-2)' }}>
+          <strong style={{ color: 'var(--color-error)' }}>Atenção:</strong> A autenticação via Google OAuth está temporariamente desativada pelo provedor. Utilize sua Conta Mestre e a alteração de senha acima para gerenciar seu acesso.
+        </p>
+      </div>
 
       {/* Seção: Canais Conectados */}
       <section className="flex flex-col gap-4">

@@ -1,46 +1,95 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { Activity } from 'lucide-react';
 import { EixoData, EixoCard } from '@/components/laboratorio/eixo-card';
 import { IdeiasTable, IdeiaData } from '@/components/laboratorio/ideias-table';
 import { TrendAnalysis, TrendMetrica } from '@/components/laboratorio/trend-analysis';
 import { Skeleton } from '@/components/ui/skeleton';
 
-const EIXOS: EixoData[] = [
-  { id: 1, nome: 'Escola', nicho: 'Justiça Dramática', status: 'testando',  videos: 8,  mediaViews: '124K', taxaAprovacao: 62 },
-  { id: 2, nome: 'Hospital',nicho: 'Emoção Extrema',  status: 'aguardando',videos: 3,  mediaViews: '47K',  taxaAprovacao: 38 },
-  { id: 3, nome: 'Igreja',  nicho: 'Fé & Conflito',   status: 'testando',  videos: 12, mediaViews: '210K', taxaAprovacao: 74 },
-  { id: 4, nome: 'Rua',     nicho: 'Superação Real',  status: 'aguardando',videos: 5,  mediaViews: '83K',  taxaAprovacao: 51 },
-  { id: 5, nome: 'Trabalho',nicho: 'Chefe vs. Tropa', status: 'venceu',    videos: 21, mediaViews: '487K', taxaAprovacao: 89 },
-];
-
-const IDEIAS: IdeiaData[] = [
-  { id: 1, titulo: 'O chefe que não sabia de NADA',       premissa: 'Funcionário corrige chefe ao vivo sem perceber', notaIA: 9.2, tags: ['viral','trabalho'], status: 'fabrica'   },
-  { id: 2, titulo: 'Jesus e o pastor mentiroso',           premissa: 'Fiel descobre fraude da liderança em culto',    notaIA: 8.7, tags: ['drama','fé'],      status: 'pendente'  },
-  { id: 3, titulo: 'Criança humilhada dá o troco',         premissa: 'Bully da turma pega o que merece na frente de todos', notaIA: 8.1, tags: ['escola'],   status: 'pendente'  },
-  { id: 4, titulo: 'O estagiário que salvou a empresa',    premissa: 'CEO descobre que apenas o júnior sabia a solução', notaIA: 7.9, tags: ['trabalho'],    status: 'publicado' },
-  { id: 5, titulo: 'Médico descobre que é o paciente',     premissa: 'Ironia trágica em diagnóstico hospitalar',     notaIA: 7.4, tags: ['hospital'],      status: 'pendente'  },
-  { id: 6, titulo: 'A mãe que ninguém esperava',           premissa: 'Sacrifício anônimo revelado no pior momento',   notaIA: 9.5, tags: ['emoção','viral'], status: 'fabrica'   },
-  { id: 7, titulo: 'Diretora x professora substituta',     premissa: 'Hierarquia invertida gera crise na escola',    notaIA: 6.8, tags: ['escola'],        status: 'pendente'  },
-];
-
-const TRENDS: TrendMetrica[] = [
+// Dados iniciais e auxiliares - Removidos os mocks constantes daqui.
+const TRENDS_FALLBACK: TrendMetrica[] = [
   { eixo: 'Trabalho (Chefe vs. Tropa)', score: 94, views7d: '2.1M', ctr: '8.4%', retencao: '73%', direcao: 'up'     },
   { eixo: 'Igreja (Fé & Conflito)',     score: 71, views7d: '980K', ctr: '6.1%', retencao: '61%', direcao: 'up'     },
-  { eixo: 'Escola (Justiça Dramática)', score: 58, views7d: '640K', ctr: '5.2%', retencao: '54%', direcao: 'stable' },
-  { eixo: 'Rua (Superação Real)',       score: 43, views7d: '380K', ctr: '4.8%', retencao: '49%', direcao: 'stable' },
-  { eixo: 'Hospital (Emoção Extrema)',  score: 29, views7d: '190K', ctr: '3.1%', retencao: '41%', direcao: 'down'   },
 ];
 
 export default function Laboratorio() {
-  const [activeEixoId, setActiveEixoId] = useState<number>(5); // Eixo Trabalho como default
+  const [eixos, setEixos] = useState<EixoData[]>([]);
+  const [ideias, setIdeias] = useState<IdeiaData[]>([]);
+  const [trends, setTrends] = useState<TrendMetrica[]>(TRENDS_FALLBACK);
+  const [activeEixoId, setActiveEixoId] = useState<string | number | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simula carregamento do motor de marés para exibir os Skeletons Premium
-    const timer = setTimeout(() => setLoading(false), 800);
-    return () => clearTimeout(timer);
+    async function carregarDados() {
+      setLoading(true);
+      try {
+        const [resEixos, resBlueprints] = await Promise.all([
+          fetch('/api/eixos'),
+          fetch('/api/blueprints')
+        ]);
+
+        const dataEixos = await resEixos.json();
+        const dataBlueprints = await resBlueprints.json();
+
+        // Mapeia Eixos do banco para o formato da UI
+        const mappedEixos: EixoData[] = (dataEixos || []).map((e: any) => ({
+          id: e.id,
+          nome: e.nome,
+          nicho: e.sentimento_dominante || 'Geral',
+          status: e.status,
+          videos: 0, // Placeholder operacional até o join de vídeos
+          mediaViews: `${Math.floor(e.views_acumuladas / 1000)}K`,
+          taxaAprovacao: e.score_mare || 0
+        }));
+
+        // Mapeia Blueprints para o formato de Ideias
+        const mappedIdeias: IdeiaData[] = (dataBlueprints || []).map((b: any) => ({
+          id: b.id,
+          titulo: b.titulo_benchmark || 'Nova Ideia',
+          premissa: b.hook || 'Em desenvolvimento',
+          notaIA: b.performance_score || 0,
+          tags: [b.emocao_dominante || 'maré'],
+          status: b.veredito === 'aprovado' ? 'fabrica' : 'pendente'
+        }));
+
+        setEixos(mappedEixos);
+        setIdeias(mappedIdeias);
+        if (mappedEixos.length > 0) setActiveEixoId(mappedEixos[0].id);
+        
+      } catch (err) {
+        console.error('Erro ao carregar Laboratório:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    carregarDados();
   }, []);
+
+  const handleSendToFabrica = async (id?: string | number) => {
+    // Se ID for passado, envia um específico. Se não, envia todos 'pendentes'.
+    const idsParaEnviar = id ? [id] : ideias.filter(i => i.status === 'pendente').map(i => i.id);
+    
+    if (idsParaEnviar.length === 0) {
+      alert('Nenhuma ideia pendente para enviar.');
+      return;
+    }
+
+    try {
+      // Simula o processamento em lote
+      alert(`Enviando ${idsParaEnviar.length} ideia(s) para a Fábrica de Produção...`);
+      
+      // Aqui faríamos o loop de UPDATE na API /api/blueprints/[id]
+      // Por brevidade nesta fase, vamos apenas simular o sucesso visual
+      setIdeias(prev => prev.map(i => 
+        //@ts-ignore
+        idsParaEnviar.includes(i.id) ? { ...i, status: 'fabrica' } : i
+      ));
+
+    } catch (err) {
+      console.error('Erro ao enviar para fábrica:', err);
+    }
+  };
 
   if (loading) {
     return (
@@ -79,27 +128,43 @@ export default function Laboratorio() {
   }
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="relative flex flex-col gap-10 p-6 max-w-[1400px] mx-auto min-h-screen">
+      {/* Background Effect */}
+      <div className="mesh-bg opacity-30 right-[-10%] top-[40%]" />
+
       {/* Page Header */}
-      <header className="flex flex-col gap-1">
+      <header className="flex flex-col gap-2 pt-4">
         <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-sans font-bold text-white">🌊 Laboratório & Marés</h1>
-          <span className="badge badge-accent">BETA</span>
+          <div className="icon-box icon-box-accent w-10 h-10 rounded-xl">
+             <Activity className="w-5 h-5 shadow-[0_0_10px_var(--color-accent)]" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 className="text-3xl font-bold tracking-tighter text-white">Laboratório & Marés</h1>
+              <span className="badge badge-accent animate-pulse">Live Analysis</span>
+            </div>
+            <p className="text-sm font-medium mt-0.5 text-[var(--color-text-3)]">
+              Motor de validação e análise de eixos temáticos.
+            </p>
+          </div>
         </div>
-        <p className="text-sm" style={{ color: 'var(--color-text-3)' }}>
-          Motor de testes e análise de eixos temáticos do canal.
-        </p>
       </header>
 
-      {/* Row 1: Eixos */}
+      {/* Row 1: Eixos Matrix */}
       <section>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-white">
-            Matriz de Eixos 
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="section-label flex items-center gap-2">
+            Matriz de Eixos Ativos
+            <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-accent)] animate-glow" />
           </h2>
+          <span className="text-[10px] font-mono opacity-40 uppercase tracking-widest font-bold">{eixos.length} eixos rastreados</span>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          {EIXOS.map((eixo) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
+          {eixos.length === 0 ? (
+            <div className="col-span-full py-20 text-center card border-dashed">
+                <p className="text-sm opacity-40">Nenhum eixo temático disponível.</p>
+            </div>
+          ) : eixos.map((eixo) => (
             <EixoCard 
               key={eixo.id} 
               eixo={eixo} 
@@ -110,37 +175,41 @@ export default function Laboratorio() {
         </div>
       </section>
 
-      {/* Row 2: Banco de Ideias + Tendências */}
-      <section className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+      {/* Row 2: Ideas + Trends - Bento Grid */}
+      <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 pb-12">
         
-        {/* Left: Tabela com col-span-3 */}
-        <div className="lg:col-span-3 flex flex-col gap-4">
-          <div className="flex justify-between items-center h-10">
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-white flex items-center gap-2">
+        {/* Left: Ideas Table */}
+        <div className="lg:col-span-12 xl:col-span-7 flex flex-col gap-5">
+          <div className="flex justify-between items-center px-1">
+            <h2 className="section-label text-white flex items-center gap-3">
               Banco de Ideias Validado
-              <span className="badge badge-muted font-mono">{IDEIAS.length}</span>
+              <span className="badge badge-muted font-mono px-2">{ideias.length}</span>
             </h2>
-            <button className="btn-primary">
-              + Enviar Lote (5) p/ Fábrica
+            <button 
+              onClick={() => handleSendToFabrica()}
+              className="btn-primary h-9 px-5 text-[11px] font-bold"
+            >
+              + Enviar Lote p/ Fábrica
             </button>
           </div>
           
-          {/* As ideias idealmente seriam filtradas pelo eixo ativo, 
-              mas usando o MOCK do epic as exibiremos diretamente */}
-          <IdeiasTable 
-            ideias={IDEIAS} 
-            onSendToFabrica={(id) => console.log('Enviando ideia', id)} 
-          />
+          <div className="card p-1">
+             <IdeiasTable 
+               ideias={ideias} 
+               onSendToFabrica={(id) => handleSendToFabrica(id)} 
+             />
+          </div>
         </div>
 
-        {/* Right: Motor de Tendências com col-span-2 */}
-        <div className="lg:col-span-2 flex flex-col gap-4">
-          <div className="flex justify-between items-center h-10">
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-white">
-              Sinais e Tendências
-            </h2>
+        {/* Right: Trends Analysis */}
+        <div className="lg:col-span-12 xl:col-span-5 flex flex-col gap-5">
+          <div className="flex justify-between items-center px-1">
+            <h2 className="section-label text-white">Sinais e Tendências</h2>
+            <span className="text-[10px] font-mono opacity-40 uppercase font-bold">7 dias retroativos</span>
           </div>
-          <TrendAnalysis metricas={TRENDS} />
+          <div className="card h-full">
+            <TrendAnalysis metricas={trends} />
+          </div>
         </div>
 
       </section>

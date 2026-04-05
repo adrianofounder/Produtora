@@ -36,11 +36,13 @@ export async function middleware(request: NextRequest) {
 
   // Rotas públicas (adicionado api/auth/callback se necessário)
   const publicRoutes = ['/login', '/cadastro', '/auth/callback'];
-  const isPublicRoute = publicRoutes.some((r) => pathname.startsWith(r) || pathname === '/');
+  const isPublicRoute = publicRoutes.some((r) => pathname.startsWith(r));
 
   if (!user && !isPublicRoute) {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
+    // Opcional: adicionar o trajeto original para retorno pós-login
+    url.searchParams.set('next', pathname);
     return NextResponse.redirect(url);
   }
 

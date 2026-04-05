@@ -44,6 +44,28 @@
     filter: blur(120px);
     z-index: -1;
     pointer-events: none;
+    animation: mesh-float 20s infinite alternate ease-in-out;
+  }
+
+  @keyframes mesh-float {
+    from { transform: translate(0, 0) scale(1); }
+    to { transform: translate(5%, 5%) scale(1.1); }
+  }
+
+  /* ─── Glassmorphism Premium ─── */
+  .glass {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  }
+
+  .glass-accent {
+    background: rgba(124, 58, 237, 0.05);
+    backdrop-filter: blur(16px) saturate(200%);
+    border: 1px solid rgba(124, 58, 237, 0.15);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
   }
 
 
@@ -56,23 +78,27 @@
     overflow: hidden;
     /* 3D: borda superior clara (luz), borda inferior escura (sombra) */
     box-shadow:
-      0 0 0 1px rgba(255,255,255,0.08),
-      inset 0 1px 0 rgba(255,255,255,0.10),
-      inset 0 -1px 0 rgba(0,0,0,0.35),
+      0 0 0 1px rgba(255,255,255,0.06),
+      inset 0 1px 0 rgba(255,255,255,0.08),
+      inset 0 -1px 0 rgba(0,0,0,0.45),
       0 4px 12px rgba(0,0,0,0.50),
-      0 12px 32px rgba(0,0,0,0.30),
-      0 24px 48px rgba(0,0,0,0.15);
-    transition: box-shadow 0.25s ease, transform 0.2s ease;
+      0 12px 32px rgba(0,0,0,0.30);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at top right, rgba(124, 58, 237, 0.05) 0%, transparent 70%);
+    pointer-events: none;
   }
   .card:hover {
-    transform: translateY(-1px);
+    transform: translateY(-2px) scale(1.005);
     box-shadow:
-      0 0 0 1px rgba(255,255,255,0.13),
-      inset 0 1px 0 rgba(255,255,255,0.13),
-      inset 0 -1px 0 rgba(0,0,0,0.40),
-      0 8px 20px rgba(0,0,0,0.55),
-      0 20px 40px rgba(0,0,0,0.35),
-      0 32px 64px rgba(0,0,0,0.18);
+      0 0 0 1px rgba(255,255,255,0.12),
+      inset 0 1px 0 rgba(255,255,255,0.12),
+      0 12px 24px rgba(0,0,0,0.60),
+      0 0 20px rgba(124, 58, 237, 0.1);
   }
 
   /* ─── Card Interno (sub-item dentro de card) ─── */
@@ -251,9 +277,15 @@
   .badge-muted   { background: rgba(255,255,255,0.05); color: var(--color-text-3); border: 1px solid rgba(255,255,255,0.08); }
 
   /* ─── Status Dot ─── */
-  .dot-live  { width:7px;height:7px;border-radius:50%;background:var(--color-success);box-shadow:0 0 0 3px rgba(16,185,129,0.18);flex-shrink:0;}
-  .dot-warn  { width:7px;height:7px;border-radius:50%;background:var(--color-warning);box-shadow:0 0 0 3px rgba(245,158,11,0.18);flex-shrink:0;}
-  .dot-error { width:7px;height:7px;border-radius:50%;background:var(--color-error);box-shadow:0 0 0 3px rgba(239,68,68,0.18);flex-shrink:0;}
+  .dot-live  { width:7px;height:7px;border-radius:50%;background:var(--color-success);box-shadow:0 0 0 3px rgba(16,185,129,0.25), 0 0 10px var(--color-success); animation: pulse-glow-success 2s infinite; flex-shrink:0;}
+  .dot-warn  { width:7px;height:7px;border-radius:50%;background:var(--color-warning);box-shadow:0 0 0 3px rgba(245,158,11,0.25), 0 0 10px var(--color-warning); flex-shrink:0;}
+  .dot-error { width:7px;height:7px;border-radius:50%;background:var(--color-error);box-shadow:0 0 0 3px rgba(239,68,68,0.25), 0 0 10px var(--color-error); flex-shrink:0;}
+
+  @keyframes pulse-glow-success {
+    0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4), 0 0 8px var(--color-success); }
+    70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0), 0 0 12px var(--color-success); }
+    100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0), 0 0 8px var(--color-success); }
+  }
 
   /* ─── Sidebar States ─── */
   .nav-active {

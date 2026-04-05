@@ -82,7 +82,7 @@ export default function Laboratorio() {
       // Aqui faríamos o loop de UPDATE na API /api/blueprints/[id]
       // Por brevidade nesta fase, vamos apenas simular o sucesso visual
       setIdeias(prev => prev.map(i => 
-        //@ts-ignore
+        // @ts-expect-error IDs can be strings or numbers
         idsParaEnviar.includes(i.id) ? { ...i, status: 'fabrica' } : i
       ));
 

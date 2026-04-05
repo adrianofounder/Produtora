@@ -421,16 +421,20 @@ export function VideoDrawer({ videoId, titulo, eixo, canalId, onClose, onUpdate 
                     onUpdate?.();
                     onClose();
                   }}
-                  className="btn-primary w-full"
+                  disabled={!aprovado.roteiro || !aprovado.audio || !aprovado.thumb}
+                  className="btn-primary w-full disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   <CheckCircle2 className="h-4 w-4" /> Agendar Publicação no YouTube
                 </button>
               </div>
 
-              {!aprovado.roteiro && (
+              {(!aprovado.roteiro || !aprovado.audio || !aprovado.thumb) && (
                 <div className="card-inner p-4 text-center">
                   <p className="text-sm" style={{ color: 'var(--color-text-3)' }}>
-                    Complete as etapas anteriores para exportar.
+                    Complete as etapas pendentes para exportar:
+                    {!aprovado.roteiro && <span className="block">• Roteiro não aprovado</span>}
+                    {!aprovado.audio && <span className="block">• Narração não aprovada</span>}
+                    {!aprovado.thumb && <span className="block">• Thumbnail não aprovada</span>}
                   </p>
                 </div>
               )}

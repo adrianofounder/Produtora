@@ -26,15 +26,17 @@ export async function middleware(request: NextRequest) {
     }
   );
 
+  // IMPORTANTE: Não use o objeto 'user' para proteger rotas.
+  // Use 'getUser()' que verifica o JWT no backend do Supabase.
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   const pathname = request.nextUrl.pathname;
 
-  // Rotas públicas
-  const publicRoutes = ['/login', '/cadastro', '/'];
-  const isPublicRoute = publicRoutes.some((r) => pathname.startsWith(r));
+  // Rotas públicas (adicionado api/auth/callback se necessário)
+  const publicRoutes = ['/login', '/cadastro', '/auth/callback'];
+  const isPublicRoute = publicRoutes.some((r) => pathname.startsWith(r) || pathname === '/');
 
   if (!user && !isPublicRoute) {
     const url = request.nextUrl.clone();

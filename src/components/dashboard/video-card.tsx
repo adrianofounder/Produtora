@@ -1,6 +1,6 @@
 "use client";
 
-export type VideoStatus = "planejamento" | "producao" | "pronto" | "agendado" | "publicado";
+export type VideoStatus = "planejamento" | "producao" | "pronto" | "agendado" | "publicado" | "erro";
 
 export interface VideoStep {
   label: string;
@@ -51,6 +51,13 @@ const statusConfig: Record<VideoStatus, { label: string; color: string; bg: stri
     bg: "transparent",
     border: "rgba(255,255,255,0.06)",
     barColor: "rgba(255,255,255,0.15)",
+  },
+  erro: {
+    label: "Com Erro",
+    color: "var(--color-error)",
+    bg: "rgba(239,68,68,0.06)",
+    border: "rgba(239,68,68,0.22)",
+    barColor: "rgba(239,68,68,1)",
   },
 };
 

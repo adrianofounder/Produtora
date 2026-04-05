@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { EixoData, EixoCard } from '@/components/laboratorio/eixo-card';
 import { IdeiasTable, IdeiaData } from '@/components/laboratorio/ideias-table';
 import { TrendAnalysis, TrendMetrica } from '@/components/laboratorio/trend-analysis';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const EIXOS: EixoData[] = [
   { id: 1, nome: 'Escola', nicho: 'Justiça Dramática', status: 'testando',  videos: 8,  mediaViews: '124K', taxaAprovacao: 62 },
@@ -33,6 +34,49 @@ const TRENDS: TrendMetrica[] = [
 
 export default function Laboratorio() {
   const [activeEixoId, setActiveEixoId] = useState<number>(5); // Eixo Trabalho como default
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Simula carregamento do motor de marés para exibir os Skeletons Premium
+    const timer = setTimeout(() => setLoading(false), 800);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex flex-col gap-8">
+        <header className="flex flex-col gap-2">
+          <Skeleton className="h-8 w-64" />
+          <Skeleton className="h-4 w-96" />
+        </header>
+        <section>
+          <Skeleton className="h-4 w-32 mb-4" />
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <Skeleton key={i} className="h-32 w-full rounded-xl" />
+            ))}
+          </div>
+        </section>
+        <section className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+          <div className="lg:col-span-3 flex flex-col gap-4">
+            <div className="flex justify-between items-center h-10">
+              <Skeleton className="h-6 w-48" />
+              <Skeleton className="h-9 w-40 rounded-lg" />
+            </div>
+            <div className="space-y-3">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <Skeleton key={i} className="h-16 w-full rounded-xl" />
+              ))}
+            </div>
+          </div>
+          <div className="lg:col-span-2 flex flex-col gap-4">
+            <Skeleton className="h-6 w-48 h-10 flex items-center" />
+            <Skeleton className="h-[400px] w-full rounded-xl" />
+          </div>
+        </section>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-8">

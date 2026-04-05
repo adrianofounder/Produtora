@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Settings, User, Users, Bot, Youtube, Save, Info, ImagePlus, ShieldAlert, Loader2, CheckCircle2 } from 'lucide-react';
+import { Settings, User, Users, Bot, MonitorPlay, Save, Info, ImagePlus, ShieldAlert, Loader2, CheckCircle2 } from 'lucide-react';
 
 interface Canal {
   id: string;
@@ -163,7 +163,7 @@ export default function CanalPerfilPage() {
           <Bot className="h-4 w-4" /> Automação (Auto-Refill)
         </button>
         <button className="nav-item flex items-center gap-2 px-4 py-2 text-sm font-medium">
-          <Youtube className="h-4 w-4" /> Integrações YouTube
+          <MonitorPlay className="h-4 w-4" /> Integrações YouTube
         </button>
       </nav>
 

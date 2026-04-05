@@ -93,8 +93,7 @@ export interface Database {
           auto_aprovacao_roteiros?: boolean
           auto_post?: boolean
         }
-        Update: Partial<Database['public']['Tables']['canais']['Insert']>
-      }
+        Update: Partial<Database['public']['Tables']['canais']['Insert']>; Relationships: any[]; }
       videos: {
         Row: {
           id: string
@@ -157,8 +156,7 @@ export interface Database {
           tags?: string[] | null
           criado_por?: string | null
         }
-        Update: Partial<Database['public']['Tables']['videos']['Insert']>
-      }
+        Update: Partial<Database['public']['Tables']['videos']['Insert']>; Relationships: any[]; }
       eixos: {
         Row: {
           id: string
@@ -195,10 +193,8 @@ export interface Database {
           canal_id: string
           nome: string
           status?: 'testando' | 'aguardando' | 'venceu' | 'cancelado'
-          [key: string]: unknown
         }
-        Update: Partial<Database['public']['Tables']['eixos']['Insert']>
-      }
+        Update: Partial<Database['public']['Tables']['eixos']['Insert']>; Relationships: any[]; }
       blueprints: {
         Row: {
           id: string
@@ -226,10 +222,8 @@ export interface Database {
         Insert: {
           id?: string
           canal_id: string
-          [key: string]: unknown
         }
-        Update: Partial<Database['public']['Tables']['blueprints']['Insert']>
-      }
+        Update: Partial<Database['public']['Tables']['blueprints']['Insert']>; Relationships: any[]; }
       alertas: {
         Row: {
           id: string
@@ -252,8 +246,7 @@ export interface Database {
           lido?: boolean
           link_acao?: string | null
         }
-        Update: Partial<Database['public']['Tables']['alertas']['Insert']>
-      }
+        Update: Partial<Database['public']['Tables']['alertas']['Insert']>; Relationships: any[]; }
       api_keys: {
         Row: {
           id: string
@@ -274,17 +267,11 @@ export interface Database {
           chave_criptografada: string
           status?: 'ativo' | 'erro' | 'inativo'
         }
-        Update: Partial<Database['public']['Tables']['api_keys']['Insert']>
-      }
+        Update: Partial<Database['public']['Tables']['api_keys']['Insert']>; Relationships: any[]; }
     }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      [_ in never]: never
-    }
-    Enums: {
-      [_ in never]: never
-    }
+    Views: Record<string, never>
+    Functions: Record<string, never>
+    Enums: Record<string, never>
+    CompositeTypes: Record<string, never>
   }
 }

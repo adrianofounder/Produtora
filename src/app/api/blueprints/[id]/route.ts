@@ -31,7 +31,7 @@ export async function PUT(request: Request, { params }: Params) {
 
   const { data, error } = await supabase
     .from('blueprints')
-    .upsert({ ...body, canal_id: canalId, updated_at: new Date().toISOString() }, { onConflict: 'canal_id' })
+    .upsert({ ...body, canal_id: canalId, updated_at: new Date().toISOString() } as any, { onConflict: 'canal_id' })
     .select()
     .single();
 

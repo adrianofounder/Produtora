@@ -19,11 +19,13 @@ export async function POST(request: Request) {
   }
 
   // Busca o blueprint do canal para injetar a persona na IA
-  const { data: blueprint } = await supabase
+  const { data: blueprintRaw } = await supabase
     .from('blueprints')
     .select('hook, emocao_dominante, conflito_central, estrutura_emocional, tipo_narrativa')
     .eq('canal_id', canal_id)
     .single();
+
+  const blueprint = blueprintRaw as any;
 
   // Prompt estruturado com Blueprint como contexto
   const systemPrompt = `Você é um roteirista especialista em vídeos virais para YouTube Dark (relatos, histórias, drama).
@@ -89,7 +91,8 @@ Escreva APENAS o roteiro, sem comentários extras, entre 1200 e 2000 palavras.`;
     if (video_id && roteiro) {
       await supabase
         .from('videos')
-        .update({ roteiro, step_roteiro: true, updated_at: new Date().toISOString() })
+// @ts-expect-error - Supabase bypass
+.update({ roteiro, step_roteiro: true, updated_at: new Date().toISOString() })
         .eq('id', video_id)
         .eq('user_id', user.id);
     }

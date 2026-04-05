@@ -1,0 +1,51 @@
+👑 Orion the Orchestrator, aqui estão todos os comandos à minha disposição (lembre-se de usar * antes do comando, por exemplo, *status):
+
+🛠️ Comandos Globais e do Orquestrador
+*help - Mostra todos os comandos disponíveis e suas descrições.
+*kb - Alterna o modo Base de Conhecimento (carrega o conhecimento do Método AIOX).
+*status - Exibe o contexto e o progresso atual.
+*guide - Exibe o guia de uso abrangente deste agente.
+*yolo - Alterna o modo de permissões do AntiGravity (Ask > Auto > Explore).
+*exit - Sai do modo de agente atual.
+🏗️ Criação e Modificação de Componentes do Framework
+*create - Cria um novo componente do AIOX (agent, task, workflow, template, checklist).
+*modify - Modifica um componente existente.
+*update-manifest - Atualiza o manifesto da equipe AIOX.
+*validate-component - Valida a segurança e os padrões do componente criado.
+*deprecate-component - Descontinua um componente, definindo o caminho de migração.
+*propose-modification - Propõe modificações no framework antes da efetivação.
+*undo-last - Desfaz a última modificação no framework.
+*analyze-framework - Analisa a estrutura atual do framework e seus padrões.
+*list-components - Lista todos os componentes do framework disponíveis.
+🚀 Fluxos de Trabalho (Workflows) e Planejamento
+*validate-workflow {name|path} [--strict] [--all] - Valida a estrutura de YAML dos fluxos, agentes requeridos, artefatos e lógica interna.
+*run-workflow {name} [start|continue|status|skip|abort] [--mode=guided|engine] - Inicia/gerencia diretamente a execução do Workflow.
+*workflow {name} [--mode=guided|engine] - Atalho simplificado para o início de um workflow.
+*plan [create|status|update] [id] - Controla e estabelece o planejamento do fluxo de trabalho (o default é create).
+*task - Executa uma task específica avulsa (ou lista as tasks disponíveis).
+*execute-checklist {checklist} - Executa o passo-a-passo de um arquivo checklist explícito (ou os lista).
+📄 Operações de Documentação e Artefatos
+*create-doc {template} - Cria um novo documento baseado nos nossos templates (ou os lista).
+*doc-out - Exibe o texto e a saída final na tela para o documento completo.
+*shard-doc {document} {destination} - Quebra/segmenta um documento enorme em arquivos particionados (shards).
+*document-project - Gera/recompila as documentações do projeto baseadas no código atual.
+*add-tech-doc {file-path} [preset-name] - Transforma um documento de diretrizes em um preset técnico para o AIOX utilizar.
+*create-next-story - Inicia diretamente a criação da próxima "Story" do projeto. (Embora você possa recorrer ao @pm para Epics/Stories complexas).
+🔬 IDS — Controle de Sistema Incremental (Evitando retrabalhos)
+*ids check {intent} [--type {type}] - Verifica no registro oficial antes da criação de arquivos para sabermos se devemos: REUTILIZAR, ADAPTAR ou CRIAR do zero (modo advisory).
+*ids impact {entity-id} - Análise de impacto e consumidores diretos/indiretos ao se apagar/modificar algo.
+*ids register {file-path} [--type {type}] [--agent {agent}] - Registra uma nova entidade após você concluir a criação na sua branch.
+*ids health - Checagem profunda e limpeza no registro do IDS.
+*ids stats - Exibe estatísticas (contagem por tipo, categorias, escore de saúde).
+*sync-registry-intel [--full] - Enriquece / preenche a base do registro extraindo metadados e dependências automaticamente através da nossa Code Inteligence.
+🧩 Ferramentas de Manutenção Adicionais
+*validate-agents - Varredura em busca de erros em arquivos YAML e definições de todos os agentes.
+*correct-course - Inicia nossa rotina de Correção de Rota ao desviar do plano-qualidade (Process/Quality deviations).
+*index-docs - Indexa de forma forçada nossas documentações para pesquisas rápidas.
+*update-source-tree - Valida quem são os proprietários, restrições e pendências de nossa árvore de desenvolvimento.
+*advanced-elicitation - Realiza a sessão de extração avançada de requisitos ou contexto perante um desafio humano.
+*chat-mode - Relaxa a persona temporariamente para assistência conversacional direta.
+*agent {name} - Retorna dados, escopo funcional e detalhes internos sobre nossos Agentes Especialistas (use @[/nome] se quiser ativá-lo imediatamente).
+Lembrete do Protocolo: Qual comando você gostaria de utilizar para começarmos a organizar a casa, ou para retomar o ponto em que fomos interrompidos? Se desejar iniciar o run-workflow de forma precisa ou revisar a sua fase 4 antes que seja dada como finalizada, por favor digite seu comando.
+
+— Orion, orquestrando o sistema 🎯

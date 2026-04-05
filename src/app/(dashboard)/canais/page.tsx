@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Plus, Search, LayoutGrid, Activity, Filter, Loader2, AlertCircle } from 'lucide-react';
 import { VideoCard } from '@/components/dashboard/video-card';
+import { Skeleton } from '@/components/ui/skeleton';
 
 type VideoStatus = 'planejamento' | 'producao' | 'pronto' | 'agendado' | 'publicado' | 'erro';
 
@@ -127,18 +128,46 @@ export default function Canais() {
 
   if (loadingCanais) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin" style={{ color: 'var(--color-accent)' }} />
+      <div className="p-6 max-w-[1280px] mx-auto flex flex-col gap-5">
+        <div className="flex items-center justify-between pt-1">
+          <div className="space-y-2">
+            <Skeleton className="h-6 w-48" />
+            <Skeleton className="h-4 w-64" />
+          </div>
+          <Skeleton className="h-9 w-32 rounded-lg" />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          {[1, 2, 3].map((i) => (
+            <Skeleton key={i} className="h-[100px] w-full rounded-xl" />
+          ))}
+        </div>
+        <Skeleton className="h-20 w-full rounded-xl" />
+        <div className="space-y-3">
+          {[1, 2, 3, 4].map((i) => (
+            <Skeleton key={i} className="h-24 w-full rounded-xl" />
+          ))}
+        </div>
       </div>
     );
   }
 
-  if (erro) {
+  // Se houver erro E não houver canais, mostramos o erro. 
+  // Mas se for apenas o banco vazio (canais.length === 0), o useEffect lidará com isso.
+  if (erro && canais.length === 0) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="card flex items-center gap-3 p-6">
-          <AlertCircle className="h-5 w-5" style={{ color: 'var(--color-error)' }} />
-          <p style={{ color: 'var(--color-text-3)' }}>{erro}</p>
+      <div className="flex flex-col items-center justify-center h-[70vh] gap-4">
+        <div className="card flex flex-col items-center gap-3 p-10 max-w-md text-center">
+          <div className="p-3 rounded-full bg-red-500/10 mb-2">
+            <AlertCircle className="h-8 w-8" style={{ color: 'var(--color-error)' }} />
+          </div>
+          <h3 className="font-bold text-lg" style={{ color: 'var(--color-text-1)' }}>Ops! Algo deu errado</h3>
+          <p className="text-sm" style={{ color: 'var(--color-text-3)' }}>{erro}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="btn-primary mt-4"
+          >
+            Tentar Novamente
+          </button>
         </div>
       </div>
     );
@@ -320,8 +349,10 @@ export default function Canais() {
           {/* Lista de Vídeos */}
           <div className="flex flex-col gap-2.5 pb-6">
             {loadingVideos ? (
-              <div className="flex items-center justify-center py-16">
-                <Loader2 className="h-6 w-6 animate-spin" style={{ color: 'var(--color-accent)' }} />
+              <div className="flex flex-col gap-3">
+                {[1, 2, 3].map((i) => (
+                  <Skeleton key={i} className="h-24 w-full rounded-xl" />
+                ))}
               </div>
             ) : videosFiltrados.length === 0 ? (
               <div

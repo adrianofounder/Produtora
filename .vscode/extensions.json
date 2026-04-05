@@ -1,5 +1,6 @@
 {
     "recommendations": [
-        "henrikdev.ag-quota"
+        "henrikdev.ag-quota",
+        "ms-ceintl.vscode-language-pack-pt-br"
     ]
 }

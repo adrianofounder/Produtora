@@ -1,8 +1,9 @@
-# Story 1.1 — Hotfix: Gate de Publicação Incompleta
+# Story 1.1 — Hotfix: Gate de Publicação Incompleta ✅
 
 **Story ID:** 1.1
 **Epic:** EPIC-01 — Resolução de Débitos Técnicos
 **Sprint:** 1 — Segurança & Bloqueadores
+**Status:** ✅ Ready for Review — commit `3b3e221`
 **Prioridade:** 🔴 P0 — HOTFIX EMERGENCIAL
 **Estimativa:** 0.5h
 **Assignee:** @dev

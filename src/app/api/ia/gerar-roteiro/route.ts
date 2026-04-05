@@ -1,34 +1,39 @@
-import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { requireAuth, handleApiError, checkOwnership } from '@/lib/api-utils';
+import { GerarRoteiroSchema } from '@/lib/validations/api-schemas';
 
 // POST /api/ia/gerar-roteiro
 // Body: { video_id, canal_id, titulo, eixo_id? }
 export async function POST(request: Request) {
-  const supabase = await createClient();
+  const { user, supabase, response: authRes } = await requireAuth();
+  if (authRes) return authRes;
 
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-  if (authError || !user) {
-    return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
-  }
+  try {
+    const rawBody = await request.json();
+    const body = GerarRoteiroSchema.parse(rawBody);
+    const { video_id, canal_id, titulo, tom, gancho, narrativa } = body;
 
-  const body = await request.json();
-  const { video_id, canal_id, titulo, tom, gancho, narrativa } = body;
+    // Se informou video_id, verifica ownership do video
+    if (video_id) {
+      const ownRes = await checkOwnership('videos', video_id, user.id);
+      if (!ownRes.hasOwnership) return ownRes.response;
+    }
+    
+    // Verifica ownership do canal_id
+    const ownCanalRes = await checkOwnership('canais', canal_id, user.id);
+    if (!ownCanalRes.hasOwnership) return ownCanalRes.response;
 
-  if (!titulo || !canal_id) {
-    return NextResponse.json({ error: 'titulo e canal_id são obrigatórios' }, { status: 400 });
-  }
+    // Busca o blueprint do canal para injetar a persona na IA
+    const { data: blueprintRaw } = await supabase
+      .from('blueprints')
+      .select('hook, emocao_dominante, conflito_central, estrutura_emocional, tipo_narrativa')
+      .eq('canal_id', canal_id)
+      .single();
 
-  // Busca o blueprint do canal para injetar a persona na IA
-  const { data: blueprintRaw } = await supabase
-    .from('blueprints')
-    .select('hook, emocao_dominante, conflito_central, estrutura_emocional, tipo_narrativa')
-    .eq('canal_id', canal_id)
-    .single();
+    const blueprint = blueprintRaw as any;
 
-  const blueprint = blueprintRaw as any;
-
-  // Prompt estruturado com Blueprint como contexto
-  const systemPrompt = `Você é um roteirista especialista em vídeos virais para YouTube Dark (relatos, histórias, drama).
+    // Prompt estruturado com Blueprint como contexto
+    const systemPrompt = `Você é um roteirista especialista em vídeos virais para YouTube Dark (relatos, histórias, drama).
 Escreva roteiros com alta retenção, usando a estrutura de tensão progressiva.
 
 ${blueprint ? `
@@ -59,9 +64,8 @@ Fechamento natural.
 
 Escreva APENAS o roteiro, sem comentários extras, entre 1200 e 2000 palavras.`;
 
-  const userPrompt = `Título do vídeo: "${titulo}"\n\nGere o roteiro completo agora:`;
+    const userPrompt = `Título do vídeo: "${titulo}"\n\nGere o roteiro completo agora:`;
 
-  try {
     const geminiResponse = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
       {
@@ -91,8 +95,8 @@ Escreva APENAS o roteiro, sem comentários extras, entre 1200 e 2000 palavras.`;
     if (video_id && roteiro) {
       await supabase
         .from('videos')
-// @ts-expect-error - Supabase bypass
-.update({ roteiro, step_roteiro: true, updated_at: new Date().toISOString() })
+        // @ts-expect-error - Supabase bypass
+        .update({ roteiro, step_roteiro: true, updated_at: new Date().toISOString() })
         .eq('id', video_id)
         .eq('user_id', user.id);
     }
@@ -100,6 +104,6 @@ Escreva APENAS o roteiro, sem comentários extras, entre 1200 e 2000 palavras.`;
     return NextResponse.json({ roteiro, video_id });
 
   } catch (err) {
-    return NextResponse.json({ error: 'Falha interna ao chamar IA', detail: String(err) }, { status: 500 });
+    return handleApiError(err);
   }
 }

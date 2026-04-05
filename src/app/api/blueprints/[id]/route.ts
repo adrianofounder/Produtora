@@ -1,40 +1,59 @@
-import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { requireAuth, handleApiError, checkOwnership } from '@/lib/api-utils';
+import { UpdateBlueprintSchema } from '@/lib/validations/api-schemas';
 
 interface Params { params: Promise<{ id: string }> }
 
 // GET /api/blueprints/[canalId]
-export async function GET(_req: Request, { params }: Params) {
-  const { id: canalId } = await params;
-  const supabase = await createClient();
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-  if (authError || !user) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
+// Notice here `id` represents the `canalId` according to the original file
+export async function GET(request: Request, { params }: Params) {
+  const { user, supabase, response: authRes } = await requireAuth();
+  if (authRes) return authRes;
 
-  const { data, error } = await supabase
-    .from('blueprints')
-    .select('*')
-    .eq('canal_id', canalId)
-    .single();
+  try {
+    const { id: canalId } = await params;
 
-  if (error) return NextResponse.json(null); // sem blueprint ainda
-  return NextResponse.json(data);
+    const ownCanalRes = await checkOwnership('canais', canalId, user.id);
+    if (!ownCanalRes.hasOwnership) return ownCanalRes.response;
+
+    const { data, error } = await supabase
+      .from('blueprints')
+      .select('*')
+      .eq('canal_id', canalId)
+      .single();
+
+    if (error) return NextResponse.json(null); // sem blueprint ainda
+    return NextResponse.json(data);
+  } catch (err) {
+    return handleApiError(err);
+  }
 }
 
 // PUT /api/blueprints/[canalId] — upsert
 export async function PUT(request: Request, { params }: Params) {
-  const { id: canalId } = await params;
-  const supabase = await createClient();
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-  if (authError || !user) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
+  const { user, supabase, response: authRes } = await requireAuth();
+  if (authRes) return authRes;
 
-  const body = await request.json();
+  try {
+    const { id: canalId } = await params;
 
-  const { data, error } = await supabase
-    .from('blueprints')
-    .upsert({ ...body, canal_id: canalId, updated_at: new Date().toISOString() } as any, { onConflict: 'canal_id' })
-    .select()
-    .single();
+    const ownCanalRes = await checkOwnership('canais', canalId, user.id);
+    if (!ownCanalRes.hasOwnership) return ownCanalRes.response;
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json(data);
+    const rawBody = await request.json();
+    // Validate fields using the Update schema (everything optional)
+    const body = UpdateBlueprintSchema.parse(rawBody);
+
+    const { data, error } = await supabase
+      .from('blueprints')
+      // @ts-expect-error - Supabase bypass
+      .upsert({ ...body, canal_id: canalId, updated_at: new Date().toISOString() }, { onConflict: 'canal_id' })
+      .select()
+      .single();
+
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(data);
+  } catch (err) {
+    return handleApiError(err);
+  }
 }

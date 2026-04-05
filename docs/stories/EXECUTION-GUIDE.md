@@ -16,7 +16,8 @@
 
 ---
 
-### ⏳ Story 1.2 — Hardening de Segurança no Database
+### ✅ Story 1.2 — Hardening de Segurança no Database
+> **Status:** ✅ CONCLUÍDA — commit `9836354`
 > **DB-08** (privilege escalation) + **DB-01** (índice RLS) | ~1h
 
 **Passo 1 — Ativar o agente e implementar:**
@@ -384,7 +385,7 @@ git add -A && git commit -m "chore(story-3.5): renomear temp-app para produtora 
 | Story | Título | Sprint | Status |
 |-------|--------|--------|--------|
 | 1.1 | Hotfix gate publicação | 1 | ✅ Concluída |
-| 1.2 | Hardening Database (DB-08/01) | 1 | ⏳ Aguardando |
+| 1.2 | Hardening Database (DB-08/01) | 1 | ✅ Concluída |
 | 1.3 | Auditoria API endpoints | 1 | ⏳ Aguardando |
 | 1.4 | ARIA acessibilidade | 1 | ⏳ Aguardando |
 | 1.5 | Refatorar VideoDrawer | 1 | ⏳ Aguardando |

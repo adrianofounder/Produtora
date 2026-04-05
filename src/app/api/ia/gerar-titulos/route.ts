@@ -1,24 +1,23 @@
-import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { requireAuth, handleApiError, checkOwnership } from '@/lib/api-utils';
+import { GerarTitulosSchema } from '@/lib/validations/api-schemas';
 
 // POST /api/ia/gerar-titulos
-// Body: { canal_id, eixo, premissa, formula_titulo? }
 export async function POST(request: Request) {
-  const supabase = await createClient();
+  const { user, response: authRes } = await requireAuth();
+  if (authRes) return authRes;
 
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-  if (authError || !user) {
-    return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
-  }
+  try {
+    const rawBody = await request.json();
+    const body = GerarTitulosSchema.parse(rawBody);
+    const { canal_id, eixo, premissa, formula_titulo } = body;
 
-  const body = await request.json();
-  const { canal_id, eixo, premissa, formula_titulo } = body;
+    if (canal_id) {
+      const ownCanalRes = await checkOwnership('canais', canal_id, user.id);
+      if (!ownCanalRes.hasOwnership) return ownCanalRes.response;
+    }
 
-  if (!eixo || !premissa) {
-    return NextResponse.json({ error: 'eixo e premissa são obrigatórios' }, { status: 400 });
-  }
-
-  const prompt = `Você é um especialista em copywriting magnético para YouTube Dark (relatos, histórias, drama viral).
+    const prompt = `Você é um especialista em copywriting magnético para YouTube Dark (relatos, histórias, drama viral).
   
 Gere EXATAMENTE 5 títulos virais e magnéticos para o seguinte vídeo:
 
@@ -35,7 +34,6 @@ REGRAS OBRIGATÓRIAS:
 FORMATO DE RESPOSTA (JSON puro, sem markdown):
 {"titulos": ["Título 1", "Título 2", "Título 3", "Título 4", "Título 5"]}`;
 
-  try {
     const geminiResponse = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
       {
@@ -70,6 +68,6 @@ FORMATO DE RESPOSTA (JSON puro, sem markdown):
     return NextResponse.json({ titulos: parsed.titulos ?? [], canal_id });
 
   } catch (err) {
-    return NextResponse.json({ error: 'Falha ao gerar títulos', detail: String(err) }, { status: 500 });
+    return handleApiError(err);
   }
 }

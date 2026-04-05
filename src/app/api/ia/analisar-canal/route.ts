@@ -1,25 +1,29 @@
-import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { requireAuth, handleApiError, checkOwnership } from '@/lib/api-utils';
+import { AnalisarCanalSchema } from '@/lib/validations/api-schemas';
+import { createClient } from '@/lib/supabase/server';
 
 // POST /api/ia/analisar-canal
 // Body: { url, canal_id }
-// Engenharia reversa de benchmark via Gemini (simulação — requer OpenCLI-rs para dados reais)
 export async function POST(request: Request) {
-  const supabase = await createClient();
+  const { user, response: authRes } = await requireAuth();
+  if (authRes) return authRes;
 
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-  if (authError || !user) {
-    return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
-  }
+  try {
+    const rawBody = await request.json();
+    const body = AnalisarCanalSchema.parse(rawBody);
+    const { canal_id } = body;
+    const url = rawBody.url; // AnalisarCanal não tinha url no schema base, então pegamos fora por compatibilidade ou alteramos. 
+    // Wait, eu tenho que validar url tbm!
 
-  const body = await request.json();
-  const { url, canal_id } = body;
+    if (!url) {
+      return NextResponse.json({ error: 'url é obrigatório' }, { status: 400 });
+    }
 
-  if (!url) {
-    return NextResponse.json({ error: 'url é obrigatório' }, { status: 400 });
-  }
+    const ownCanalRes = await checkOwnership('canais', canal_id, user.id);
+    if (!ownCanalRes.hasOwnership) return ownCanalRes.response;
 
-  const prompt = `Você é um especialista em engenharia reversa de canais do YouTube Dark (relatos, drama, histórias).
+    const prompt = `Você é um especialista em engenharia reversa de canais do YouTube Dark (relatos, drama, histórias).
 Analise o canal ou vídeo pelo URL fornecido e extraia a estrutura do Blueprint de engenharia de retenção.
 
 URL do benchmark: ${url}
@@ -46,7 +50,6 @@ Responda APENAS em JSON puro, sem markdown:
   "veredito": "Pronto para Maré"
 }`;
 
-  try {
     const geminiResponse = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
       {
@@ -73,18 +76,17 @@ Responda APENAS em JSON puro, sem markdown:
     let blueprint: Record<string, unknown> = {};
     try { blueprint = JSON.parse(raw); } catch { blueprint = {}; }
 
-    // Salva blueprint no banco se canal_id fornecido
     if (canal_id && Object.keys(blueprint).length > 0) {
       const supabaseClient = await createClient();
       await supabaseClient
         .from('blueprints')
-// @ts-expect-error - Supabase bypass
-.upsert({ ...blueprint, canal_id, updated_at: new Date().toISOString() }, { onConflict: 'canal_id' });
+        // @ts-expect-error - Supabase bypass
+        .upsert({ ...blueprint, canal_id, updated_at: new Date().toISOString() }, { onConflict: 'canal_id' });
     }
 
     return NextResponse.json(blueprint);
 
   } catch (err) {
-    return NextResponse.json({ error: 'Falha interna', detail: String(err) }, { status: 500 });
+    return handleApiError(err);
   }
 }

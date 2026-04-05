@@ -1,0 +1,39 @@
+---
+handoff_id: "phase-7-to-8-brownfield"
+timestamp: "2026-04-05T17:12:00Z"
+from_agent: "qa"
+to_agent: "architect"
+workflow: "brownfield-discovery.yaml"
+current_phase: 7
+next_phase: 8
+status: "COMPLETED"
+consumed: true
+
+context:
+  project: "Produtora"
+  qa_review: "Concluído. docs/reviews/qa-review.md gerado."
+  gate_decision: "APPROVED"
+  total_debts_final: 26
+  total_hours_estimate: 61
+  cost_estimate_r$: 9150
+
+gaps_added:
+  - "API-01 (CRÍTICO P0): Endpoints /api/ sem auditoria de segurança e validação de input"
+  - "BUG-01 (DEFEITO P0): Gate da aba Exportar permite publicar sem áudio/thumb — story separada"
+  - "OBS-01 (MÉDIO P2): Ausência de error tracking em runtime"
+  - "TEST-01 (MÉDIO P2): Ausência de testes automatizados (unit + integration + e2e)"
+
+critical_risks:
+  - "RC-01: DB-07 + API não auditada → leak de tokens OAuth via endpoint comprometido"
+  - "RC-02: SYS-05 + migrations → build quebrado pós-migration (types desatualizados)"
+  - "RC-05: BUG-01 → publicações incompletas no YouTube em produção"
+
+mandatory_for_final_assessment:
+  - "Incorporar API-01 como débito crítico P0"
+  - "Registrar BUG-01 como defeito funcional (story separada do epic)"
+  - "Documentar dependência atômica: DB-07 deve ser resolvido com coordenação da camada de API"
+  - "Atualizar ordem de resolução: P0 inicia com DB-08 → DB-01 → BUG-01 → FE-03+FE-08 → FE-01 → DB-07+API-01"
+  - "Atualizar contagem: 26 débitos / ~61h / R$9.150"
+
+NEXT_ACTION: "Executar a Fase 8: Assessment Final. Leia todos os reviews e produza docs/prd/technical-debt-assessment.md incorporando todos os inputs dos especialistas e do QA."
+---

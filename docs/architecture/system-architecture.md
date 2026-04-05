@@ -1,90 +1,58 @@
-# System Architecture & Technical Debt Assessment
+# System Architecture - Produtora (temp-app)
 
-**Status:** Phase 1 Complete (Data Collection: System)  
-**Agent:** Architect (@architect)  
-**Version:** 1.0  
+## 🏗️ Stack Tecnológico
 
----
+| Camada | Tecnologia | Versão |
+|--------|------------|---------|
+| **Core** | Next.js (App Router) | 15.1.6 |
+| **Linguagem** | TypeScript | ^5 |
+| **Estilização** | Tailwind CSS | ^4 |
+| **Backend/Auth** | Supabase (SSR) | ^0.10.0 |
+| **Componentes UI** | Radix (Base UI), shadcn/ui | - |
+| **Animações** | Framer Motion | ^12.38.0 |
 
-## 1. Technical Stack
-
-| Category | Technology | Version | Notes |
-| :--- | :--- | :--- | :--- |
-| **Framework** | Next.js | 16.2.2 (Canary) | ⚠️ **Critical Risk**: Experimental version. Downgrade to v15 Stable recommended. |
-| **Language** | TypeScript | 5.x | Strict mode enabled. Current build is stable (`tsc` pass). |
-| **Runtime** | React | 19.2.4 | Using modern hooks and Concurrent features. |
-| **Styling** | Tailwind CSS | 4.x | Using new `@theme` block in `globals.css`. |
-| **Database/Auth** | Supabase | ^2.101.1 | Integrated via `@supabase/ssr`. RLS enabled. |
-| **Components** | Radix / Shadcn | Latest | Atomic UI components following Lendária spec. |
-| **Animations** | Framer Motion | 12.38.0 | Used for micro-interactions and transitions. |
-
----
-
-## 2. Directory Structure (`src/`)
+## 📁 Estrutura de Pastas (src/)
 
 ```text
 src/
-├── app/
-│   ├── (auth)/            # Authentication flows (Login/Register)
-│   ├── (dashboard)/       # Main application shell (Sidebar + Topbar)
-│   │   ├── canais/        # [REWORK] Channel factory & Kanban
-│   │   ├── laboratorio/   # [REWORK] Tide motor & axis matrix
-│   │   ├── tendencias/    # [REWORK] Viral trends analysis
-│   │   └── page.tsx       # [APPROVED] Cockpit Home (Bento Grid)
-│   ├── api/               # Backend-as-a-Service routes
-│   └── globals.css        # Design System "Lendária" source of truth
-├── components/
-│   ├── layout/            # Sidebar, Topbar, PageContainer
-│   ├── ui/                # Base atoms (Button, Badge, Input)
-│   └── dashboard/         # Shared widgets (Metric Cards, Alerts)
-├── lib/
-│   ├── supabase/          # Client/Server initialization
-│   └── utils.ts           # tailwind-merge and clsx helpers
+├── app/                  # Roteamento Next.js (App Router)
+│   ├── (auth)/           # Grupo de rotas de autenticação
+│   ├── (dashboard)/      # Grupo de rotas principais do painel
+│   ├── api/              # Endpoints da API (Alertas, IA, Vídeos, etc.)
+│   ├── auth/             # Callbacks de autenticação
+│   ├── layout.tsx        # Layout raiz
+│   └── page.tsx          # Landing page/Entry point
+├── components/           # Componentes React organizados por domínio
+│   ├── studio/           # Editor e ferramentas de criação
+│   ├── laboratorio/      # Pesquisa e experimentação
+│   ├── hq/               # Gestão central
+│   ├── ui/               # Componentes base (Design System)
+│   └── ...               # Outros domínios (canais, dashboard, layout)
+├── lib/                  # Bibliotecas e utilitários
+│   ├── supabase/         # Configuração do cliente Supabase (SSR/Server/Client)
+│   └── utils.ts          # Utilitários gerais (tailwind-merge, clsx)
+└── middleware.ts         # Proteção de rotas e persistência de sessão (JWT)
 ```
 
----
+## 🔌 Pontos de Integração
 
-## 3. Design System: "Lendária"
+- **Supabase**: Integração nativa para Auth, Database e Storage via `@supabase/ssr`.
+- **API Interna**: Endpoints estruturados em `/api/` para:
+  - `ia/`: Processamento de inteligência artificial.
+  - `videos/`: Gestão e processamento de mídia.
+  - `blueprints/`: Definições de estruturas de produção.
+  - `alertas/`, `canais/`, `perfil/`.
 
-The system follows a high-end, professional "Dark Mode" aesthetic inspired by the Linear design system.
+## ⚙️ Configurações Críticas
 
-### Core Tokens
-- **Background**: `#050505`
-- **Surface**: `#121214` (Cards)
-- **Accent**: `#7C3AED` (Purple)
-- **Typography**: `Inter` (UI) / `JetBrains Mono` (Data)
+- **TypeScript**: Configurado com caminhos absolutos (`@/*` -> `./src/*`).
+- **Tailwind 4**: Utilizando `@tailwindcss/postcss`.
+- **Middleware**: Protege todas as rotas exceto estáticos e rotas públicas explicitadas (`/login`, `/cadastro`, `/auth/callback`).
 
-### Component Patterns
-- **`.card`**: Multi-layered shadow (6 layers) for 3D depth.
-- **`.card-inner`**: Sub-items with subtle contrast.
-- **`.icon-box`**: Square containers with themed background opacity (12-14%).
-- **`.btn-primary`**: Gradient background with purple glow.
+## ⚠️ Débitos Técnicos Sistêmicos (Identificados)
 
----
-
-## 4. Technical Debt Inventory
-
-Detailed breakdown of current codebase health.
-
-| ID | Issue | Severity | Area | Recommendation |
-| :--- | :--- | :--- | :--- | :--- |
-| **TD-001** | Next.js Canary Version | 🔥 Critical | System/Build | Downgrade to `next@15.1.x` for production stability. |
-| **TD-002** | Unfinished Dash Pages | 🟠 High | Frontend | Reconstruct `canais`, `laboratorio`, etc., to match the approved Home design. |
-| **TD-003** | ESLint Noise | 🟡 Medium | DX/Linting | Filter `.aiox-core` from project linting or fix `require()` vs `import` rules. |
-| **TD-004** | Hardcoded Labels | 🔵 Low | Frontend | Move UI strings and labels to a dedicated constants file or i18n layer. |
-
----
-
-## 5. Integration Points
-
-### Supabase Connectivity
-- **Server-Side**: Using `createBrowserClient` and `createServerClient` from `@supabase/ssr`.
-- **Middleware**: Managing session refresh and route protection in `src/middleware.ts`.
-
-### Design Implementation
-- Styles are strictly utility-first but consolidated into `globals.css` using Tailwind 4 `@theme` and `@layer utilities` to ensure consistency and prevent class-bloat.
-
----
-
-**Next Steps (Phase 2):**  
-Proceed to **Database Documentation** (`db-schema-audit`) with the `@data-engineer` agent.
+1. **Clutter na Raiz**: Excesso de arquivos temporários/txt na raiz do projeto (`workmeu`, `veterano.txt`, `comandos aios.txt`).
+2. **Naming**: O projeto ainda está nomeado como `"temp-app"` no `package.json`.
+3. **Linting**: O arquivo `lint-out.txt` indica um volume massivo de erros de linting pendentes.
+4. **Configurações**: `next.config.ts` vazio; oportunidades de otimização de build/vizinhança não exploradas.
+5. **Types**: O arquivo `database.types.ts` parece gerado mas precisa ser verificado se está em sincronia com o banco atual.

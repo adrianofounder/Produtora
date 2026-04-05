@@ -1,0 +1,25 @@
+---
+handoff_id: "phase-2-to-3-brownfield"
+timestamp: "2026-04-05T13:38:00Z"
+from_agent: "data-engineer"
+to_agent: "ux-design-expert"
+workflow: "brownfield-discovery.yaml"
+current_phase: 2
+status: "COMPLETED"
+consumed: false
+
+context:
+  project: "AD_LABS"
+  database_audit: "Concluída. SCHEMA.md e DB-AUDIT.md gerados em supabase/docs/"
+  primary_discovery_file: "docs/schema.sql"
+
+critical_instructions:
+  - "RULE_CONTINUOUS_EXECUTION: Siga o workflow até o final sem interrupções desnecessárias ou solicitações de feedback triviais."
+  - "RULE_MODEL_CONSULTATION: Sempre que o workflow exigir ou você decidir mudar a IA/modelo, AVISAR o usuário expressamente antes de prosseguir."
+  - "NEXT_ACTION: Executar a Fase 3: Frontend/UX Documentation (task create-front-end-spec)."
+
+next_steps:
+  - "1. Analisar estrutura de componentes e design system."
+  - "2. Identificar débitos técnicos de UX."
+  - "3. Gerar docs/frontend/frontend-spec.md."
+---

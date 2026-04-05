@@ -1,65 +1,77 @@
-# Frontend UI/UX Specification - Lendária
+# Frontend & UX Specification - Produtora
 
-**Status:** Phase 3 Complete (Data Collection: Frontend/UX)  
-**Agent:** UX Design Expert (@ux-design-expert)  
-**Version:** 1.0  
+Este documento detalha o estado atual da interface de usuário e experiência do usuário (UX) do projeto Produtora, mapeado durante a Fase 3 do workflow de Brownfield Discovery.
 
----
+## 1. Inventário de Componentes (Atomic Design)
 
-## 1. Design System: "Lendária"
+Mapeamento da hierarquia de componentes atual:
 
-The interface is designed for high-performance, professional "Dark Mode" environments, emphasizing depth, premium aesthetics, and technical precision.
+### ⚛️ Atoms (Base)
+| Componente | Localização | Descrição |
+|------------|-------------|-----------|
+| `Button` | `src/components/ui/button.tsx` | Botão padrão baseado em variants. |
+| `Skeleton` | `src/components/ui/skeleton.tsx` | Placeholder de carregamento. |
+| `SpotlightCard` | `src/components/ui/spotlight-card.tsx` | Card com efeito de luz ao passar o mouse. |
+| `IconBox` | `globals.css` (class) | Container para ícones Lucide com cores de status. |
 
-### 1.1 Visual Tokens (HSL)
-Extracted from `src/app/globals.css`.
-- **Background**: `#050505` (Deep Black)
-- **Surface**: `#121214` (Base Card)
-- **Secondary Surface**: `#1A1A1E` (Sub-cards)
-- **Accent**: `#7C3AED` (Violet Glow)
-- **Success**: `#10B981` | **Warning**: `#F59E0B` | **Error**: `#EF4444`
+### 🧪 Molecules (Compostos)
+| Componente | Localização | Descrição |
+|------------|-------------|-----------|
+| `BaseModal` | `src/components/ui/base-modal.tsx` | Estrutura base para diálogos. |
+| `Sidebar` | `src/components/layout/sidebar.tsx` | Navegação lateral com estados ativos. |
+| `Topbar` | `src/components/layout/topbar.tsx` | Barra superior de contexto. |
 
-### 1.2 Layout: Bento Grid
-- Dashboard uses a **12-column recursive Bento Grid**.
-- **Gap**: Fixed `24px` (`gap-6`).
-- **Container**: `max-w-7xl` or full-width with specific padding (`px-6`).
-
----
-
-## 2. Component Guidelines
-
-### 2.1 Cards & Elevation
-- **`.card`**: Main widget container. Features a 6-layer box-shadow for a 3D volumetric feel.
-- **`.card-inner`**: Used for list items or nested alerts. Uses a lighter gradient for contrast.
-- **`.card-accent`**: Highlights active states (e.g., Active Tide/Maré). Includes a subtle purple glow.
-
-### 2.2 Icons (Lucide)
-- **Mandatory**: Icons must be wrapped in an `.icon-box` or `.icon-box-sm`.
-- **Cor**: Color-coded by theme (Accent, Success, Warning, Error, Muted).
-- **Rule**: NO emojis allowed.
-
-### 2.3 Visual Effects
-- **Mesh Gradients**: Large, blurred radial gradients (`rgba(124, 58, 237, 0.15)`) for high-end ambient lighting.
-- **Glassmorphism**: Backdrop blur (12px) applied to Modals, Sidebar navigation, and Topbar.
-- **Micro-interactions**: Hover transforms (`translateY(-1px)`) and brightness shifts.
+### 🧬 Organisms (Complexos)
+| Componente | Localização | Descrição |
+|------------|-------------|-----------|
+| `VideoCard` | `src/components/dashboard/video-card.tsx` | Card de vídeo com barra de progresso e indicadores de status. |
+| `VideoDrawer` | `src/components/canais/video-drawer.tsx` | **Crítico**: Gerencia todo o fluxo de produção (Ideia -> Roteiro -> Narração). |
+| `CanalModal` | `src/components/modals/canal-modal.tsx` | Cadastro e edição de canais/blueprints. |
 
 ---
 
-## 3. Frontend Technical Debt
+## 2. Design System & Tokens
 
-| ID | Issue | Severity | Area | Recommendation |
-| :--- | :--- | :--- | :--- | :--- |
-| **UX-001** | UI Inconsistency | 🟠 High | Dashboard Pages | `/canais`, `/laboratorio`, `/tendencias`, etc., are currently placeholders or legacy. Redo based on approved Home (Cockpit) layout. |
-| **UX-002** | Accessibility (a11y) | 🟡 Medium | Components | Color contrast on `.color-text-3` (#475569) against `#050505` background might be below AAA. |
-| **UX-003** | Loading/Error States | 🟡 Medium | UX | Missing skeleton components for data-intensive views during hydration or API fetch. |
-| **UX-004** | Responsive Refinement | 🔵 Low | Layout | Bento Grid layout needs fine-tuning for tablet (MD) breakpoints. |
+O projeto utiliza **Tailwind CSS 4** com tokens definidos em `src/app/globals.css`.
+
+### Paleta de Cores (Tokens CSS)
+- `background`: `#050505` (Deep Dark)
+- `surface`: `#121214` / `#1A1A1E` / `#202024`
+- `accent`: `#7C3AED` (Purple)
+- `premium`: `#EAB308` (Gold)
+- `success`: `#10B981` (Green)
+- `error`: `#EF4444` (Red)
+
+### Efeitos Especiais (Utilities)
+- `.mesh-bg`: Background animado com gradiente radial.
+- `.glass`: Efeito de vidro com `backdrop-filter`.
+- `.depth-card`: Transformação 3D suave no hover.
 
 ---
 
-## 4. Typography
-- **Body/UI**: `Inter` (Sans-serif) via Google Fonts.
-- **Data/Monospace**: `JetBrains Mono` (specifically for numbers, metric values, and IDs).
+## 3. Débitos Técnicos Identificados
+
+### 🔴 Crítico (Urgente)
+1. **Complexidade do VideoDrawer**: O componente `VideoDrawer.tsx` possui +400 linhas e gerencia múltiplos estados de API e UI. Precisa ser decomposto em moléculas menores por aba.
+2. **Estilização Hardcoded**: Uso extensivo de `style={{ ... }}` com valores `rgba` e cores hexadecimais diretamente nos arquivos `.tsx`, ignorando o sistema de tokens.
+3. **Falta de Acessibilidade (a11y)**: Ausência de tags ARIA em modais e drawers. Falta de suporte a navegação por teclado (foco) em elementos interativos customizados.
+
+### 🟡 Médio (Importante)
+1. **Inconsistência de Botões**: Uso misto de classes utilitárias (`btn-primary`) e estilização ad-hoc.
+2. **Duplicação de Lógica de Status**: Cores e labels de status de vídeo estão definidos localmente no `VideoCard`, mas deveriam ser centralizados.
 
 ---
 
-**Next Steps (Phase 4):**  
-Proceed to **Initial Consolidation** (`consolidate_findings_draft`) with the `@architect` agent.
+## 4. Auditoria de UX (Sally & Brad)
+
+### Pontos Positivos
+- **Estética Visual**: O design é moderno, utiliza glassmorphism de forma elegante e passa uma sensação "premium".
+- **Feedback Visual**: Micro-interações (hover, barra de progresso) são bem implementadas.
+
+### Oportunidades de Melhoria
+- **Estados de Erro**: Melhorar a visualização de falhas na geração por IA.
+- **Loading UX**: Centralizar skeletons e spinners para uma experiência mais fluida durante chamadas assíncronas.
+
+---
+**Documento gerado por:** @ux-design-expert (Uma)
+**Data:** 05/04/2026

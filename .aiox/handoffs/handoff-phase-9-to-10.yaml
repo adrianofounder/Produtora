@@ -1,0 +1,27 @@
+---
+handoff_id: "phase-9-to-10-brownfield"
+timestamp: "2026-04-05T17:20:00Z"
+from_agent: "analyst"
+to_agent: "pm"
+workflow: "brownfield-discovery.yaml"
+current_phase: 9
+next_phase: 10
+status: "COMPLETED"
+consumed: true
+
+context:
+  project: "Produtora"
+  executive_report: "Concluído. docs/reports/TECHNICAL-DEBT-REPORT.md gerado."
+  roi_estimated: "18:1 a 73:1"
+  cost_of_action: "R$ 9.150 / 61h"
+  cost_of_inaction: "R$ 166.000 – R$ 670.000+ em risco"
+  sprint_count: 3
+
+key_decisions_for_pm:
+  - "Sprint 1 aprovado como prioridade imediata — segurança e bloqueadores (~R$ 3.000)"
+  - "BUG-01 é hotfix emergencial — não pode aguardar planning formal"
+  - "DB-07 exige deploy coordenado com API — planejar como entrega única no final do Sprint 1"
+  - "Sprint 2 e 3 podem ser re-priorizados após Sprint 1"
+
+NEXT_ACTION: "Executar a Fase 10: Planning. O @pm deve criar o Epic de Technical Debt Resolution e as User Stories priorizadas com base no Assessment Final e no Relatório Executivo."
+---

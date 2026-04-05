@@ -103,7 +103,7 @@ export default function Canais() {
 
   useEffect(() => {
     carregarCanais();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
   // Carrega vídeos do canal ativo
   const carregarVideos = useCallback(async (canalId: string) => {

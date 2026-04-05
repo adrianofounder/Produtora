@@ -1,51 +1,81 @@
-# Database Audit & Security Reference
+# Database Audit Report (AD_LABS)
 
-**Status:** Phase 2 Complete (Data Collection: Database)  
-**Agent:** Data Engineer (@data-engineer)  
-**Version:** 1.0  
-
----
-
-## 1. Security Audit: Row Level Security (RLS)
-
-All public tables have RLS enabled to ensure multi-tenant isolation.
-
-| Table | Policy Name | Logic | Security Status |
-| :--- | :--- | :--- | :--- |
-| **`profiles`** | `profiles_own` | `auth.uid() = id` | ✅ Secure |
-| **`canais`** | `canais_own` | `auth.uid() = user_id` | ✅ Secure |
-| **`videos`** | `videos_own` | `auth.uid() = user_id` | ✅ Secure |
-| **`eixos`** | `eixos_own` | `canal_id IN (SELECT id FROM canais WHERE user_id = auth.uid())` | ✅ Secure |
-| **`blueprints`** | `blueprints_own` | `canal_id IN (SELECT id FROM canais WHERE user_id = auth.uid())` | ✅ Secure |
-| **`alertas`** | `alertas_own` | `auth.uid() = user_id` | ✅ Secure |
-| **`api_keys`** | `api_keys_own` | `auth.uid() = user_id` | ✅ Secure |
+**Data:** 2026-04-05  
+**Auditor:** Dara (Sage) — Data Engineer  
+**Status:** Auditado via Análise Estática (`docs/schema.sql`)
 
 ---
 
-## 2. Performance Audit: Indexes
+## 🔍 Executive Summary
 
-Existing indexes to optimize common queries.
+O schema do AD_LABS demonstra uma maturidade inicial sólida, com RLS (Row Level Security) habilitado em 100% das tabelas e uso consistente de UUIDs. No entanto, foram identificados débitos técnicos críticos em performance de RLS e consistência de auditoria (`updated_at`).
 
-| Index Name | Target Column(s) | Purpose |
-| :--- | :--- | :--- |
-| `idx_canais_user_id` | `public.canais(user_id)` | Fast lookup for user-owned channels. |
-| `idx_videos_user_id` | `public.videos(user_id)` | Fast lookup for user-owned videos. |
-| `idx_videos_canal_id`| `public.videos(canal_id)`| Fast lookup for videos per channel. |
-| `idx_videos_status` | `public.videos(status)` | Optimized for dashboard filtering. |
-| `idx_alertas_user_lido`| `public.alertas(user_id, lido)` | Optimized for unread notifications count. |
+**Pontuação Geral: 82/100**
+
+- **Segurança (RLS)**: 🟢 95% (Habilitado, mas polices de subquery podem ser otimizadas)
+- **Integridade**: 🟡 85% (Faltam triggers de `updated_at` em tabelas chave)
+- **Performance**: 🔴 65% (Faltam índices em colunas de filtragem de RLS)
 
 ---
 
-## 3. Database Technical Debt
+## 🔴 Critical Issues (Fix Immediately)
 
-| ID | Issue | Severity | Data Area | Recommendation |
-| :--- | :--- | :--- | :--- | :--- |
-| **DB-001** | Lack of Unit Uniqueness | 🟡 Medium | `videos` | Consider unique constraint on `youtube_video_id` for better data integrity. |
-| **DB-002** | Workflow Steps Complexity | 🟡 Medium | `videos` | 7 boolean `step_*` columns might be better represented as a single JSONB or state machine table if steps scale. |
-| **DB-003** | Missing Constraints | 🔵 Low | `canais` | Add validation constraints to `horario_padrao` (e.g., regex for HH:MM). |
-| **DB-004** | Manual Schema Syync | 🟠 High | System | Implement a proper migration tool (like Supabase CLI) instead of manual `schema.sql` updates. |
+### 1. Missing Index on RLS Filter (Performance Risk)
+A tabela `api_keys` não possui índice em `user_id`. Como a política de RLS filtra por este campo em TODA consulta, a performance degradará linearmente com o número de usuários.
+- **Impacto**: Latência alta em todas as requisições autenticadas que consultam chaves.
+- **Correção**: `CREATE INDEX idx_api_keys_user_id ON public.api_keys(user_id);`
 
 ---
 
-**Next Steps (Phase 3):**  
-Proceed to **Frontend/UX Documentation** (`create-front-end-spec`) with the `@ux-design-expert` agent.
+## ⚠️ Warnings
+
+### 2. Inconsistent Audit Triggers
+Enquanto `canais`, `videos`, `eixos` e `blueprints` possuem triggers de `updated_at`, as tabelas `profiles` e `api_keys` não possuem. Além disso, a tabela `alertas` não possui sequer a coluna `updated_at`.
+- **Impacto**: Dificuldade em debugar modificações de perfil ou falhas em chaves de API.
+- **Correção**: Adicionar triggers e colunas faltantes.
+
+### 3. Subquery RLS Policies (Potential Bottleneck)
+As tabelas `eixos` e `blueprints` utilizam `IN (SELECT id FROM canais WHERE user_id = auth.uid())`. Em escala, isso é menos eficiente que um `EXISTS` ou a inclusão direta do `user_id` na tabela (denormalização para segurança).
+- **Correção**: Considerar adicionar `user_id` em `eixos` e `blueprints` para filtros flat.
+
+---
+
+## 💡 Recommendations
+
+### 4. Performance Optimizations
+- **GIN Index em Tags**: A tabela `videos` usa `tags TEXT[]`. Se houver filtragem frequente por tags no dashboard, é recomendado um índice GIN.
+- **Foreign Key Indexing**: O campo `alertas.canal_id` não está indexado, o que pode causar lentidão ao listar alertas de um canal específico.
+
+---
+
+## 📋 Prioritization Matrix
+
+| ID | Ação | Severidade | Esforço | Prioridade |
+|----|------|------------|---------|------------|
+| DB-01 | Index `api_keys(user_id)` | 🔴 Alta | ⚡ Baixo | P0 |
+| DB-02 | Timestamps Trigger em `profiles` e `api_keys` | 🟡 Média | ⚡ Baixo | P1 |
+| DB-03 | Adicionar `updated_at` em `alertas` | 🟡 Média | 🧪 Médio | P1 |
+| DB-04 | Index GIN em `videos(tags)` | 🔵 Baixa | 🧪 Médio | P2 |
+| DB-05 | Migrar RLS de subquery para EXISTS/Flat | 🔵 Baixa | 🧪 Médio | P3 |
+
+---
+
+## 🛠️ Proposed Fix Script (DDL)
+
+```sql
+-- Fix P0: Indexes for RLS Performance
+CREATE INDEX IF NOT EXISTS idx_api_keys_user_id ON public.api_keys(user_id);
+CREATE INDEX IF NOT EXISTS idx_alertas_canal_id ON public.alertas(canal_id);
+
+-- Fix P1: Consistency Triggers
+CREATE TRIGGER set_profiles_updated_at BEFORE UPDATE ON public.profiles
+  FOR EACH ROW EXECUTE PROCEDURE public.set_updated_at();
+
+CREATE TRIGGER set_api_keys_updated_at BEFORE UPDATE ON public.api_keys
+  FOR EACH ROW EXECUTE PROCEDURE public.set_updated_at();
+
+-- Fix P1: Missing columns
+ALTER TABLE public.alertas ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
+```
+
+— Dara, seu guia na fundação de dados 🗄️

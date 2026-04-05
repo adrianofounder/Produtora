@@ -1,0 +1,29 @@
+---
+handoff_id: "phase-5-to-6-brownfield"
+timestamp: "2026-04-05T17:05:00Z"
+from_agent: "data-engineer"
+to_agent: "ux-design-expert"
+workflow: "brownfield-discovery.yaml"
+current_phase: 5
+next_phase: 6
+status: "COMPLETED"
+consumed: true
+
+context:
+  project: "Produtora"
+  db_review: "Concluído. docs/reviews/db-specialist-review.md gerado."
+  debts_validated: 7
+  debts_added: 3
+  gate_status: "APPROVED com ressalvas críticas"
+
+critical_findings_added:
+  - "DB-07 (CRÍTICO P0): OAuth tokens (youtube_access_token/refresh_token) em TEXT puro em canais — criptografar via pgcrypto"
+  - "DB-08 (CRÍTICO P0): SECURITY DEFINER sem SET search_path em handle_new_user() — privilege escalation risk"
+  - "DB-09 (MÉDIO P2): Índice composto ausente em canais(user_id, mare_status)"
+
+adjustments_to_draft:
+  - "DB-02: Ajuste — colunas updated_at já existem em profiles e api_keys; faltam apenas os triggers"
+  - "DB-05: Elevado de P3 para P2 — padrão de acesso frequente em eixos/blueprints"
+
+NEXT_ACTION: "Executar a Fase 6: Validação do @ux-design-expert. Leia docs/prd/technical-debt-DRAFT.md e crie docs/reviews/ux-specialist-review.md. Responda as 5 perguntas do architect sobre FE-01 a FE-04."
+---

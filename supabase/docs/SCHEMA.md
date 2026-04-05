@@ -1,63 +1,127 @@
-# Database Schema Reference
+# Supabase Schema Documentation
 
-**Status:** Phase 2 Complete (Data Collection: Database)  
-**Agent:** Data Engineer (@data-engineer)  
-**Version:** 1.0  
+**Projeto:** AD_LABS  
+**Versão:** 1.0  
+**Última Atualização:** 2026-04-05  
 
----
+## 📊 Entity Relationship Diagram
 
-## 1. Entity Relationship Overview
+```mermaid
+erDiagram
+    profiles ||--o| auth_users : "references"
+    canais ||--o| auth_users : "owned by"
+    videos ||--o| canais : "belongs to"
+    videos ||--o| auth_users : "owned by"
+    eixos ||--o| canais : "defines strategy for"
+    blueprints ||--o| canais : "studio benchmark for"
+    alertas ||--o| auth_users : "notifies"
+    alertas ||--o| canais : "related to"
+    api_keys ||--o| auth_users : "belongs to"
 
-The database uses a multi-tenant structure where most entities are owned by a `user_id` (referencing `auth.users`).
+    profiles {
+        uuid id PK
+        text email
+        text full_name
+        text role
+        timestamptz created_at
+    }
 
-### Core Tables
+    canais {
+        uuid id PK
+        uuid user_id FK
+        text nome
+        text idioma
+        boolean motor_ativo
+        timestamptz created_at
+    }
 
-#### `profiles`
-Mirror of `auth.users` for application-level metadata.
-- **PK**: `id` (UUID, references `auth.users.id`)
-- **Fields**: `email`, `full_name`, `avatar_url`, `role` (admin/editor/viewer)
+    videos {
+        uuid id PK
+        uuid canal_id FK
+        uuid user_id FK
+        text titulo
+        text status
+        boolean roteiro_aprovado
+        timestamptz created_at
+    }
 
-#### `canais`
-Central entity for video production channels.
-- **PK**: `id` (UUID)
-- **FK**: `user_id` -> `auth.users.id`
-- **Keys**: `youtube_channel_id`, OAuth tokens.
-- **Logic**: Stores "Auto-Refill Motor" configurations and "Tide" (Maré) status.
+    eixos {
+        uuid id PK
+        uuid canal_id FK
+        text nome
+        text status
+        numeric score_mare
+    }
 
-#### `videos`
-Production unit for content.
-- **PK**: `id` (UUID)
-- **FK**: `canal_id` -> `canais.id`
-- **FK**: `user_id` -> `auth.users.id`
-- **Status**: `planejamento`, `producao`, `pronto`, `agendado`, `publicado`, `erro`.
-- **Checklist**: 7 boolean steps for operational tracking.
+    blueprints {
+        uuid id PK
+        uuid canal_id FK "UNIQUE"
+        numeric performance_score
+        text veredito
+    }
 
-#### `eixos` (Motor de Marés)
-Creative axes for testing content performance.
-- **PK**: `id` (UUID)
-- **FK**: `canal_id` -> `canais.id`
-- **Fields**: Strategic metadata (Arquetipo, Conflito, Payoff, etc.).
+    api_keys {
+        uuid id PK
+        uuid user_id FK
+        text provedor
+        text chave_criptografada
+        text status
+    }
+```
 
-#### `blueprints` (Studio)
-Deep analysis of channel/video benchmarks.
-- **PK**: `id` (UUID)
-- **FK**: `canal_id` -> `canais.id` (Unique)
+## 🗄️ Table Dictionary
 
----
+### 1. `profiles`
+Espelho de `auth.users` para armazenamento de metadados de perfil público e permissões administrativas.
+- **id**: UUID, PK, referência a `auth.users.id`.
+- **role**: Role do sistema (`admin`, `editor`, `viewer`). Padrão: `admin`.
+- **updated_at**: Atualização manual (Trigger ausente).
 
-## 2. Infrastructure & Automation
+### 2. `canais`
+Núcleo da multi-tenancy. Define as configurações de cada canal de conteúdo e conexões OAuth.
+- **user_id**: Proprietário do canal.
+- **mare_status**: Estado no ecossistema (testando/ativa/pausada).
+- **Auto-Refill Motor**: Configurações de automação para estoque mínimo de planejamento/produção.
 
-### Triggers
-- `on_auth_user_created`: Automatically creates a `public.profiles` entry when a user signs up.
-- `set_updated_at`: Generic trigger to update the `updated_at` timestamp on `canais`, `videos`, `eixos`, and `blueprints`.
+### 3. `videos`
+Entidade operacional principal. Rastreia o progresso da produção de cada vídeo.
+- **status**: Lifecycle do vídeo (`planejamento` -> `producao` -> `pronto` -> `agendado` -> `publicado`).
+- **Checklist Operacional**: 7 flags booleanas indicando conclusão de etapas (título, áudio, imagens, etc).
+- **Audit Trail**: Campos `aprovado_por` e `aprovado_via` garantem rastreabilidade de decisões (Humano vs Automação).
 
-### Extensions
-- `uuid-ossp`: For UUID generation.
-- `pgcrypto`: For cryptographic functions (used for API key storage).
+### 4. `eixos`
+Configurações estratégicas do "Motor de Marés". Define personas, arquetipos e regras narrativas.
+- **score_mare**: Métrica de performance do eixo dentro do nicho.
+- **taxa_concorrencia**: Qualitativo (alta, media, baixa).
 
----
+### 5. `blueprints`
+Análise de benchmark e estrutura de sucesso (Studio).
+- **performance_score**: Pontuação baseada em métricas externas.
+- **formula_emocional**: Texto descritivo da estrutura narrativa de sucesso.
 
-## 3. TypeScript Integration
+### 6. `alertas`
+Sistema de notificações push/dashboard.
+- **user_id**: Alvo do alerta.
+- **tipo**: Severidade (`erro`, `aviso`, `mare`, `info`).
 
-Types are located at `src/lib/supabase/database.types.ts`.  
-They are currently synchronized with the physical schema, ensuring full type-safety for database operations via the Supabase client.
+### 7. `api_keys`
+Cofre de chaves de API externas (YouTube, OpenAI, ElevenLabs, etc).
+- **chave_criptografada**: Deve ser tratada com nível máximo de segurança.
+
+## 🔒 Row Level Security (RLS)
+
+A política global é de **Isolamento de Tenant**. Cada linha possui `user_id` ou referência direta a uma tabela que possui, garantindo que um usuário nunca acesse dados de outro.
+
+| Tabela | RLS Status | Política |
+|--------|------------|----------|
+| `profiles` | 🟢 Enabled | `id = auth.uid()` |
+| `canais` | 🟢 Enabled | `user_id = auth.uid()` |
+| `videos` | 🟢 Enabled | `user_id = auth.uid()` |
+| `eixos` | 🟢 Enabled | `canal_id` pertence a `user_id = auth.uid()` |
+| `blueprints` | 🟢 Enabled | `canal_id` pertence a `user_id = auth.uid()` |
+| `api_keys` | 🟢 Enabled | `user_id = auth.uid()` |
+
+## ⚙️ Triggers & Functions
+
+- `handle_new_user()`: Automático na criação de usuário via Auth Hook.
+- `set_updated_at()`: Atualiza `updated_at` automaticamente para `canais`, `videos`, `eixos` e `blueprints`.

@@ -1,0 +1,22 @@
+---
+handoff_id: "phase-3-to-4-brownfield"
+timestamp: "2026-04-05T13:45:00Z"
+from_agent: "ux-design-expert"
+to_agent: "architect"
+workflow: "brownfield-discovery.yaml"
+current_phase: 3
+status: "COMPLETED"
+consumed: true
+
+context:
+  project: "Produtora"
+  frontend_docs: "Concluída. docs/frontend/frontend-spec.md gerado."
+  design_system: "Tailwind 4 Detectado. Mapeamento de tokens em globals.css concluído."
+
+critical_findings:
+  - "DESIGN_DEBT: VideoDrawer.tsx (+400 lines) precisa de refatoração urgente para modularizar o fluxo."
+  - "TOKEN_DEBT: Excesso de estilos inline style={{}} nos componentes UI."
+  - "A11Y_DEBT: Ausência completa de acessibilidade nos modais e drawers."
+
+NEXT_ACTION: "Executar a Fase 4: Consolidação Inicial (task consolidate_findings_draft)."
+---

@@ -1,0 +1,31 @@
+---
+handoff_id: "phase-4-to-5-brownfield"
+timestamp: "2026-04-05T17:01:00Z"
+from_agent: "architect"
+to_agent: "data-engineer"
+workflow: "brownfield-discovery.yaml"
+current_phase: 4
+next_phase: 5
+status: "COMPLETED"
+consumed: true
+
+context:
+  project: "Produtora"
+  draft_doc: "Gerado. docs/prd/technical-debt-DRAFT.md."
+  total_debts: 18
+  critical_debts: 4
+
+critical_findings:
+  - "DB-01: Índice ausente em api_keys(user_id) — RLS Performance Risk (P0)"
+  - "DB-02/03/04: Triggers e índices de auditoria faltantes em profiles, api_keys, alertas (P1)"
+  - "DB-05: Subquery RLS em eixos e blueprints pode ser gargalo em escala (P3)"
+  - "DB-06: Índice GIN ausente em videos(tags) — confirmar prioridade (P2)"
+
+open_questions_for_specialist:
+  - "Tipo de índice para api_keys(user_id): BTREE ou outro?"
+  - "Estratégia de migração RLS: denormalizar user_id em eixos/blueprints ou usar EXISTS?"
+  - "DB-06 (GIN Tags): confirmar se filtragem por tags está em produção e ajustar prioridade."
+  - "Existe algum débito de dados não captado por análise estática?"
+
+NEXT_ACTION: "Executar a Fase 5: Validação do @data-engineer. Leia docs/prd/technical-debt-DRAFT.md e crie docs/reviews/db-specialist-review.md."
+---

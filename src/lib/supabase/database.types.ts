@@ -56,8 +56,8 @@ export interface Database {
           mare_status: 'aguardando' | 'testando' | 'ativa' | 'pausada'
           mare_eixo_ativo: string | null
           youtube_channel_id: string | null
-          youtube_access_token: string | null
-          youtube_refresh_token: string | null
+          youtube_access_token_enc: string | null
+          youtube_refresh_token_enc: string | null
           youtube_token_expires_at: string | null
           motor_ativo: boolean
           estoque_minimo_planejamento: number

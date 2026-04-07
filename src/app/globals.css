@@ -157,19 +157,25 @@
   }
 
   /* ─── Glow de Status Especifico ─── */
-  .glow-producao { border-color: rgba(124, 58, 237, 0.3); box-shadow: 0 0 20px rgba(124, 58, 237, 0.1); }
+  .glow-producao { --status-color: #7C3AED; border-color: rgba(124, 58, 237, 0.3); box-shadow: 0 0 20px rgba(124, 58, 237, 0.1); }
   .glow-producao:hover { border-color: rgba(124, 58, 237, 0.5); box-shadow: 0 0 40px rgba(124, 58, 237, 0.15); }
   
-  .glow-pronto { border-color: rgba(96, 165, 250, 0.2); box-shadow: 0 0 20px rgba(96, 165, 250, 0.1); }
+  .glow-pronto { --status-color: #60A5FA; border-color: rgba(96, 165, 250, 0.2); box-shadow: 0 0 20px rgba(96, 165, 250, 0.1); }
   .glow-pronto:hover { border-color: rgba(96, 165, 250, 0.4); box-shadow: 0 0 40px rgba(96, 165, 250, 0.15); }
 
-  .glow-erro { border-color: rgba(239, 68, 68, 0.2); box-shadow: 0 0 20px rgba(239, 68, 68, 0.1); }
+  .glow-erro { --status-color: #EF4444; border-color: rgba(239, 68, 68, 0.2); box-shadow: 0 0 20px rgba(239, 68, 68, 0.1); }
   .glow-erro:hover { border-color: rgba(239, 68, 68, 0.4); box-shadow: 0 0 40px rgba(239, 68, 68, 0.15); }
 
-  .glow-planejamento { border-color: rgba(255, 255, 255, 0.1); box-shadow: none; }
+  .glow-planejamento { --status-color: rgba(255, 255, 255, 0.2); border-color: rgba(255, 255, 255, 0.1); box-shadow: none; }
   .glow-planejamento:hover { border-color: rgba(255, 255, 255, 0.2); box-shadow: 0 0 30px rgba(255, 255, 255, 0.05); }
 
-  .glow-premium { border-color: rgba(234, 179, 8, 0.3); box-shadow: 0 0 25px rgba(234, 179, 8, 0.15); }
+  .glow-agendado { --status-color: #10B981; border-color: rgba(16, 185, 129, 0.2); box-shadow: 0 0 20px rgba(16, 185, 129, 0.1); }
+  .glow-agendado:hover { border-color: rgba(16, 185, 129, 0.4); box-shadow: 0 0 40px rgba(16, 185, 129, 0.15); }
+
+  .glow-publicado { --status-color: rgba(255, 255, 255, 0.15); border-color: rgba(255, 255, 255, 0.06); box-shadow: none; }
+  .glow-publicado:hover { border-color: rgba(255, 255, 255, 0.1); box-shadow: 0 0 30px rgba(255, 255, 255, 0.05); }
+
+  .glow-premium { --status-color: #EAB308; border-color: rgba(234, 179, 8, 0.3); box-shadow: 0 0 25px rgba(234, 179, 8, 0.15); }
   .glow-premium:hover { border-color: rgba(234, 179, 8, 0.6); box-shadow: 0 0 50px rgba(234, 179, 8, 0.25); }
 
   /* ─── Ícone com Container ─── */
@@ -265,6 +271,31 @@
     border-color: rgba(255,255,255,0.16);
   }
   .btn-ghost:active { background: rgba(255,255,255,0.10); }
+
+  /* ─── Botão Danger ─── */
+  .btn-danger {
+    background: rgba(239,68,68,0.10);
+    border: 1px solid rgba(239,68,68,0.20);
+    color: var(--color-error);
+    font-size: 13px; font-weight: 600;
+    border-radius: 9px; cursor: pointer;
+    transition: all 0.18s ease;
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 0 14px;
+  }
+  .btn-danger:hover {
+    background: rgba(239,68,68,0.20);
+    border-color: rgba(239,68,68,0.40);
+    color: #F87171;
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.15);
+  }
+  .btn-danger:active {
+    transform: scale(0.96);
+  }
+  .btn-danger:focus-visible {
+    outline: 2px solid var(--color-error);
+    outline-offset: 2px;
+  }
 
   /* ─── Input ─── */
   .input {

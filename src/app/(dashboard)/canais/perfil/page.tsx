@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Settings, User, Users, Bot, MonitorPlay, Save, Info, ImagePlus, ShieldAlert, Loader2, CheckCircle2 } from 'lucide-react';
 
@@ -22,7 +22,7 @@ interface Canal {
   estoque_minimo_producao: number;
 }
 
-export default function CanalPerfilPage() {
+function CanalPerfilContent() {
   const searchParams = useSearchParams();
   const canalId = searchParams.get('id');
   const [canais, setCanais] = useState<Canal[]>([]);
@@ -290,5 +290,13 @@ export default function CanalPerfilPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CanalPerfilPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center p-12"><Loader2 className="h-8 w-8 animate-spin" style={{ color: 'var(--color-accent)' }} /></div>}>
+      <CanalPerfilContent />
+    </Suspense>
   );
 }

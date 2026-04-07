@@ -16,49 +16,13 @@ export interface VideoCardProps {
   acaoPrimaria?: string;
 }
 
-const statusConfig: Record<VideoStatus, { label: string; color: string; bg: string; border: string; barColor: string }> = {
-  planejamento: {
-    label: "Planejamento",
-    color: "var(--color-text-2)",
-    bg: "rgba(255,255,255,0.04)",
-    border: "rgba(255,255,255,0.10)",
-    barColor: "rgba(255,255,255,0.20)",
-  },
-  producao: {
-    label: "Em Produção",
-    color: "var(--color-accent)",
-    bg: "rgba(124,58,237,0.06)",
-    border: "rgba(124,58,237,0.22)",
-    barColor: "rgba(124,58,237,1)",
-  },
-  pronto: {
-    label: "Pronto",
-    color: "#60A5FA",
-    bg: "rgba(96,165,250,0.06)",
-    border: "rgba(96,165,250,0.18)",
-    barColor: "rgba(96,165,250,1)",
-  },
-  agendado: {
-    label: "Agendado",
-    color: "var(--color-success)",
-    bg: "rgba(16,185,129,0.05)",
-    border: "rgba(16,185,129,0.18)",
-    barColor: "rgba(16,185,129,1)",
-  },
-  publicado: {
-    label: "Publicado",
-    color: "var(--color-text-3)",
-    bg: "transparent",
-    border: "rgba(255,255,255,0.06)",
-    barColor: "rgba(255,255,255,0.15)",
-  },
-  erro: {
-    label: "Com Erro",
-    color: "var(--color-error)",
-    bg: "rgba(239,68,68,0.06)",
-    border: "rgba(239,68,68,0.22)",
-    barColor: "rgba(239,68,68,1)",
-  },
+const statusConfig: Record<VideoStatus, { label: string }> = {
+  planejamento: { label: "Planejamento" },
+  producao: { label: "Em Produção" },
+  pronto: { label: "Pronto" },
+  agendado: { label: "Agendado" },
+  publicado: { label: "Publicado" },
+  erro: { label: "Com Erro" },
 };
 
 const doneCount = (steps: VideoStep[]) => steps.filter((s) => s.done).length;
@@ -82,8 +46,8 @@ export function VideoCard({ titulo, eixo, dataPrevisao, status, steps, acaoPrima
       <div
         className="absolute left-0 top-3 bottom-3 w-[2px] rounded-full transition-all duration-300 group-hover:w-[4px] group-hover:shadow-[0_0_15px_rgba(124,58,237,0.5)]"
         style={{ 
-          background: cfg.barColor,
-          boxShadow: `0 0 12px ${cfg.barColor}70` 
+          background: 'var(--status-color)',
+          boxShadow: `0 0 12px var(--status-color)` 
         }}
       />
 
@@ -131,8 +95,8 @@ export function VideoCard({ titulo, eixo, dataPrevisao, status, steps, acaoPrima
               className="h-full rounded-full transition-all duration-1000 ease-out"
               style={{ 
                 width: `${pct}%`, 
-                background: cfg.barColor,
-                boxShadow: `0 0 10px ${cfg.barColor}`
+                background: 'var(--status-color)',
+                boxShadow: `0 0 10px var(--status-color)`
               }}
             />
           </div>
@@ -148,9 +112,7 @@ export function VideoCard({ titulo, eixo, dataPrevisao, status, steps, acaoPrima
           <button className="btn-ghost h-7 px-3 text-[10px] glass">
             Editar
           </button>
-          <button
-            className="text-[9px] font-bold px-3 h-7 rounded-lg transition-all bg-red-500/5 border border-red-500/10 text-red-500/60 hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/30 uppercase tracking-tight"
-          >
+          <button className="btn-danger h-7">
             Excluir
           </button>
         </div>

@@ -5,6 +5,16 @@
 
 ---
 
+### 🤖 Motores Recomendados (Otimização de Tokens)
+
+*   🧠 **Claude Opus / Sonnet (Thinking)**: Decisões de Arquitetura e Erros Complexos.
+*   🎯 **Gemini 3.1 Pro (High)**: Design System (UX), Refinamentos e Segurança Database.
+*   🛠️ **Gemini 3.1 Pro (Low) / GPT-OSS 120B**: Implementação de lógica e novas features.
+*   ⚡ **Gemini 3 Flash**: Validações de QA, rodar comandos e tarefas de rotina (chore).
+
+---
+
+
 ## 🔴 SPRINT 1 — Segurança & Bloqueadores
 
 > ⚠️ Executar **nesta ordem exata** — há dependências críticas.
@@ -20,17 +30,17 @@
 > **Status:** ✅ CONCLUÍDA — commit `9836354`
 > **DB-08** (privilege escalation) + **DB-01** (índice RLS) | ~1h
 
-**Passo 1 — Ativar o agente e implementar:**
+**Passo 1 — Ativar o agente e implementar (🎯 Pro High/🛠️ Low):**
 ```
 @[.agent/workflows/data-engineer.md] implemente a @[docs/stories/story-1.2-seguranca-database.md]
 ```
 
-**Passo 2 — Validar:**
+**Passo 2 — Validar (⚡ Flash):**
 ```
 @[.agent/workflows/qa.md] valide a @[docs/stories/story-1.2-seguranca-database.md]
 ```
 
-**Passo 3 — Após aprovação do QA, commitar:**
+**Passo 3 — Após aprovação do QA, commitar (⚡ Flash):**
 ```
 git add -A && git commit -m "fix(story-1.2): hardening de seguranca no database - DB-08 search_path + DB-01 index"
 ```
@@ -41,17 +51,17 @@ git add -A && git commit -m "fix(story-1.2): hardening de seguranca no database 
 > **API-01** — endpoints sem validação de ownership | ~6h
 > ⚠️ Esta story deve ser concluída **ANTES** da Story 1.6
 
-**Passo 1 — Ativar o agente e implementar:**
+**Passo 1 — Ativar o agente e implementar (🧠 Claude Thinking / 🎯 Pro High):**
 ```
 @[.agent/workflows/dev.md] implemente a @[docs/stories/story-1.3-auditoria-api-endpoints.md]
 ```
 
-**Passo 2 — Validar:**
+**Passo 2 — Validar (⚡ Flash):**
 ```
 @[.agent/workflows/qa.md] valide a @[docs/stories/story-1.3-auditoria-api-endpoints.md]
 ```
 
-**Passo 3 — Após aprovação do QA, commitar:**
+**Passo 3 — Após aprovação do QA, commitar (⚡ Flash):**
 ```
 git add -A && git commit -m "fix(story-1.3): auditoria e hardening dos endpoints de API - ownership + input validation"
 ```
@@ -62,17 +72,17 @@ git add -A && git commit -m "fix(story-1.3): auditoria e hardening dos endpoints
 > **FE-03** + **FE-08** — sem ARIA em modais, labels sem htmlFor | ~5.5h
 > ℹ️ Pode rodar em paralelo com a Story 1.3
 
-**Passo 1 — Ativar o agente e implementar:**
+**Passo 1 — Ativar o agente e implementar (🎯 Pro High / 🛠️ Low):**
 ```
 @[.agent/workflows/dev.md] implemente a @[docs/stories/story-1.4-acessibilidade-aria.md]
 ```
 
-**Passo 2 — Validar (inclui rodar axe-cli):**
+**Passo 2 — Validar (inclui rodar axe-cli) (⚡ Flash):**
 ```
 @[.agent/workflows/qa.md] valide a @[docs/stories/story-1.4-acessibilidade-aria.md]
 ```
 
-**Passo 3 — Após aprovação do QA, commitar:**
+**Passo 3 — Após aprovação do QA, commitar (⚡ Flash):**
 ```
 git add -A && git commit -m "fix(story-1.4): implementar ARIA completo e acessibilidade WCAG 2.1 AA no VideoDrawer"
 ```
@@ -84,22 +94,22 @@ git add -A && git commit -m "fix(story-1.4): implementar ARIA completo e acessib
 > **FE-01** + **FE-02** — 444 linhas em 1 arquivo, 19 inline styles | ~12h
 > ℹ️ Story maior — o agente pode dividir em múltiplas sessões
 
-**Passo 1 — Revisar arquitetura antes de iniciar:**
+**Passo 1 — Revisar arquitetura antes de iniciar (🧠 Claude Opus / 🎯 Pro High):**
 ```
 @[.agent/workflows/architect.md] revise a arquitetura de decomposição proposta em @[docs/stories/story-1.5-refatorar-video-drawer.md]
 ```
 
-**Passo 2 — Implementar:**
+**Passo 2 — Implementar (🧠 Claude Thinking / 🛠️ Low):**
 ```
 @[.agent/workflows/dev.md] implemente a @[docs/stories/story-1.5-refatorar-video-drawer.md]
 ```
 
-**Passo 3 — Validar:**
+**Passo 3 — Validar (⚡ Flash):**
 ```
 @[.agent/workflows/qa.md] valide a @[docs/stories/story-1.5-refatorar-video-drawer.md]
 ```
 
-**Passo 4 — Após aprovação do QA, commitar:**
+**Passo 4 — Após aprovação do QA, commitar (⚡ Flash):**
 ```
 git add -A && git commit -m "refactor(story-1.5): decomposicao do VideoDrawer em componentes atomicos + remocao inline styles"
 ```
@@ -111,22 +121,22 @@ git add -A && git commit -m "refactor(story-1.5): decomposicao do VideoDrawer em
 > 🔴 **EXECUTAR SOMENTE APÓS Story 1.3 estar 100% concluída**
 > ⚠️ Deploy atômico: código + migration ao mesmo tempo
 
-**Passo 1 — Implementar camada de aplicação (crypto.ts + rotas):**
+**Passo 1 — Implementar camada de aplicação (crypto.ts + rotas) (🎯 Pro High / 🧠 Thinking):**
 ```
 @[.agent/workflows/dev.md] implemente a parte de aplicação da @[docs/stories/story-1.6-criptografar-tokens-oauth.md]
 ```
 
-**Passo 2 — Aplicar migration no banco:**
+**Passo 2 — Aplicar migration no banco (🎯 Pro High / 🛠️ Low):**
 ```
 @[.agent/workflows/data-engineer.md] aplique a migration de banco da @[docs/stories/story-1.6-criptografar-tokens-oauth.md]
 ```
 
-**Passo 3 — Validar:**
+**Passo 3 — Validar (⚡ Flash):**
 ```
 @[.agent/workflows/qa.md] valide a @[docs/stories/story-1.6-criptografar-tokens-oauth.md]
 ```
 
-**Passo 4 — Após aprovação, commitar (deploy atômico):**
+**Passo 4 — Após aprovação, commitar (deploy atômico) (⚡ Flash):**
 ```
 git add -A && git commit -m "feat(story-1.6): criptografar tokens OAuth do YouTube com pgcrypto - DB-07"
 ```
@@ -142,17 +152,17 @@ git add -A && git commit -m "feat(story-1.6): criptografar tokens OAuth do YouTu
 ### ⏳ Story 2.1 — Sincronizar database.types.ts ⚠️ PRIMEIRO DO SPRINT 2
 > **SYS-05** — tipos desatualizados após migrations | ~2h
 ======================================================================================================
-**Passo 1 — Regenerar tipos e corrigir erros:**
+**Passo 1 — Regenerar tipos e corrigir erros (⚡ Flash / 🛠️ Low):**
 ```
-@[.agent/workflows/dev.md] implemente a @[docs/stories/story-2.1-sincronizar-types.md]    =============
+@[.agent/workflows/dev.md] implemente a @[docs/stories/story-2.1-sincronizar-types.md]
 ```
-=======================================================================================================
-**Passo 2 — Validar build:**
+
+**Passo 2 — Validar build (⚡ Flash):**
 ```
 @[.agent/workflows/qa.md] valide a @[docs/stories/story-2.1-sincronizar-types.md]
 ```
 
-**Passo 3 — Commitar:**
+**Passo 3 — Commitar (⚡ Flash):**
 ```
 git add -A && git commit -m "fix(story-2.1): regenerar database.types.ts pos-migrations Sprint 1 - SYS-05"
 ```
@@ -162,17 +172,17 @@ git add -A && git commit -m "fix(story-2.1): regenerar database.types.ts pos-mig
 ### ⏳ Story 2.2 — Resolver Erros de Linting Pendentes
 > **SYS-03** — volume massivo de erros de lint acumulados | ~3h
 
-**Passo 1 — Implementar:**
+**Passo 1 — Implementar (⚡ Flash / 🛠️ Low):**
 ```
 @[.agent/workflows/dev.md] implemente a @[docs/stories/story-2.2-resolver-linting.md]
 ```
-ok
-**Passo 2 — Validar:**
+
+**Passo 2 — Validar (⚡ Flash):**
 ```
 @[.agent/workflows/qa.md] valide a @[docs/stories/story-2.2-resolver-linting.md]
 ```
-ok
-**Passo 3 — Commitar:**
+
+**Passo 3 — Commitar (⚡ Flash):**
 ```
 git add -A && git commit -m "fix(story-2.2): resolver erros de linting pendentes + configurar lint-staged - SYS-03"
 ```
@@ -182,17 +192,17 @@ ok
 ### ⏳ Story 2.3 — Auditoria de Triggers e Índices no Database
 > **DB-02/03/04** — triggers updated_at ausentes + índice alertas | ~3h
 
-**Passo 1 — Aplicar migrations:**
+**Passo 1 — Aplicar migrations (🎯 Pro High / 🛠️ Low):**
 ```
 @[.agent/workflows/data-engineer.md] implemente a @[docs/stories/story-2.3-auditoria-triggers-db.md]
 ```
-ok
-**Passo 2 — Validar:**
+
+**Passo 2 — Validar (⚡ Flash):**
 ```
 @[.agent/workflows/qa.md] valide a @[docs/stories/story-2.3-auditoria-triggers-db.md]
 ```
-ok
-**Passo 3 — Commitar:**
+
+**Passo 3 — Commitar (⚡ Flash):**
 ```
 git add -A && git commit -m "fix(story-2.3): adicionar triggers updated_at e indice alertas(canal_id) - DB-02/03/04"
 ```
@@ -202,22 +212,22 @@ ok
 ### ⏳ Story 2.4 — Consolidar Design System de Botões
 > **FE-04** + **FE-05** — .btn-danger ausente, statusConfig duplicado | ~5h
 
-**Passo 1 — Implementar:**
+**Passo 1 — Implementar (🎯 Pro High / 🛠️ Low):**
 ```
 @[.agent/workflows/dev.md] implemente a @[docs/stories/story-2.4-design-system-botoes.md]
 ```
-
-**Passo 2 — Revisar visual (opcional mas recomendado):**
+ok
+**Passo 2 — Revisar visual (opcional mas recomendado) (🎯 Pro High):**
 ```
 @[.agent/workflows/ux-design-expert.md] revise o design system da @[docs/stories/story-2.4-design-system-botoes.md]
 ```
-
-**Passo 3 — Validar:**
+ok
+**Passo 3 — Validar (⚡ Flash):**
 ```
 @[.agent/workflows/qa.md] valide a @[docs/stories/story-2.4-design-system-botoes.md]
 ```
-
-**Passo 4 — Commitar:**
+ok
+**Passo 4 — Commitar (⚡ Flash):**
 ```
 git add -A && git commit -m "feat(story-2.4): adicionar .btn-danger ao design system e unificar statusConfig - FE-04/05"
 ```
@@ -227,17 +237,17 @@ git add -A && git commit -m "feat(story-2.4): adicionar .btn-danger ao design sy
 ### ⏳ Story 2.5 — Responsividade Mobile do VideoDrawer
 > **FE-09** — sem bottom sheet em mobile | ~2h
 
-**Passo 1 — Implementar:**
+**Passo 1 — Implementar (🎯 Pro High / 🛠️ Low):**
 ```
 @[.agent/workflows/dev.md] implemente a @[docs/stories/story-2.5-responsividade-mobile.md]
 ```
 
-**Passo 2 — Validar:**
+**Passo 2 — Validar (⚡ Flash):**
 ```
 @[.agent/workflows/qa.md] valide a @[docs/stories/story-2.5-responsividade-mobile.md]
 ```
 
-**Passo 3 — Commitar:**
+**Passo 3 — Commitar (⚡ Flash):**
 ```
 git add -A && git commit -m "feat(story-2.5): responsividade mobile do VideoDrawer com bottom sheet - FE-09"
 ```
@@ -247,17 +257,17 @@ git add -A && git commit -m "feat(story-2.5): responsividade mobile do VideoDraw
 ### ⏳ Story 2.6 — Otimizar Configuração do Next.js
 > **SYS-04** — next.config.ts vazio sem otimizações | ~2h
 
-**Passo 1 — Implementar:**
+**Passo 1 — Implementar (⚡ Flash / 🛠️ Low):**
 ```
 @[.agent/workflows/dev.md] otimize o next.config.ts: adicione image domains, compressão e bundle analyzer. Veja @[docs/prd/technical-debt-assessment.md] para contexto do item SYS-04
 ```
 
-**Passo 2 — Validar build:**
+**Passo 2 — Validar build (⚡ Flash):**
 ```
 @[.agent/workflows/qa.md] valide que o build do Next.js está sem warnings e devidamente otimizado
 ```
 
-**Passo 3 — Commitar:**
+**Passo 3 — Commitar (⚡ Flash):**
 ```
 git add -A && git commit -m "feat(story-2.6): otimizar next.config.ts com image domains, compressao e bundle config - SYS-04"
 ```
@@ -273,17 +283,17 @@ git add -A && git commit -m "feat(story-2.6): otimizar next.config.ts com image 
 ### ⏳ Story 3.1 — Otimização de Performance no Database
 > **DB-05/09/06** — RLS com IN, índices compostos ausentes | ~5.5h
 
-**Passo 1 — Aplicar migrations:**
+**Passo 1 — Aplicar migrations (🎯 Pro High / 🧠 Thinking):**
 ```
 @[.agent/workflows/data-engineer.md] implemente a @[docs/stories/story-3.1-performance-database.md]
 ```
 
-**Passo 2 — Validar com EXPLAIN ANALYZE:**
+**Passo 2 — Validar com EXPLAIN ANALYZE (⚡ Flash):**
 ```
 @[.agent/workflows/qa.md] valide a @[docs/stories/story-3.1-performance-database.md]
 ```
 
-**Passo 3 — Commitar:**
+**Passo 3 — Commitar (⚡ Flash):**
 ```
 git add -A && git commit -m "perf(story-3.1): migrar RLS para EXISTS e adicionar indices compostos - DB-05/09/06"
 ```
@@ -293,22 +303,22 @@ git add -A && git commit -m "perf(story-3.1): migrar RLS para EXISTS e adicionar
 ### ⏳ Story 3.2 — Estados de Feedback de UX (Error, Loading, Empty)
 > **FE-06** + **FE-07** — sem feedback visual de erros de IA | ~5h
 
-**Passo 1 — Implementar atoms de UI:**
+**Passo 1 — Implementar atoms de UI (🎯 Pro High / 🛠️ Low):**
 ```
 @[.agent/workflows/dev.md] implemente a @[docs/stories/story-3.2-ux-estados-feedback.md]
 ```
 
-**Passo 2 — Revisar visual:**
+**Passo 2 — Revisar visual (🎯 Pro High):**
 ```
 @[.agent/workflows/ux-design-expert.md] revise os atoms de feedback da @[docs/stories/story-3.2-ux-estados-feedback.md]
 ```
 
-**Passo 3 — Validar:**
+**Passo 3 — Validar (⚡ Flash):**
 ```
 @[.agent/workflows/qa.md] valide a @[docs/stories/story-3.2-ux-estados-feedback.md]
 ```
 
-**Passo 4 — Commitar:**
+**Passo 4 — Commitar (⚡ Flash):**
 ```
 git add -A && git commit -m "feat(story-3.2): adicionar atoms ErrorState, LoadingState e EmptyState - FE-06/07"
 ```
@@ -318,22 +328,22 @@ git add -A && git commit -m "feat(story-3.2): adicionar atoms ErrorState, Loadin
 ### ⏳ Story 3.3 — Implementar Error Tracking em Produção (Sentry)
 > **OBS-01** — sem monitoramento de erros em runtime | ~4h
 
-**Passo 1 — Configurar infraestrutura:**
+**Passo 1 — Configurar infraestrutura (🧠 Claude Thinking):**
 ```
 @[.agent/workflows/devops.md] configure o Sentry para o projeto seguindo a @[docs/stories/story-3.3-error-tracking.md]
 ```
 
-**Passo 2 — Integrar no código:**
+**Passo 2 — Integrar no código (🛠️ Low):**
 ```
 @[.agent/workflows/dev.md] integre o Sentry SDK no Next.js seguindo a @[docs/stories/story-3.3-error-tracking.md]
 ```
 
-**Passo 3 — Validar:**
+**Passo 3 — Validar (⚡ Flash):**
 ```
 @[.agent/workflows/qa.md] valide a @[docs/stories/story-3.3-error-tracking.md]
 ```
 
-**Passo 4 — Commitar:**
+**Passo 4 — Commitar (⚡ Flash):**
 ```
 git add -A && git commit -m "feat(story-3.3): integrar Sentry para error tracking em producao - OBS-01"
 ```
@@ -343,22 +353,22 @@ git add -A && git commit -m "feat(story-3.3): integrar Sentry para error trackin
 ### ⏳ Story 3.4 — Estrutura Inicial de Testes Automatizados
 > **TEST-01** — zero cobertura de testes | ~4h+
 
-**Passo 1 — Configurar framework:**
+**Passo 1 — Configurar framework (🛠️ Low / 🧠 Thinking):**
 ```
 @[.agent/workflows/dev.md] configure a estrutura de testes Vitest seguindo a @[docs/stories/story-3.4-testes-automatizados.md]
 ```
 
-**Passo 2 — Escrever testes iniciais:**
+**Passo 2 — Escrever testes iniciais (⚡ Flash / 🛠️ Low):**
 ```
 @[.agent/workflows/qa.md] escreva os primeiros testes automatizados seguindo a @[docs/stories/story-3.4-testes-automatizados.md]
 ```
 
-**Passo 3 — Configurar CI:**
+**Passo 3 — Configurar CI (🧠 Claude Thinking):**
 ```
 @[.agent/workflows/devops.md] configure o GitHub Actions para rodar os testes em PRs seguindo a @[docs/stories/story-3.4-testes-automatizados.md]
 ```
 
-**Passo 4 — Commitar:**
+**Passo 4 — Commitar (⚡ Flash):**
 ```
 git add -A && git commit -m "feat(story-3.4): configurar Vitest + primeiros testes automatizados + CI pipeline - TEST-01"
 ```
@@ -369,12 +379,12 @@ git add -A && git commit -m "feat(story-3.4): configurar Vitest + primeiros test
 > **SYS-01/02** — package.json com nome temp-app, arquivos soltos | ~0.5h
 > ✅ Quick win — pode executar a qualquer momento
 
-**Passo 1 — Implementar:**
+**Passo 1 — Implementar (⚡ Flash):**
 ```
 @[.agent/workflows/dev.md] implemente a @[docs/stories/story-3.5-limpeza-sistema.md]
 ```
 
-**Passo 2 — Commitar (sem necessidade de QA):**
+**Passo 2 — Commitar (sem necessidade de QA) (⚡ Flash):**
 ```
 git add -A && git commit -m "chore(story-3.5): renomear temp-app para produtora e limpar arquivos soltos da raiz - SYS-01/02"
 ```

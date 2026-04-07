@@ -27,16 +27,16 @@
 
 ## Acceptance Criteria
 
-- [ ] **AC1:** `.btn-danger` existe em `globals.css` com estilos de hover e focus definidos
-- [ ] **AC2:** Todos os botões de ação destrutiva (Excluir, Cancelar com ênfase) usam `.btn-danger` — sem `style={{color: 'red'}}` ou similar
-- [ ] **AC3:** `statusConfig` em `VideoCard.tsx` usa os tokens `.glow-*` do CSS em vez de definir cores explícitas
-- [ ] **AC4:** `npm run build` e `npm run lint` sem erros após as mudanças
+- [x] **AC1:** `.btn-danger` existe em `globals.css` com estilos de hover e focus definidos
+- [x] **AC2:** Todos os botões de ação destrutiva (Excluir, Cancelar com ênfase) usam `.btn-danger` — sem `style={{color: 'red'}}` ou similar
+- [x] **AC3:** `statusConfig` em `VideoCard.tsx` usa os tokens `.glow-*` do CSS em vez de definir cores explícitas
+- [x] **AC4:** `npm run build` e `npm run lint` sem erros após as mudanças
 
 ---
 
 ## Tasks
 
-- [ ] **T1:** Adicionar `.btn-danger` em `globals.css`:
+- [x] **T1:** Adicionar `.btn-danger` em `globals.css`:
   ```css
   .btn-danger {
     background: rgba(239,68,68,0.10);
@@ -58,19 +58,31 @@
     outline-offset: 2px;
   }
   ```
-- [ ] **T2:** Mapear todos os botões de ação destrutiva no codebase e substituir inline styles por `.btn-danger`
-- [ ] **T3:** Revisar `statusConfig` em `video-card.tsx` e unificar com tokens `.glow-*` de `globals.css`
-- [ ] **T4:** Verificar visualmente que os botões renderizam corretamente após mudanças
+- [x] **T2:** Mapear todos os botões de ação destrutiva no codebase e substituir inline styles por `.btn-danger`
+- [x] **T3:** Revisar `statusConfig` em `video-card.tsx` e unificar com tokens `.glow-*` de `globals.css`
+- [x] **T4:** Verificar visualmente que os botões renderizam corretamente após mudanças
 
 ---
 
 ## Definition of Done
 
-- [ ] `.btn-danger` adicionado ao design system
-- [ ] Zero botões destrutivos com `style={{color}}` inline
-- [ ] `statusConfig` unificado com tokens CSS
-- [ ] Visual testado em todos os estados (default, hover, focus, disabled)
-- [ ] @qa validou acceptance criteria
+- [x] `.btn-danger` adicionado ao design system
+- [x] Zero botões destrutivos com `style={{color}}` inline
+- [x] `statusConfig` unificado com tokens CSS
+- [x] Visual testado em todos os estados (default, hover, focus, disabled)
+- [x] @qa validou acceptance criteria
+
+---
+
+## QA Results (Quinn)
+- **Status**: ✅ PASS
+- **Data**: 2026-04-07
+- **Evidências**: 
+  - `npm run build` & `npm run lint` concluídos com sucesso.
+  - Audit de código confirmou remoção de `style={{color: 'red'}}` em botões.
+  - Implementação de micro-interações (`active: scale(0.96)`) validada no `.btn-danger`.
+  - Fix de build Next.js 15 (Suspense logic) validado em `/canais/perfil`.
+
 
 ---
 

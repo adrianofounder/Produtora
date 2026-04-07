@@ -176,7 +176,7 @@ ok
 ```
 git add -A && git commit -m "fix(story-2.2): resolver erros de linting pendentes + configurar lint-staged - SYS-03"
 ```
-
+ok
 ---
 
 ### ⏳ Story 2.3 — Auditoria de Triggers e Índices no Database
@@ -186,17 +186,17 @@ git add -A && git commit -m "fix(story-2.2): resolver erros de linting pendentes
 ```
 @[.agent/workflows/data-engineer.md] implemente a @[docs/stories/story-2.3-auditoria-triggers-db.md]
 ```
-
+ok
 **Passo 2 — Validar:**
 ```
 @[.agent/workflows/qa.md] valide a @[docs/stories/story-2.3-auditoria-triggers-db.md]
 ```
-
+ok
 **Passo 3 — Commitar:**
 ```
 git add -A && git commit -m "fix(story-2.3): adicionar triggers updated_at e indice alertas(canal_id) - DB-02/03/04"
 ```
-
+ok
 ---
 
 ### ⏳ Story 2.4 — Consolidar Design System de Botões

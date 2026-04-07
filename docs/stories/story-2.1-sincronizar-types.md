@@ -89,3 +89,27 @@ Claude Sonnet 4.6 (Thinking) — Dex (@dev)
 ---
 
 *Story criada por @pm (Morgan) — EPIC-01, Sprint 2*
+
+---
+
+## QA Results
+
+**Revisor:** Quinn (@qa) — 2026-04-07
+**Gate:** ✅ PASS
+
+### Evidências Verificadas
+| AC | Resultado |
+|---|---|
+| AC1 `npx tsc --noEmit` ao vivo | ✅ Zero erros |
+| AC2 colunas `_enc` em Row/Insert/Update | ✅ 6 ocorrências confirmadas |
+| AC2 regressão — colunas antigas ausentes | ✅ Confirmado |
+| AC3 7 tabelas do Sprint 1 presentes | ✅ alertas, api_keys, blueprints, canais, eixos, profiles, videos |
+| AC4 build linting/types | ✅ Passed |
+| Zero `@ts-expect-error` remanescentes | ✅ Confirmado |
+| `api-utils.ts` retorna `response: undefined` | ✅ Confirmado |
+
+### Débito Registrado
+- `useSearchParams()` sem `<Suspense>` em `/canais/perfil` — pré-existente, não introduzido nesta story. Registrar no backlog Sprint 2.
+
+### Decisão
+Story aprovada. Pronto para @github-devops fazer push.

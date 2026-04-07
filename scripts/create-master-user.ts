@@ -36,8 +36,16 @@ async function createMasterUser() {
   if (error) {
     if (error.message.includes('already registered')) {
         console.log('Usuário já existe. Tentando resetar a senha para "1234"...');
+        const usersData = await supabase.auth.admin.listUsers();
+        const targetUserId = usersData.data.users.find(u => u.email === email)?.id;
+        
+        if (!targetUserId) {
+            console.error('Erro: Usuário Mestre já existe, mas não foi encontrado na listagem. ID indefinido.');
+            return;
+        }
+
         const { error: updateError } = await supabase.auth.admin.updateUserById(
-            (await supabase.auth.admin.listUsers()).data.users.find(u => u.email === email)?.id!,
+            targetUserId,
             { password: '1234' }
         );
         if (updateError) console.error('Erro ao resetar senha:', updateError.message);

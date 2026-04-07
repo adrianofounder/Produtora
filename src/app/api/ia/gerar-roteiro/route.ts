@@ -95,7 +95,6 @@ Escreva APENAS o roteiro, sem comentários extras, entre 1200 e 2000 palavras.`;
     if (video_id && roteiro) {
       await supabase
         .from('videos')
-        // @ts-expect-error - Supabase bypass
         .update({ roteiro, step_roteiro: true, updated_at: new Date().toISOString() })
         .eq('id', video_id)
         .eq('user_id', user.id);

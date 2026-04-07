@@ -94,7 +94,6 @@ Responda APENAS o título, sem aspas ou explicações.` }]
 
       const { data: novoVideoRaw } = await supabase
         .from('videos')
-        // @ts-expect-error - Supabase bypass
         .insert({
           canal_id,
           user_id: userId,
@@ -122,7 +121,6 @@ Responda APENAS o título, sem aspas ou explicações.` }]
     }
 
     await supabase.from('alertas')
-      // @ts-expect-error - Supabase bypass
       .insert({
         user_id: userId,
         canal_id,

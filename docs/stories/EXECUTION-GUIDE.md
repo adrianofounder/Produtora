@@ -141,12 +141,12 @@ git add -A && git commit -m "feat(story-1.6): criptografar tokens OAuth do YouTu
 
 ### ⏳ Story 2.1 — Sincronizar database.types.ts ⚠️ PRIMEIRO DO SPRINT 2
 > **SYS-05** — tipos desatualizados após migrations | ~2h
-
+======================================================================================================
 **Passo 1 — Regenerar tipos e corrigir erros:**
 ```
-@[.agent/workflows/dev.md] implemente a @[docs/stories/story-2.1-sincronizar-types.md]
+@[.agent/workflows/dev.md] implemente a @[docs/stories/story-2.1-sincronizar-types.md]    =============
 ```
-
+=======================================================================================================
 **Passo 2 — Validar build:**
 ```
 @[.agent/workflows/qa.md] valide a @[docs/stories/story-2.1-sincronizar-types.md]
@@ -166,12 +166,12 @@ git add -A && git commit -m "fix(story-2.1): regenerar database.types.ts pos-mig
 ```
 @[.agent/workflows/dev.md] implemente a @[docs/stories/story-2.2-resolver-linting.md]
 ```
-
+ok
 **Passo 2 — Validar:**
 ```
 @[.agent/workflows/qa.md] valide a @[docs/stories/story-2.2-resolver-linting.md]
 ```
-
+ok
 **Passo 3 — Commitar:**
 ```
 git add -A && git commit -m "fix(story-2.2): resolver erros de linting pendentes + configurar lint-staged - SYS-03"

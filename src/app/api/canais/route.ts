@@ -32,7 +32,6 @@ export async function POST(request: Request) {
 
     const { data, error } = await supabase
       .from('canais')
-      // @ts-expect-error - Supabase bypass
       .insert({
         user_id: user.id,
         nome: body.nome,

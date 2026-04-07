@@ -32,7 +32,6 @@ export async function PATCH(request: Request) {
 
     const { data, error } = await supabase
       .from('profiles')
-      // @ts-expect-error - Supabase bypass
       .update({ full_name: body.full_name, avatar_url: body.avatar_url, updated_at: new Date().toISOString() })
       .eq('id', user.id)
       .select()

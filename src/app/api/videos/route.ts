@@ -49,7 +49,6 @@ export async function POST(request: Request) {
 
     const { data, error } = await supabase
       .from('videos')
-      // @ts-expect-error - Supabase bypass
       .insert({
         canal_id: body.canal_id,
         user_id: user.id,
@@ -73,6 +72,7 @@ export async function POST(request: Request) {
       .single();
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (!data) return NextResponse.json({ error: 'Erro ao criar vídeo' }, { status: 500 });
     return NextResponse.json(data, { status: 201 });
   } catch (err) {
     return handleApiError(err);

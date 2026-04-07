@@ -45,7 +45,6 @@ export async function POST(request: Request) {
 
     const { data, error } = await supabase
       .from('alertas')
-      // @ts-expect-error - Supabase bypass
       .update({ lido: true })
       .eq('id', body.id)
       .eq('user_id', user.id)
@@ -53,6 +52,7 @@ export async function POST(request: Request) {
       .single();
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (!data) return NextResponse.json({ error: 'Alerta não encontrado' }, { status: 404 });
     return NextResponse.json(data);
   } catch (err) {
     return handleApiError(err);

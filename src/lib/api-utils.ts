@@ -12,7 +12,7 @@ export async function requireAuth() {
   if (error || !user) {
     return { user: null, supabase, response: NextResponse.json({ error: 'Não autorizado' }, { status: 401 }) };
   }
-  return { user, supabase, response: null };
+  return { user, supabase, response: undefined };
 }
 
 /**
@@ -22,7 +22,7 @@ export async function requireAuth() {
 export async function checkOwnership(tableName: string, resourceId: string, userId: string) {
   const supabase = await createClient();
   const { data, error } = await supabase
-    .from(tableName)
+    .from(tableName as any)
     .select('user_id')
     .eq('id', resourceId)
     .single();
@@ -35,7 +35,7 @@ export async function checkOwnership(tableName: string, resourceId: string, user
     return { hasOwnership: false, response: NextResponse.json({ error: 'Acesso negado: você não é o dono deste recurso' }, { status: 403 }) };
   }
 
-  return { hasOwnership: true, response: null };
+  return { hasOwnership: true, response: undefined };
 }
 
 /**

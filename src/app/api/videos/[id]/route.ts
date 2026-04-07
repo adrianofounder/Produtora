@@ -29,7 +29,6 @@ export async function PATCH(request: Request, { params }: Params) {
 
     const { data, error } = await supabase
       .from('videos')
-      // @ts-expect-error - Supabase bypass
       .update({ ...body, updated_at: new Date().toISOString() })
       .eq('id', id)
       .eq('user_id', user.id)
@@ -37,6 +36,7 @@ export async function PATCH(request: Request, { params }: Params) {
       .single();
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (!data) return NextResponse.json({ error: 'Vídeo não encontrado' }, { status: 404 });
     return NextResponse.json(data);
   } catch (err) {
     return handleApiError(err);

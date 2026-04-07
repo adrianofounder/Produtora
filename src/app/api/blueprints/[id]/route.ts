@@ -22,7 +22,8 @@ export async function GET(request: Request, { params }: Params) {
       .eq('canal_id', canalId)
       .single();
 
-    if (error) return NextResponse.json(null); // sem blueprint ainda
+    if (error) return NextResponse.json({ data: null }, { status: 200 }); // sem blueprint ainda
+    if (!data) return NextResponse.json({ data: null }, { status: 200 });
     return NextResponse.json(data);
   } catch (err) {
     return handleApiError(err);
@@ -46,12 +47,12 @@ export async function PUT(request: Request, { params }: Params) {
 
     const { data, error } = await supabase
       .from('blueprints')
-      // @ts-expect-error - Supabase bypass
       .upsert({ ...body, canal_id: canalId, updated_at: new Date().toISOString() }, { onConflict: 'canal_id' })
       .select()
       .single();
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (!data) return NextResponse.json({ error: 'Blueprint não encontrado' }, { status: 404 });
     return NextResponse.json(data);
   } catch (err) {
     return handleApiError(err);

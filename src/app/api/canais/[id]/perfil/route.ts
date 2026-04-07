@@ -25,6 +25,7 @@ export async function GET(request: Request, { params }: Params) {
       .single();
 
     if (error) return NextResponse.json({ error: error.message }, { status: 404 });
+    if (!data) return NextResponse.json({ error: 'Canal não encontrado' }, { status: 404 });
     return NextResponse.json(data);
   } catch (err) {
     return handleApiError(err);
@@ -60,7 +61,6 @@ export async function PATCH(request: Request, { params }: Params) {
 
     const { data, error } = await supabase
       .from('canais')
-      // @ts-expect-error - Supabase bypass
       .update(payload)
       .eq('id', id)
       .eq('user_id', user.id)
@@ -68,6 +68,7 @@ export async function PATCH(request: Request, { params }: Params) {
       .single();
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (!data) return NextResponse.json({ error: 'Canal não encontrado' }, { status: 404 });
     return NextResponse.json(data);
   } catch (err) {
     return handleApiError(err);

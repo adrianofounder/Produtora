@@ -50,7 +50,6 @@ export async function POST(request: Request) {
 
     const { data, error } = await supabase
       .from('eixos')
-      // @ts-expect-error - Supabase bypass
       .insert({
         canal_id: body.canal_id,
         nome: body.nome,
@@ -64,6 +63,7 @@ export async function POST(request: Request) {
       .single();
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (!data) return NextResponse.json({ error: 'Erro ao criar eixo' }, { status: 500 });
     return NextResponse.json(data, { status: 201 });
   } catch (err) {
     return handleApiError(err);

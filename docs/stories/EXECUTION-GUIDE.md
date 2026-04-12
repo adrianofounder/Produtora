@@ -256,7 +256,8 @@ git add -A && git commit -m "feat(story-2.5): responsividade mobile do VideoDraw
 ok
 ---
 
-### ⏳ Story 2.6 — Otimizar Configuração do Next.js
+### ✅ Story 2.6 — Otimizar Configuração do Next.js
+> **Status:** ✅ CONCLUÍDA — commit `266e675`
 > **SYS-04** — next.config.ts vazio sem otimizações | ~2h
 
 **Passo 1 — Implementar (⚡ Flash / 🛠️ Low):**
@@ -273,7 +274,7 @@ ok
 ```
 git add -A && git commit -m "feat(story-2.6): otimizar next.config.ts com image domains, compressao e bundle config - SYS-04"
 ```
-
+ok
 ---
 
 ## 🔵 SPRINT 3 — Performance & Excelência
@@ -289,12 +290,12 @@ git add -A && git commit -m "feat(story-2.6): otimizar next.config.ts com image 
 ```
 @[.agent/workflows/data-engineer.md] implemente a @[docs/stories/story-3.1-performance-database.md]
 ```
-
+ok
 **Passo 2 — Validar com EXPLAIN ANALYZE (⚡ Flash):**
 ```
 @[.agent/workflows/qa.md] valide a @[docs/stories/story-3.1-performance-database.md]
 ```
-
+ok
 **Passo 3 — Commitar (⚡ Flash):**
 ```
 git add -A && git commit -m "perf(story-3.1): migrar RLS para EXISTS e adicionar indices compostos - DB-05/09/06"
@@ -408,7 +409,7 @@ git add -A && git commit -m "chore(story-3.5): renomear temp-app para produtora 
 | 2.3 | Triggers e índices DB | 2 | ⏳ Aguardando |
 | 2.4 | Design system botões | 2 | ✅ Concluída |
 | 2.5 | Responsividade mobile | 2 | ✅ Concluída |
-| 2.6 | Otimizar Next.js config | 2 | ⏳ Aguardando |
+| 2.6 | Otimizar Next.js config | 2 | ✅ Concluída |
 | 3.1 | Performance database | 3 | ⏳ Aguardando |
 | 3.2 | UX estados de feedback | 3 | ⏳ Aguardando |
 | 3.3 | Error tracking (Sentry) | 3 | ⏳ Aguardando |

@@ -235,7 +235,8 @@ git add -A && git commit -m "feat(story-2.4): adicionar .btn-danger ao design sy
 ok
 ---
 
-### ⏳ Story 2.5 — Responsividade Mobile do VideoDrawer
+### ✅ Story 2.5 — Responsividade Mobile do VideoDrawer
+> **Status:** ✅ CONCLUÍDA — commit `fd2de03`
 > **FE-09** — sem bottom sheet em mobile | ~2h
 
 **Passo 1 — Implementar (🎯 Pro High / 🛠️ Low):**
@@ -262,12 +263,12 @@ ok
 ```
 @[.agent/workflows/dev.md] otimize o next.config.ts: adicione image domains, compressão e bundle analyzer. Veja @[docs/prd/technical-debt-assessment.md] para contexto do item SYS-04
 ```
-
+ok
 **Passo 2 — Validar build (⚡ Flash):**
 ```
 @[.agent/workflows/qa.md] valide que o build do Next.js está sem warnings e devidamente otimizado
 ```
-
+ok
 **Passo 3 — Commitar (⚡ Flash):**
 ```
 git add -A && git commit -m "feat(story-2.6): otimizar next.config.ts com image domains, compressao e bundle config - SYS-04"
@@ -406,7 +407,7 @@ git add -A && git commit -m "chore(story-3.5): renomear temp-app para produtora 
 | 2.2 | Resolver linting | 2 | ⏳ Aguardando |
 | 2.3 | Triggers e índices DB | 2 | ⏳ Aguardando |
 | 2.4 | Design system botões | 2 | ✅ Concluída |
-| 2.5 | Responsividade mobile | 2 | ⏳ Aguardando |
+| 2.5 | Responsividade mobile | 2 | ✅ Concluída |
 | 2.6 | Otimizar Next.js config | 2 | ⏳ Aguardando |
 | 3.1 | Performance database | 3 | ⏳ Aguardando |
 | 3.2 | UX estados de feedback | 3 | ⏳ Aguardando |

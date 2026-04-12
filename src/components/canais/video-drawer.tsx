@@ -84,7 +84,7 @@ export function VideoDrawer(props: VideoDrawerProps) {
           aria-modal="true"
           aria-labelledby="video-drawer-title"
           tabIndex={-1}
-          className="h-full w-full max-w-2xl flex flex-col overflow-hidden outline-none bg-[var(--color-surface)] border-l border-white/10 shadow-[-20px_0_60px_rgba(0,0,0,0.5)]"
+          className="h-full w-full sm:max-w-2xl flex flex-col overflow-hidden sm:ml-auto outline-none bg-[var(--color-surface)] sm:border-l sm:border-white/10 shadow-[-20px_0_60px_rgba(0,0,0,0.5)]"
         >
           <VideoDrawerHeader />
           <VideoDrawerTabs />

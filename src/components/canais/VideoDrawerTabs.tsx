@@ -15,7 +15,11 @@ export function VideoDrawerTabs() {
   const { abaAtiva, setAbaAtiva, aprovado } = useVideoDrawer();
 
   return (
-    <div role="tablist" aria-label="Abas de Edição do Vídeo" className="flex border-b border-white/5 overflow-x-auto">
+    <div 
+      role="tablist" 
+      aria-label="Abas de Edição do Vídeo" 
+      className="flex border-b border-white/5 overflow-x-auto touch-pan-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+    >
       {ABAS.map((aba) => {
         const isActive = abaAtiva === aba.id;
         const isAprovado =

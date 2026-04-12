@@ -209,7 +209,8 @@ git add -A && git commit -m "fix(story-2.3): adicionar triggers updated_at e ind
 ok
 ---
 
-### ⏳ Story 2.4 — Consolidar Design System de Botões
+### ✅ Story 2.4 — Consolidar Design System de Botões
+> **Status:** ✅ CONCLUÍDA — commit `3e16816`
 > **FE-04** + **FE-05** — .btn-danger ausente, statusConfig duplicado | ~5h
 
 **Passo 1 — Implementar (🎯 Pro High / 🛠️ Low):**
@@ -231,7 +232,7 @@ ok
 ```
 git add -A && git commit -m "feat(story-2.4): adicionar .btn-danger ao design system e unificar statusConfig - FE-04/05"
 ```
-
+ok
 ---
 
 ### ⏳ Story 2.5 — Responsividade Mobile do VideoDrawer
@@ -241,17 +242,17 @@ git add -A && git commit -m "feat(story-2.4): adicionar .btn-danger ao design sy
 ```
 @[.agent/workflows/dev.md] implemente a @[docs/stories/story-2.5-responsividade-mobile.md]
 ```
-
+ok
 **Passo 2 — Validar (⚡ Flash):**
 ```
 @[.agent/workflows/qa.md] valide a @[docs/stories/story-2.5-responsividade-mobile.md]
 ```
-
+OK
 **Passo 3 — Commitar (⚡ Flash):**
 ```
 git add -A && git commit -m "feat(story-2.5): responsividade mobile do VideoDrawer com bottom sheet - FE-09"
 ```
-
+ok
 ---
 
 ### ⏳ Story 2.6 — Otimizar Configuração do Next.js
@@ -404,7 +405,7 @@ git add -A && git commit -m "chore(story-3.5): renomear temp-app para produtora 
 | 2.1 | Sincronizar database.types.ts | 2 | ⏳ Aguardando |
 | 2.2 | Resolver linting | 2 | ⏳ Aguardando |
 | 2.3 | Triggers e índices DB | 2 | ⏳ Aguardando |
-| 2.4 | Design system botões | 2 | ⏳ Aguardando |
+| 2.4 | Design system botões | 2 | ✅ Concluída |
 | 2.5 | Responsividade mobile | 2 | ⏳ Aguardando |
 | 2.6 | Otimizar Next.js config | 2 | ⏳ Aguardando |
 | 3.1 | Performance database | 3 | ⏳ Aguardando |

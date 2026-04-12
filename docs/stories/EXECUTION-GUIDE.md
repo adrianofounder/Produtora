@@ -300,7 +300,7 @@ ok
 ```
 git add -A && git commit -m "perf(story-3.1): migrar RLS para EXISTS e adicionar indices compostos - DB-05/09/06"
 ```
-
+ok
 ---
 
 ### ⏳ Story 3.2 — Estados de Feedback de UX (Error, Loading, Empty)
@@ -310,17 +310,17 @@ git add -A && git commit -m "perf(story-3.1): migrar RLS para EXISTS e adicionar
 ```
 @[.agent/workflows/dev.md] implemente a @[docs/stories/story-3.2-ux-estados-feedback.md]
 ```
-
+ok
 **Passo 2 — Revisar visual (🎯 Pro High):**
 ```
 @[.agent/workflows/ux-design-expert.md] revise os atoms de feedback da @[docs/stories/story-3.2-ux-estados-feedback.md]
 ```
-
+ok
 **Passo 3 — Validar (⚡ Flash):**
 ```
 @[.agent/workflows/qa.md] valide a @[docs/stories/story-3.2-ux-estados-feedback.md]
 ```
-
+ok
 **Passo 4 — Commitar (⚡ Flash):**
 ```
 git add -A && git commit -m "feat(story-3.2): adicionar atoms ErrorState, LoadingState e EmptyState - FE-06/07"

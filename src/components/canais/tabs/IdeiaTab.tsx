@@ -1,7 +1,9 @@
 'use client';
 
-import { ChevronRight, Loader2, Sparkles } from 'lucide-react';
+import { ChevronRight, Sparkles } from 'lucide-react';
 import { useVideoDrawer } from '../hooks/useVideoDrawer';
+import { ErrorState } from '@/components/ui/error-state';
+import { LoadingState } from '@/components/ui/loading-state';
 
 export function IdeiaTab() {
   const { 
@@ -9,6 +11,7 @@ export function IdeiaTab() {
     titulos, 
     tituloSelecionado, setTituloSelecionado, 
     loadingTitulos, gerarTitulos, 
+    errorTitulos,
     setAbaAtiva, gerarRoteiro 
   } = useVideoDrawer();
 
@@ -20,12 +23,22 @@ export function IdeiaTab() {
           A IA vai criar 5 variações de título para o eixo <strong className="text-[var(--color-text-1)]">{eixo}</strong>.
         </p>
         <button onClick={gerarTitulos} disabled={loadingTitulos} className="btn-primary">
-          {loadingTitulos ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+          {!loadingTitulos && <Sparkles className="h-4 w-4" />}
           {loadingTitulos ? 'Gerando títulos...' : 'Gerar 5 Títulos com IA'}
         </button>
       </div>
 
-      {titulos.length > 0 && (
+      {errorTitulos && (
+        <ErrorState 
+          title="Erro na IA" 
+          message={errorTitulos} 
+          onRetry={gerarTitulos} 
+        />
+      )}
+
+      {loadingTitulos ? (
+        <LoadingState label="Gerando opções de títulos..." />
+      ) : titulos.length > 0 && (
         <div className="space-y-2">
           {titulos.map((t, i) => (
             <button

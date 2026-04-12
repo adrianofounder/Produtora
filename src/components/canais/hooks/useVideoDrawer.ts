@@ -19,19 +19,25 @@ export function useVideoDrawerState({ videoId, canalId, eixo, tituloInicial, onU
   const [titulo, setTitulo] = useState(tituloInicial);
   const [loadingRoteiro, setLoadingRoteiro] = useState(false);
   const [loadingTitulos, setLoadingTitulos] = useState(false);
+  const [errorRoteiro, setErrorRoteiro] = useState<string | null>(null);
+  const [errorTitulos, setErrorTitulos] = useState<string | null>(null);
   const [aprovado, setAprovado] = useState({ roteiro: false, audio: false, thumb: false });
 
   // actions
   async function gerarRoteiro(instrucao?: string) {
     setLoadingRoteiro(true);
+    setErrorRoteiro(null);
     try {
       const res = await fetch('/api/ia/gerar-roteiro', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ video_id: videoId, canal_id: canalId, titulo, tom: instrucao }),
       });
+      if (!res.ok) throw new Error('Falha ao gerar roteiro na IA');
       const data = await res.json();
       if (data.roteiro) setRoteiro(data.roteiro);
+    } catch (err: any) {
+      setErrorRoteiro(err.message || 'Erro inesperado na geração do roteiro.');
     } finally {
       setLoadingRoteiro(false);
     }
@@ -39,17 +45,21 @@ export function useVideoDrawerState({ videoId, canalId, eixo, tituloInicial, onU
 
   async function gerarTitulos() {
     setLoadingTitulos(true);
+    setErrorTitulos(null);
     try {
       const res = await fetch('/api/ia/gerar-titulos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ canal_id: canalId, eixo, premissa: titulo }),
       });
+      if (!res.ok) throw new Error('Falha ao gerar títulos na IA');
       const data = await res.json();
       if (data.titulos) {
         setTitulos(data.titulos);
         setTituloSelecionado(data.titulos[0] ?? '');
       }
+    } catch (err: any) {
+      setErrorTitulos(err.message || 'Erro inesperado na geração de títulos.');
     } finally {
       setLoadingTitulos(false);
     }
@@ -76,6 +86,8 @@ export function useVideoDrawerState({ videoId, canalId, eixo, tituloInicial, onU
     tituloSelecionado, setTituloSelecionado,
     loadingRoteiro, setLoadingRoteiro,
     loadingTitulos, setLoadingTitulos,
+    errorRoteiro, setErrorRoteiro,
+    errorTitulos, setErrorTitulos,
     aprovado, setAprovado,
     progresso,
     gerarRoteiro, gerarTitulos, aprovarRoteiro,

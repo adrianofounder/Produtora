@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Plus, Search, LayoutGrid, Activity, Filter, Loader2, AlertCircle } from 'lucide-react';
 import { VideoCard } from '@/components/dashboard/video-card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { EmptyState } from '@/components/ui/empty-state';
 
 type VideoStatus = 'planejamento' | 'producao' | 'pronto' | 'agendado' | 'publicado' | 'erro';
 
@@ -432,21 +433,19 @@ export default function Canais() {
                 ))}
               </div>
             ) : videosFiltrados.length === 0 ? (
-              <div className="card-inner py-32 flex flex-col items-center justify-center gap-4 border-dashed border-white/10">
-                <div className="p-4 rounded-full bg-white/5">
-                  <LayoutGrid className="w-8 h-8 opacity-20" />
-                </div>
-                <div className="text-center">
-                  <p className="font-bold text-white uppercase tracking-widest text-[10px]">Nada encontrado</p>
-                  <p className="text-xs text-[var(--color-text-3)] mt-1">Não há vídeos que correspondam à sua busca.</p>
-                </div>
-                <button 
-                  onClick={() => {setBusca(''); setFiltroAtivo('todos');}}
-                  className="btn-ghost text-[10px] h-8 px-4"
-                >
-                  Limpar Filtros
-                </button>
-              </div>
+              <EmptyState 
+                icon={LayoutGrid}
+                title="Nada encontrado"
+                description="Não há vídeos que correspondam à sua busca."
+                action={
+                  <button 
+                    onClick={() => {setBusca(''); setFiltroAtivo('todos');}}
+                    className="btn-ghost text-[10px] h-8 px-4"
+                  >
+                    Limpar Filtros
+                  </button>
+                }
+              />
             ) : (
               <div className="grid grid-cols-1 gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
                  {videosFiltrados.map((v) => <VideoCard key={v.id} {...videoToCardProps(v)} />)}

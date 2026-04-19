@@ -6,7 +6,7 @@
 **Prioridade:** 🔴 P0 — Core do sistema de geração
 **Estimativa:** 8h
 **Assignee:** @dev
-**Status:** 📝 **Draft**
+**Status:** ✅ **READY FOR REVIEW — aguardando @qa**
 
 ---
 
@@ -67,23 +67,23 @@ O vídeo que abriu a Gaveta atualizará seu status no supabase / Zustand ao salv
 ## 📅 Tasks / Subtasks
 
 ### Task 1 — Base Componente Gaveta Visão Geral
-- [ ] 1.1 Criar a Sheet/Drawer base de Produção.
-- [ ] 1.2 Importar dados do vídeo e os relacionamentos de Blueprint visualmente.
-- [ ] 1.3 Adicionar "Abas" para separar no futuro Roteiro/Áudio/Asset. Inicializar Aba 1 "Roteiro" por default.
+- [x] 1.1 Criar a Sheet/Drawer base de Produção.
+- [x] 1.2 Importar dados do vídeo e os relacionamentos de Blueprint visualmente.
+- [x] 1.3 Adicionar "Abas" para separar no futuro Roteiro/Áudio/Asset. Inicializar Aba 1 "Roteiro" por default.
 
 ### Task 2 — Arquitetura de Backend (Agnostic AI Facade)
-- [ ] 2.1 Criar utilitário proxy de "Geração Abstrata" com sleep/mock pro desenvolvimento.
-- [ ] 2.2 Integrar proxy com mecanismo de desconto do `consumption-tracker.ts` (Story 3.1).
-- [ ] 2.3 Expor a Server Action `generateScriptAction`.
+- [x] 2.1 Criar utilitário proxy de "Geração Abstrata" com sleep/mock pro desenvolvimento.
+- [x] 2.2 Integrar proxy com mecanismo de desconto do `consumption-tracker.ts` (Story 3.1).
+- [x] 2.3 Expor a Server Action `generateScriptAction`.
 
 ### Task 3 — Edição VUI Frontend
-- [ ] 3.1 Criar a área de rich text ou lista de textareas iteráveis que recebem a resposta do gerador.
-- [ ] 3.2 Otimizar o controle Form state para que o usuário modifique qualquer frase.
-- [ ] 3.3 Persistir no banco de dados quando finalizado/salvo pelo usuário localmente.
+- [x] 3.1 Criar a área de rich text ou lista de textareas iteráveis que recebem a resposta do gerador.
+- [x] 3.2 Otimizar o controle Form state para que o usuário modifique qualquer frase.
+- [x] 3.3 Persistir no banco de dados quando finalizado/salvo pelo usuário localmente.
 
 ### Task 4 — Quality Gate
-- [ ] 4.1 Validar `npm run build`.
-- [ ] 4.2 Linter pass (`npm run lint`).
+- [x] 4.1 Validar `npm run build`. ✅ Exit code: 0
+- [x] 4.2 Linter pass (`npm run lint`). ✅ Compilação limpa
 - [ ] 4.3 Simular quebra de limite de moedas no banco e tentar gerar roteiro: Garantir comportamento UI impecável.
 
 ---
@@ -95,8 +95,23 @@ O vídeo que abriu a Gaveta atualizará seu status no supabase / Zustand ao salv
 
 ---
 
+## 🛠️ Arquivos Modificados (Dev Agent Record)
+
+| Arquivo | Operação | Descrição |
+|---|---|---|
+| `src/lib/ai/text-engine.interface.ts` | NEW | Interface `ITextEngine` + `TextEngineError` tipado (Port & Adapter) |
+| `src/lib/ai/mock-text-engine.ts` | NEW | Adaptador mock com latência simulada e falhas configuráveis |
+| `src/app/actions/gaveta-actions.ts` | NEW | `generateScriptAction` (checagem de teto + IA) e `saveScriptAction` (persistência) |
+| `src/components/gaveta/gaveta-producao.tsx` | NEW | Sheet lateral com abas, Editor VUI por parágrafo, estados de loading e erro tipados |
+| `src/components/dashboard/video-card.tsx` | MODIFY | Prop `onOpenGaveta` opcional + botão "✦ Produzir" no hover |
+| `src/app/(dashboard)/canais/page.tsx` | MODIFY | Estado `gavetaVideo`, integração do `GavetaProducao` e `onOpenGaveta` em cada card |
+| `src/lib/ai/consumption-tracker.ts` | MODIFY | Remove `'use server'` incorreto (utilitário importado por Server Actions) |
+| `scratch/apply-migration.ts` | MODIFY | Correção de tipo preexistente: `err.message` → type narrowing |
+
+---
+
 ## 🏁 Fluxo de Handoff
-Quando devidamente revisado ou aceito pelo PO/Dev:
+Quando validado pelo SM, chame:
 ```
-@[.agent/workflows/dev.md] implemente a arquitetura e gaveta da story-3.2, com design pattern de AI abstrata e zero happy-path default.
+@[.agent/workflows/qa.md] valide a story-3.2, testando tratamento de recusa simulada de api e atualizacao react da UI.
 ```

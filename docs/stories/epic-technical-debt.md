@@ -89,6 +89,7 @@ A resolução elimina exposição de risco de **R$ 166k–R$ 670k** com investim
 | [Story 3.3](story-3.3-error-tracking.md) | Implementar Error Tracking em Produção | OBS-01 | 4h |
 | [Story 3.4](story-3.4-testes-automatizados.md) | Estrutura Inicial de Testes Automatizados | TEST-01 | 4h+ |
 | [Story 3.5](story-3.5-limpeza-sistema.md) | Limpeza e Organização do Sistema | SYS-01, SYS-02 | 0.5h |
+| [Story 3.6](story-3.6-mock-voice-engine.md) | Substituir Mock Voice Engine por TTS Real | SYS-06 | 3h |
 
 ---
 

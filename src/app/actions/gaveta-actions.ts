@@ -20,6 +20,8 @@ import { revalidatePath } from 'next/cache';
 import { checkSpendLimit, incrementSpend } from '@/lib/ai/consumption-tracker';
 import { mockTextEngine } from '@/lib/ai/mock-text-engine';
 import { TextEngineError } from '@/lib/ai/text-engine.interface';
+import { mockVoiceEngine } from '@/lib/ai/mock-voice-engine';
+import { VoiceEngineError } from '@/lib/ai/voice-engine.interface';
 
 // ============================================================
 // Tipos de Resposta — sempre union discriminada (nunca exceção pura)
@@ -190,7 +192,7 @@ export async function generateScriptAction(
 
 export async function saveScriptAction(
   videoId: string,
-  paragraphs: string[],
+  paragraphs: any[],
 ): Promise<SaveScriptResult> {
   try {
     const supabase = await createClient();
@@ -237,6 +239,170 @@ export async function saveScriptAction(
     return {
       success: false,
       errorMessage: 'Erro inesperado ao salvar. Tente novamente.',
+    };
+  }
+}
+
+// ============================================================
+// Action 3: Gerar Áudio TTS por Parágrafo
+// ============================================================
+
+export type GenerateAudioResult =
+  | { success: true; audioUrl: string; costUnits: number }
+  | { success: false; errorCode: string; errorMessage: string };
+
+export async function generateParagraphAudioAction(
+  videoId: string,
+  paragraphId: string,
+  text: string
+): Promise<GenerateAudioResult> {
+  try {
+    const supabase = await createClient();
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return { success: false, errorCode: 'AUTH_REQUIRED', errorMessage: 'Faça login.' };
+    }
+
+    // 1. Busca Blueprint e Roteiro atual
+    const { data: video, error: videoError } = await supabase
+      .from('videos')
+      .select(`
+        id,
+        roteiro,
+        canais (
+          blueprints (
+            voz_narrador
+          )
+        )
+      `)
+      .eq('id', videoId)
+      .eq('user_id', user.id)
+      .single();
+
+    if (videoError || !video) {
+      return { success: false, errorCode: 'VIDEO_NOT_FOUND', errorMessage: 'Vídeo não encontrado.' };
+    }
+
+    // 2. Trava de Custos (Story 3.1)
+    const spendCheck = await checkSpendLimit(user.id, 'tts_audio');
+
+    if (!spendCheck.allowed) {
+      return {
+        success: false,
+        errorCode: 'SPEND_LIMIT_REACHED',
+        errorMessage: spendCheck.message ?? 'Teto de gastos atingido para TTS.',
+      };
+    }
+
+    const canal = Array.isArray(video.canais) ? video.canais[0] : video.canais;
+    const blueprint = canal?.blueprints
+      ? Array.isArray(canal.blueprints)
+        ? canal.blueprints[0]
+        : canal.blueprints
+      : null;
+
+    const voiceIdentity = blueprint?.voz_narrador || 'Voz Padrão Neutra';
+
+    // 3. Gerar TTS via Motor Abstrato
+    const result = await mockVoiceEngine.speak({
+      modelId: 'mock-voice-v1',
+      textBlock: text,
+      voiceIdentity,
+    });
+
+    // 4. Transformar Buffer em Storage Upload
+    const fileName = `${user.id}/${videoId}/audio-${paragraphId}-${Date.now()}.mp3`;
+    
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from('assets')
+      .upload(fileName, result.audioBuffer, {
+        contentType: 'audio/mpeg',
+        upsert: true, // Substitui a versão antiga do mesmo bloco
+      });
+
+    if (uploadError) {
+      console.error('[gaveta-actions] Erro ao subir áudio para o Storage:', uploadError);
+      return {
+        success: false,
+        errorCode: 'STORAGE_ERROR',
+        errorMessage: 'Falha ao salvar áudio gerado na nuvem.',
+      };
+    }
+
+    // 5. Atualizar o Roteiro no Banco de Dados (Atomicidade Core)
+    // Pega a URL pública
+    const { data: publicData } = supabase.storage.from('assets').getPublicUrl(fileName);
+    const audioUrl = publicData.publicUrl;
+
+    // Buscamos o roteiro atual e injetamos a nova URL no parágrafo correto
+    let currentParagraphs: any[] = [];
+    try {
+      if (video.roteiro) {
+        const parsed = JSON.parse(video.roteiro);
+        currentParagraphs = Array.isArray(parsed) ? parsed : [];
+      }
+    } catch (e) {
+      console.warn('[gaveta-actions] Falha ao parsear roteiro existente para merge de áudio.');
+    }
+
+    // Mapear parágrafos convertendo legacy (string) para objeto se necessário
+    const updatedParagraphs = currentParagraphs.map((p, i) => {
+      // Se for apenas string (legacy), converte pra objeto
+      const isLegacy = typeof p === 'string';
+      const pObj = isLegacy ? { id: `para-legacy-${i}`, text: p } : p;
+      
+      // Se for o alvo, injeta a URL
+      if (pObj.id === paragraphId) {
+        return { ...pObj, audioUrl };
+      }
+      return pObj;
+    });
+
+    const { error: dbUpdateError } = await supabase
+      .from('videos')
+      .update({ roteiro: JSON.stringify(updatedParagraphs) })
+      .eq('id', videoId)
+      .eq('user_id', user.id);
+
+    if (dbUpdateError) {
+      console.error('[gaveta-actions] Falha ao atualizar roteiro com URL de áudio:', dbUpdateError);
+      // NFR: Mesmo que falte atualizar o DB, o arquivo está no Storage.
+      // Mas para o usuário é falha, então retornamos erro.
+      return {
+        success: false,
+        errorCode: 'DB_UPDATE_ERROR',
+        errorMessage: 'Áudio gerado, mas falhou ao vincular ao roteiro.',
+      };
+    }
+
+    // 6. Incrementa consumos (Anti-Happy Path: token descontado apenas no sucesso real)
+    await incrementSpend(user.id, 'tts_audio', result.costUnits);
+
+    revalidatePath('/canais');
+
+    return {
+      success: true,
+      audioUrl,
+      costUnits: result.costUnits,
+    };
+  } catch (err: unknown) {
+    if (err instanceof VoiceEngineError) {
+      return {
+        success: false,
+        errorCode: err.code,
+        errorMessage: err.message,
+      };
+    }
+
+    console.error('[gaveta-actions] Erro em generateParagraphAudioAction:', err);
+    return {
+      success: false,
+      errorCode: 'UNKNOWN',
+      errorMessage: 'Falha inesperada ao tentar gerar áudio.',
     };
   }
 }

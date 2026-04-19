@@ -68,7 +68,7 @@ ok
 ```
 git add -A && git commit -m "feat(epic-3): story-3.2 - modal gaveta e geracao simulada abstrata de gui"
 ```
-
+ok
 ---
 
 ## 🟣 SPRINT 7 — Sonorização e Empacotamento
@@ -84,17 +84,17 @@ git add -A && git commit -m "feat(epic-3): story-3.2 - modal gaveta e geracao si
 ```
 @[.agent/workflows/sm.md] redija a story-3.3 detalhando armazenamento de som, interface agnostica de voz e edicao parágrafo.
 ```
-
+ok
 **Passo 2 — Implementar (🎯 @dev):**
 ```
 @[.agent/workflows/dev.md] implemente dinamicamente a story-3.3
 ```
-
+ok
 **Passo 3 — Validar (⚡ @qa):**
 ```
 @[.agent/workflows/qa.md] verifique estricto manuseio do buffer de áudio do storage na ui da story-3.3
 ```
-
+ok
 **Passo 4 — Commitar:**
 ```
 git add -A && git commit -m "feat(epic-3): story-3.3 - integracao mp3 blocks gerados na fabrica"
@@ -127,6 +127,32 @@ git add -A && git commit -m "feat(epic-3): story-3.4 - compilador final de downl
 
 ---
 
+### ⏳ Story 3.5 — Chat Contextual e Personas de Produção
+> **Objetivo:** Adicionar um mini-chat em cada aba da Gaveta (Roteiro, Áudio, Assets) com "System Prompts" especializados (ex: Roteirista, Técnico de Som) para que o usuário possa tirar dúvidas ou pedir ajustes finos diretamente no contexto da aba.
+
+**Passo 1 — Refinamento (✍️ @sm):**
+```
+@[.agent/workflows/sm.md] redija a story-3.5 do chat contextual
+```
+ok
+
+**Passo 2 — Implementar (🎯 @dev):**
+```
+@[.agent/workflows/dev.md] implemente dinamicamente a story-3.5 para o chat
+```
+
+**Passo 3 — Testar o Fluxo (⚡ @qa):**
+```
+@[.agent/workflows/qa.md] valide a transicao de abas no chat da story-3.5 e limites
+```
+
+**Passo 4 — Commitar:**
+```
+git add -A && git commit -m "feat(epic-3): story-3.5 - chat contextual multitab"
+```
+
+---
+
 ## 📊 Tracker de Progresso - EPIC-03
 
 | Story | Título | Sprint | Status | Responsável Design |
@@ -135,7 +161,9 @@ git add -A && git commit -m "feat(epic-3): story-3.4 - compilador final de downl
 | 3.2 | Gaveta: Roteirização Abstrata | 6 | ✅ Concluído | @sm / @dev / @qa |
 | 3.3 | Gaveta: Mecanismo de TTS/Voz | 7 | ⏳ A Fazer | @sm / @dev |
 | 3.4 | Gaveta: Asset Visual Final e ZIP| 7 | ⏳ A Fazer | @sm / @dev |
+| 3.5 | Gaveta: Chat Contextual e Personas | 7 | ⏳ A Fazer | @sm / @dev |
 
+---
 ---
 
 ## 🏁 Próximos Passos (Workflow AIOX)

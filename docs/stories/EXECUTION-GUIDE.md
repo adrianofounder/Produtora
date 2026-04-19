@@ -325,7 +325,7 @@ ok
 ```
 git add -A && git commit -m "feat(story-3.2): adicionar atoms ErrorState, LoadingState e EmptyState - FE-06/07"
 ```
-
+ok
 ---
 
 ### ⏳ Story 3.3 — Implementar Error Tracking em Produção (Sentry)

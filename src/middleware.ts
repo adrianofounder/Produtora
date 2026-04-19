@@ -35,7 +35,16 @@ export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
   // Rotas públicas (adicionado api/auth/callback se necessário)
-  const publicRoutes = ['/login', '/cadastro', '/auth/callback'];
+  // /sentry-example-page e /api/sentry-example-api: rotas de teste do Sentry (Story 3.3)
+  // /monitoring: tunnel do Sentry para contornar ad-blockers
+  const publicRoutes = [
+    '/login',
+    '/cadastro',
+    '/auth/callback',
+    '/sentry-example-page',
+    '/api/sentry-example-api',
+    '/monitoring',
+  ];
   const isPublicRoute = publicRoutes.some((r) => pathname.startsWith(r));
 
   if (!user && !isPublicRoute) {

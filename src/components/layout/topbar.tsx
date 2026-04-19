@@ -4,6 +4,7 @@ import Link from "next/link";
 import { User, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import * as Sentry from "@sentry/nextjs";
 
 export function Topbar() {
   const [user, setUser] = useState<any>(null);
@@ -17,8 +18,25 @@ export function Topbar() {
       const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
       setLoading(false);
+
+      // AC5 — Story 3.3: envia contexto do usuário ao Sentry para enriquecer os erros
+      if (user) {
+        Sentry.setUser({ id: user.id, email: user.email ?? undefined });
+      } else {
+        Sentry.setUser(null);
+      }
     }
     getUser();
+
+    // Limpa contexto do Sentry ao fazer logout
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event) => {
+        if (event === 'SIGNED_OUT') {
+          Sentry.setUser(null);
+        }
+      }
+    );
+    return () => subscription.unsubscribe();
   }, [supabase.auth]);
 
   return (

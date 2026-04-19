@@ -82,6 +82,11 @@ export const CreateBlueprintSchema = z.object({
   titulo_benchmark: z.string().optional().nullable(),
   canal_benchmark: z.string().optional().nullable(),
   hook: z.string().optional().nullable(),
+  tipo_narrativa: z.string().optional().nullable(),
+  estrutura_emocional: z.string().optional().nullable(),
+  emocao_dominante: z.string().optional().nullable(),
+  voz_narrador: z.string().optional().nullable(),
+  quality_score: z.number().optional().nullable(),
   veredito: z.string().optional(),
 }).passthrough();
 
@@ -89,6 +94,11 @@ export const UpdateBlueprintSchema = z.object({
   titulo_benchmark: z.string().optional().nullable(),
   canal_benchmark: z.string().optional().nullable(),
   hook: z.string().optional().nullable(),
+  tipo_narrativa: z.string().optional().nullable(),
+  estrutura_emocional: z.string().optional().nullable(),
+  emocao_dominante: z.string().optional().nullable(),
+  voz_narrador: z.string().optional().nullable(),
+  quality_score: z.number().optional().nullable(),
   veredito: z.string().optional(),
 }).passthrough();
 

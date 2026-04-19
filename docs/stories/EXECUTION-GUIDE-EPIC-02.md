@@ -100,7 +100,7 @@ ok
 ```
 git add -A && git commit -m "feat(epic-2): story-2.3 - ciclo de vida das ideias no laboratorio"
 ```
-
+ok
 ---
 
 ### ⏳ Story 2.4 — Studio Blueprint Engine de Ponta a Ponta
@@ -110,17 +110,18 @@ git add -A && git commit -m "feat(epic-2): story-2.3 - ciclo de vida das ideias 
 ```
 @[.agent/workflows/sm.md] crie o documento da story-2.4 de finalizacao do MVP salvando blueprints
 ```
-
+ok
 **Passo 2 — Implementar (🧠 @dev):**
 ```
 @[.agent/workflows/dev.md] finalize a implementacao do epic desenvolvendo a story-2.4
 ```
+ok
 
 **Passo 3 — Teste Completo MVP (⚡ @qa):**
 ```
 @[.agent/workflows/qa.md] implemente validações finais do fluxo completo (Tendencias -> Laboratorio -> Studio -> Canais)
 ```
-
+ok
 **Passo 4 — Commitar:**
 ```
 git add -A && git commit -m "feat(epic-2): story-2.4 - Studio CRUD completo - ENDPOINT MVP ALCANCADO"
@@ -134,8 +135,8 @@ git add -A && git commit -m "feat(epic-2): story-2.4 - Studio CRUD completo - EN
 |-------|--------|--------|--------|---------------------|
 | 2.1 | Supabase Seeding & Fetching | 4 | ✅ Feito | @qa |
 | 2.2 | Pipeline Real (Kanban Canais) | 4 | ✅ Em QA | @dev / QA |
-| 2.3 | Laboratório: Transições de Estado | 5 | ⏳ Documentar | @sm |
-| 2.4 | Studio Blueprint de Ponta a Ponta | 5 | ⏳ Documentar | @sm |
+| 2.3 | Laboratório: Transições de Estado | 5 | ✅ QA Aprovado | @qa |
+| 2.4 | Studio Blueprint de Ponta a Ponta | 5 | ✅ QA Aprovado | @qa |
 
 ---
 

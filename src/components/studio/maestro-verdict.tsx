@@ -8,10 +8,13 @@ export interface VerdictItem {
   level?: VerdictLevel;
 }
 
+export type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
+
 export interface MaestroVerdictProps {
   score: number;          // 0–10
   verdict: VerdictItem[];
   onInject?: () => void;
+  saveStatus?: SaveStatus;
 }
 
 const verdictColors: Record<VerdictLevel, string> = {
@@ -55,7 +58,7 @@ function ScoreRing({ score }: { score: number }) {
   );
 }
 
-export function MaestroVerdict({ score, verdict, onInject }: MaestroVerdictProps) {
+export function MaestroVerdict({ score, verdict, onInject, saveStatus = 'idle' }: MaestroVerdictProps) {
   const scoreColor =
     score >= 8 ? "var(--color-success)" :
     score >= 6 ? "var(--color-warning)" :
@@ -111,14 +114,18 @@ export function MaestroVerdict({ score, verdict, onInject }: MaestroVerdictProps
       {/* CTA */}
       <button
         onClick={onInject}
-        className="btn-primary w-full h-9 justify-center"
+        disabled={saveStatus === 'saving'}
+        className="btn-primary w-full h-9 justify-center disabled:opacity-50"
       >
-        ⚡ Injetar no Motor
+        {saveStatus === 'saving' ? "⚡ Salvando..." :
+         saveStatus === 'saved' ? "✅ Salvo!" :
+         saveStatus === 'error' ? "❌ Erro ao salvar" :
+         "⚡ Injetar no Motor"}
       </button>
 
       {/* Ghost btn */}
-      <button className="btn-ghost w-full h-8 justify-center text-[12px]">
-        Salvar Blueprint
+      <button className="btn-ghost w-full h-8 justify-center text-[12px] opacity-70 cursor-not-allowed">
+        Salvar Rascunho
       </button>
     </div>
   );

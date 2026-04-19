@@ -20,7 +20,7 @@ export async function GET(request: Request, { params }: Params) {
       .from('blueprints')
       .select('*')
       .eq('canal_id', canalId)
-      .single();
+      .maybeSingle();
 
     if (error) return NextResponse.json({ data: null }, { status: 200 }); // sem blueprint ainda
     if (!data) return NextResponse.json({ data: null }, { status: 200 });

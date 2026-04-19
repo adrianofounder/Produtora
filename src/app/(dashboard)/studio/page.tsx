@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { BlueprintSection } from "@/components/studio/blueprint-section";
-import { MaestroVerdict } from "@/components/studio/maestro-verdict";
+import { MaestroVerdict, SaveStatus } from "@/components/studio/maestro-verdict";
 import { TemplateSelector, TriggerGrid } from "@/components/studio/template-selector";
 
 /* ─── Types ─────────────────────────────────────────────── */
@@ -70,7 +70,10 @@ export default function StudioPage() {
   );
   const [urlAnalise, setUrlAnalise] = useState("");
   const [loadingAnalise, setLoadingAnalise] = useState(false);
-  const [savingBlueprint, setSavingBlueprint] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
+  const [historicoBp, setHistoricoBp] = useState<Array<{
+    id: string; titulo_benchmark: string | null; veredito: string | null; quality_score: number | null; updated_at: string | null;
+  }>>([]);
 
   // Carrega canais reais
   useEffect(() => {
@@ -85,20 +88,36 @@ export default function StudioPage() {
       .catch(() => {});
   }, []);
 
-  // Carrega blueprint do canal selecionado
+  // Carrega blueprint do canal selecionado e histórico
   useEffect(() => {
     if (!canalId) return;
+
+    // Fetch blueprint atual
     fetch(`/api/blueprints/${canalId}`)
       .then(r => r.ok ? r.json() : null)
       .then((bp) => {
         if (bp) {
           if (bp.hook) setHook(bp.hook);
           if (bp.tipo_narrativa) setDesenvolvimento(bp.tipo_narrativa);
+          if (bp.estrutura_emocional) setCta(bp.estrutura_emocional);
           if (bp.emocao_dominante) setEmocao(bp.emocao_dominante);
           if (bp.voz_narrador) setVoz(bp.voz_narrador);
+        } else {
+          // Defaults or empty
+          setHook("Iniciar narrando pelo ponto mais crítico e injusto da história e pausar dramaticamente — deixando a pergunta no ar.");
+          setDesenvolvimento("Apresentar 3 camadas de contexto: o contexto histórico, os personagens-chave e o ponto de virada inesperado.");
+          setCta("Encerrar com uma pergunta aberta ao espectador e convite para comentar a opinião. Link para próximo vídeo aparecer.");
         }
       })
-      .catch(() => {});
+      .catch((err) => console.error(err));
+
+    // Fetch histórico
+    fetch(`/api/blueprints?canal_id=${canalId}`)
+      .then(r => r.ok ? r.json() : [])
+      .then((data) => {
+        if (Array.isArray(data)) setHistoricoBp(data.slice(0, 3));
+      })
+      .catch((err) => console.error(err));
   }, [canalId]);
 
   async function analisarUrl() {
@@ -122,15 +141,38 @@ export default function StudioPage() {
 
   async function salvarBlueprint() {
     if (!canalId) return;
-    setSavingBlueprint(true);
+    setSaveStatus('saving');
     try {
-      await fetch(`/api/blueprints/${canalId}`, {
+      const res = await fetch(`/api/blueprints/${canalId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ hook, tipo_narrativa: desenvolvimento, emocao_dominante: emocao, voz_narrador: voz }),
+        body: JSON.stringify({ 
+          hook, 
+          tipo_narrativa: desenvolvimento, 
+          estrutura_emocional: cta,
+          emocao_dominante: emocao, 
+          voz_narrador: voz,
+          veredito: 'ativo',
+          quality_score: 8.5
+        }),
       });
-    } finally {
-      setSavingBlueprint(false);
+
+      if (!res.ok) throw new Error(await res.text());
+
+      setSaveStatus('saved');
+      
+      // Update history
+      fetch(`/api/blueprints?canal_id=${canalId}`)
+        .then(r => r.ok ? r.json() : [])
+        .then((data) => {
+          if (Array.isArray(data)) setHistoricoBp(data.slice(0, 3));
+        });
+
+      setTimeout(() => setSaveStatus('idle'), 2000);
+    } catch (err) {
+      console.error('[Studio Save Error]:', err);
+      setSaveStatus('error');
+      setTimeout(() => setSaveStatus('idle'), 3000);
     }
   }
 
@@ -385,54 +427,61 @@ export default function StudioPage() {
             score={8.5}
             verdict={VERDICT_ITEMS}
             onInject={salvarBlueprint}
+            saveStatus={saveStatus}
           />
 
           {/* Histórico de Blueprints */}
           <div className="card p-5 flex flex-col gap-3">
-            <p className="section-label">Histórico de Blueprints</p>
-            {[
-              { titulo: "O Assassinato de Eliza Sims", score: 9.1, status: "publicado" },
-              { titulo: "A Queda do Imperador",        score: 7.4, status: "producao" },
-              { titulo: "Caso JBS — A Fita Perdida",   score: 8.8, status: "pronto"  },
-            ].map((b) => {
-              const color =
-                b.status === "publicado" ? "var(--color-text-3)" :
-                b.status === "pronto"    ? "#60A5FA" :
-                "var(--color-accent)";
-              const scoreColor =
-                b.score >= 8.5 ? "var(--color-success)" :
-                b.score >= 7   ? "var(--color-warning)" :
-                "var(--color-error)";
+            {historicoBp.length === 0 ? (
+              <p className="text-[12px] text-center py-2 italic" style={{ color: "var(--color-text-3)" }}>
+                Nenhum blueprint salvo ainda.
+              </p>
+            ) : (
+              historicoBp.map((b) => {
+                const tituloDisplay = b.titulo_benchmark || "Blueprint Engine";
+                const statusDisplay = b.veredito || "ativo";
+                const scoreDisplay = b.quality_score || 8.5;
 
-              return (
-                <button
-                  key={b.titulo}
-                  className="card-inner flex items-center gap-3 p-3 text-left w-full cursor-pointer"
-                >
-                  <div
-                    className="w-1.5 h-8 rounded-full flex-shrink-0"
-                    style={{ background: color }}
-                  />
-                  <div className="flex-1 min-w-0">
-                    <p
-                      className="text-[12px] font-semibold truncate"
-                      style={{ color: "var(--color-text-2)" }}
-                    >
-                      {b.titulo}
-                    </p>
-                    <p className="text-[10px]" style={{ color: "var(--color-text-3)" }}>
-                      {b.status.charAt(0).toUpperCase() + b.status.slice(1)}
-                    </p>
-                  </div>
-                  <span
-                    className="text-[12px] font-black font-mono flex-shrink-0"
-                    style={{ color: scoreColor }}
+                const color =
+                  statusDisplay === "publicado" ? "var(--color-text-3)" :
+                  statusDisplay === "producao"  ? "#60A5FA" :
+                  "var(--color-accent)";
+                  
+                const scoreColor =
+                  scoreDisplay >= 8.5 ? "var(--color-success)" :
+                  scoreDisplay >= 7   ? "var(--color-warning)" :
+                  "var(--color-error)";
+
+                return (
+                  <button
+                    key={b.id}
+                    className="card-inner flex items-center gap-3 p-3 text-left w-full cursor-pointer"
                   >
-                    {b.score}
-                  </span>
-                </button>
-              );
-            })}
+                    <div
+                      className="w-1.5 h-8 rounded-full flex-shrink-0"
+                      style={{ background: color }}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p
+                        className="text-[12px] font-semibold truncate"
+                        style={{ color: "var(--color-text-2)" }}
+                      >
+                        {tituloDisplay}
+                      </p>
+                      <p className="text-[10px]" style={{ color: "var(--color-text-3)" }}>
+                        {statusDisplay.charAt(0).toUpperCase() + statusDisplay.slice(1)}
+                      </p>
+                    </div>
+                    <span
+                      className="text-[12px] font-black font-mono flex-shrink-0"
+                      style={{ color: scoreColor }}
+                    >
+                      {scoreDisplay.toFixed(1)}
+                    </span>
+                  </button>
+                );
+              })
+            )}
           </div>
 
           {/* Dicas do Sistema */}

@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS public.garimpos_minados (
   canal TEXT NOT NULL,
   views_text TEXT NOT NULL,
   views_count BIGINT DEFAULT 0,
+  thumbnail_url TEXT,
   tag TEXT,
   publish_date TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT NOW()

@@ -14,7 +14,14 @@ export async function GET() {
       .eq('user_id', user.id)
       .order('created_at', { ascending: false });
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error) {
+      console.error('API /canais GET Error:', error.message);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    // DEBUG: Informação a respeito do usuário autenticado no navegador (Session Token UUID) vs Resultados RLS    console.log(`[DEBUG API /canais] ID Sessão Requisitada: ${user.id}`);
+    console.log(`[DEBUG API /canais] Itens encontrados: ${data?.length || 0}`);
+    
     return NextResponse.json(data);
   } catch (err) {
     return handleApiError(err);

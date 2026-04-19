@@ -375,6 +375,7 @@ export type Database = {
           id: string
           publish_date: string | null
           tag: string | null
+          thumbnail_url: string | null
           titulo: string
           views_count: number | null
           views_text: string
@@ -385,6 +386,7 @@ export type Database = {
           id?: string
           publish_date?: string | null
           tag?: string | null
+          thumbnail_url?: string | null
           titulo: string
           views_count?: number | null
           views_text: string
@@ -395,6 +397,7 @@ export type Database = {
           id?: string
           publish_date?: string | null
           tag?: string | null
+          thumbnail_url?: string | null
           titulo?: string
           views_count?: number | null
           views_text?: string

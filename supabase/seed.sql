@@ -82,9 +82,9 @@ BEGIN
     ('Gringo Dublado', 'gap', 75.0, 65.0, 1.0, FALSE);
 
     DELETE FROM public.garimpos_minados;
-    INSERT INTO public.garimpos_minados (titulo, canal, views_text, tag) VALUES
-    ('The boss who lost $2M on purpose to teach a lesson', 'Corporate Tales', '4.2M', 'Gap: Relatos'),
-    ('Why everyone is quitting their $100k tech jobs', 'Tech Dropout', '1.8M', 'Gap: Carreiras'),
-    ('I stayed in the worlds most illegal hotel', 'Urbex Worldwide', '8.4M', 'Lotado: Urbex');
+    INSERT INTO public.garimpos_minados (titulo, canal, views_text, tag, thumbnail_url) VALUES
+    ('The boss who lost $2M on purpose to teach a lesson', 'Corporate Tales', '4.2M', 'Gap: Relatos', 'https://i.ytimg.com/vi/q7XmOnc_z8U/mqdefault.jpg'),
+    ('Why everyone is quitting their $100k tech jobs', 'Tech Dropout', '1.8M', 'Gap: Carreiras', 'https://i.ytimg.com/vi/aZ3fS8oGgks/mqdefault.jpg'),
+    ('I stayed in the worlds most illegal hotel', 'Urbex Worldwide', '8.4M', 'Lotado: Urbex', 'https://i.ytimg.com/vi/LpG9YqByC2M/mqdefault.jpg');
 
 END $$;

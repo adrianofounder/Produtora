@@ -39,6 +39,7 @@ export default async function Tendencias() {
     canal: g.canal,
     views: g.views_text,
     tag: g.tag,
+    thumbnail_url: g.thumbnail_url,
   }));
 
   return (

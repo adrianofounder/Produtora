@@ -39,7 +39,7 @@ ok
 ```
 @[.agent/workflows/qa.md] valide a implementacao da story-2.1
 ```
-
+ok
 **Passo 4 — Commitar:**
 ```
 git add -A && git commit -m "feat(epic-2): story-2.1 - integrar dados base e seeding do Supabase nas rotas iniciais"

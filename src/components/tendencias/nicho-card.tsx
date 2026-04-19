@@ -8,6 +8,7 @@ export interface GarimpoData {
   canal: string;
   views: string;
   tag?: string | null;
+  thumbnail_url?: string | null;
 }
 
 interface NichoCardProps {
@@ -19,12 +20,20 @@ export function NichoCard({ nicho }: NichoCardProps) {
 
   return (
     <div className="card-inner p-4 flex gap-4 transition-colors hover:border-[rgba(124,58,237,0.3)]">
-      {/* Thumbnail Simulado */}
+      {/* Thumbnail Real */}
       <div 
-        className="w-[124px] h-[70px] rounded-md overflow-hidden relative shrink-0"
-        style={{ background: 'var(--color-surface-3)' }}
+        className="w-[124px] h-[70px] rounded-md overflow-hidden relative shrink-0 bg-[var(--color-surface-3)]"
       >
-        <div className="absolute inset-0 opacity-10 bg-gradient-to-br from-white to-transparent" />
+        {nicho.thumbnail_url ? (
+          <img 
+            src={nicho.thumbnail_url} 
+            alt={nicho.titulo}
+            className="w-full h-full object-cover"
+            referrerPolicy="no-referrer"
+          />
+        ) : (
+          <div className="absolute inset-0 opacity-10 bg-gradient-to-br from-white to-transparent" />
+        )}
         <div 
           className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded text-[9px] font-bold font-mono tracking-widest backdrop-blur-md"
           style={{ background: 'rgba(0,0,0,0.7)', color: 'var(--color-text-1)' }}

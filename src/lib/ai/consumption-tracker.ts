@@ -42,9 +42,10 @@ export type ProviderType = keyof typeof UNIT_WEIGHTS;
 // ============================================================
 export async function checkSpendLimit(
   userId: string,
-  providerType: ProviderType
+  providerType: ProviderType,
+  supabaseClient?: any // Opcional para injeção em testes
 ): Promise<{ allowed: boolean; remaining: number; message?: string }> {
-  const supabase = await createClient();
+  const supabase = supabaseClient || await createClient();
 
   const { data, error } = await supabase
     .from('tenant_credentials')
@@ -103,9 +104,10 @@ export async function checkSpendLimit(
 export async function incrementSpend(
   userId: string,
   providerType: ProviderType,
-  unitsUsed: number
+  unitsUsed: number,
+  supabaseClient?: any // Opcional para injeção em testes
 ): Promise<void> {
-  const supabase = await createClient();
+  const supabase = supabaseClient || await createClient();
 
   // Incremento manual: buscar valor atual + somar (evita dependência de RPC não tipado)
   // ⚠️ TD-01: Substituir por RPC atômico 'increment_tenant_spend' no EPIC Billing

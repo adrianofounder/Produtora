@@ -34,7 +34,7 @@ ok
 ```
 @[.agent/workflows/dev.md] implemente a story-3.1 definida pelo sm, sem esquecer de validar a seguranca do Supabase RLS.
 ```
-
+ok
 **Passo 3 — Validar (⚡ @qa):**
 ```
 @[.agent/workflows/qa.md] valide a implementacao da story-3.1 (Tente ultrapassar tetos simulados ou inserir invalid keys).

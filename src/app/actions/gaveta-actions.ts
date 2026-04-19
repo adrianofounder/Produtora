@@ -24,6 +24,7 @@ import { mockVoiceEngine } from '@/lib/ai/mock-voice-engine';
 import { VoiceEngineError } from '@/lib/ai/voice-engine.interface';
 import { mockImageEngine } from '@/lib/ai/mock-image-engine';
 import { ImageEngineError } from '@/lib/ai/image-engine.interface';
+import { mockChatEngine, ChatEngineError, ChatMessage } from '@/lib/ai/mock-chat-engine';
 
 // ============================================================
 // Tipos de Resposta — sempre union discriminada (nunca exceção pura)
@@ -568,5 +569,92 @@ export async function finalizeVideoProductionAction(videoId: string): Promise<Fi
   } catch (err) {
     console.error('[gaveta-actions] Erro não tratado em finalizar:', err);
     return { success: false, errorMessage: 'Erro inesperado na Finalização.' };
+  }
+}
+
+// ============================================================
+// Action 6: Conversão Interativa de Contexto (Story 3.5)
+// ============================================================
+
+export type ContextualChatResult =
+  | { success: true; text: string; costUnits: number }
+  | { success: false; errorCode: string; errorMessage: string };
+
+export async function contextualChatAction(
+  videoId: string,
+  tabId: string,
+  userMessage: string,
+  history: ChatMessage[]
+): Promise<ContextualChatResult> {
+  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      return { success: false, errorCode: 'AUTH_REQUIRED', errorMessage: 'Faça login.' };
+    }
+
+    const spendCheck = await checkSpendLimit(user.id, 'llm_text');
+    if (!spendCheck.allowed) {
+      return {
+        success: false,
+        errorCode: 'SPEND_LIMIT_REACHED',
+        errorMessage: spendCheck.message ?? 'Teto de gastos atingido. Aguarde a renovação diária.',
+      };
+    }
+
+    const { data: video, error: videoError } = await supabase
+      .from('videos')
+      .select(`
+        titulo,
+        canais ( blueprints ( voz_narrador, estetica_visual, tipo_narrativa ) )
+      `)
+      .eq('id', videoId)
+      .eq('user_id', user.id)
+      .single();
+
+    if (videoError || !video) {
+      return { success: false, errorCode: 'VIDEO_NOT_FOUND', errorMessage: 'Vídeo não encontrado.' };
+    }
+
+    const canal = Array.isArray(video.canais) ? video.canais[0] : video.canais;
+    const blueprint = canal?.blueprints
+      ? Array.isArray(canal.blueprints) ? canal.blueprints[0] : canal.blueprints
+      : null;
+
+    let identity = 'Assistente de Direção';
+    if (tabId === 'roteiro') identity = 'Você atua como um Diretor Criativo experiente e Roteirista (Anti-Happy Path). Seja conciso, incisivo e reforce a dramaticidade baseando-se nestas diretrizes de narrativa.';
+    if (tabId === 'audio') identity = 'Você atua como um Técnico de Som e Editor Sênior. Foque no pacing fonético, tom e respirabilidade da locução.';
+    if (tabId === 'asset') identity = 'Você atua como um Diretor de Fotografia e Editor Visual Gráfico. Dê feedback prático sobre composição e estética de capas de vídeo, sem floreios.';
+
+    const contextParams = [
+      video.titulo && `Assunto: ${video.titulo}`,
+      blueprint?.voz_narrador && `Voz Mestre: ${blueprint.voz_narrador}`,
+      blueprint?.tipo_narrativa && `Narrativa Mestra: ${blueprint.tipo_narrativa}`,
+      blueprint?.estetica_visual && `Estética: ${blueprint.estetica_visual}`,
+    ].filter(Boolean).join(' | ');
+
+    const systemPrompt = `${identity}\nContexto Base:\n${contextParams}`;
+
+    const result = await mockChatEngine.chat({
+      modelId: 'mock-chat-v1',
+      systemPrompt,
+      history,
+      userMessage
+    });
+
+    await incrementSpend(user.id, 'llm_text', result.costUnits);
+
+    return {
+      success: true,
+      text: result.text,
+      costUnits: result.costUnits
+    };
+  } catch (err: unknown) {
+    if (err instanceof ChatEngineError) {
+      return { success: false, errorCode: err.code, errorMessage: err.message };
+    }
+    console.error('[gaveta-actions] Erro em contextualChatAction:', err);
+    return { success: false, errorCode: 'UNKNOWN', errorMessage: 'Erro de comunicação do Chat.' };
   }
 }

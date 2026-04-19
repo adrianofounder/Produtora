@@ -141,12 +141,12 @@ ok
 ```
 @[.agent/workflows/dev.md] implemente dinamicamente a story-3.5 para o chat
 ```
-
+ok
 **Passo 3 — Testar o Fluxo (⚡ @qa):**
 ```
 @[.agent/workflows/qa.md] valide a transicao de abas no chat da story-3.5 e limites
 ```
-
+ok
 **Passo 4 — Commitar:**
 ```
 git add -A && git commit -m "feat(epic-3): story-3.5 - chat contextual multitab"

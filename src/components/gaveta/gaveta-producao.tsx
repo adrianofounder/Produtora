@@ -17,6 +17,7 @@ import {
 import { generateScriptAction, saveScriptAction, generateParagraphAudioAction, generateThumbnailAction, finalizeVideoProductionAction } from '@/app/actions/gaveta-actions';
 import { createProductionZip, ZipAsset } from '@/lib/utils/zipper-service';
 import type { GenerateScriptResult } from '@/app/actions/gaveta-actions';
+import { ContextualChat } from './contextual-chat';
 import { cn } from '@/lib/utils';
 
 // ============================================================
@@ -502,6 +503,7 @@ function ExportarTab({ videoId, videoTitle, paragraphs, thumbUrl, onFinish }: Ex
 export function GavetaProducao({ isOpen, onClose, video, onScriptSaved }: GavetaProducaoProps) {
   const [activeTab, setActiveTab] = useState<TabId>('roteiro');
   const [localThumb, setLocalThumb] = useState<string | null>(video?.thumb_url || null);
+  const [isChatExpanded, setIsChatExpanded] = useState(false);
 
   // Lazy parsing
   const savedParagraphs: ScriptParagraph[] = (() => {
@@ -529,75 +531,84 @@ export function GavetaProducao({ isOpen, onClose, video, onScriptSaved }: Gaveta
       {isOpen && video && (
         <>
           <motion.div key="gaveta-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="fixed inset-0 z-40 bg-black/50 backdrop-blur-[2px]" />
-          <motion.aside key="gaveta-sheet" initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 28, stiffness: 280 }} className="fixed top-0 right-0 z-50 h-full w-full max-w-xl flex flex-col bg-gradient-to-b from-[#111114] to-[#0A0A0D] border-l border-white/8 shadow-2xl">
-            <div className="flex items-start justify-between p-6 pb-4 border-b border-white/5">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="badge badge-accent text-[10px]">Linha de Montagem</span>
-                  <span className="text-[10px] font-mono opacity-30 truncate">#{video.id.split('-')[0]}</span>
+          <motion.aside key="gaveta-sheet" initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 28, stiffness: 280 }} className="fixed top-0 right-0 z-50 h-full flex bg-gradient-to-b from-[#111114] to-[#0A0A0D] border-l border-white/8 shadow-2xl">
+            <div className="flex-1 flex flex-col w-[576px] shrink-0 h-full overflow-hidden">
+              <div className="flex items-start justify-between p-6 pb-4 border-b border-white/5">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="badge badge-accent text-[10px]">Linha de Montagem</span>
+                    <span className="text-[10px] font-mono opacity-30 truncate">#{video.id.split('-')[0]}</span>
+                  </div>
+                  <h2 className="text-lg font-bold text-white tracking-tight truncate">{video.titulo}</h2>
                 </div>
-                <h2 className="text-lg font-bold text-white tracking-tight truncate">{video.titulo}</h2>
+                <button onClick={onClose} className="ml-4 p-2 hover:bg-white/5 rounded-lg transition-colors text-[var(--color-text-3)] hover:text-white shrink-0"><X size={18} /></button>
               </div>
-              <button onClick={onClose} className="ml-4 p-2 hover:bg-white/5 rounded-lg transition-colors text-[var(--color-text-3)] hover:text-white shrink-0"><X size={18} /></button>
-            </div>
 
-            {blueprint && (blueprint.voz_narrador || blueprint.tipo_narrativa) && (
-              <div className="mx-6 mt-4 px-4 py-3 rounded-xl bg-[var(--color-accent)]/5 border border-[var(--color-accent)]/15">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-accent)]/70 mb-1.5">Blueprint Ativo</p>
-                <div className="flex flex-wrap gap-3 text-[11px] text-[var(--color-text-3)]">
-                  {blueprint.voz_narrador && <span>🎙️ <span className="text-white/60">{blueprint.voz_narrador}</span></span>}
-                  {blueprint.tipo_narrativa && <span>📖 <span className="text-white/60">{blueprint.tipo_narrativa}</span></span>}
+              {blueprint && (blueprint.voz_narrador || blueprint.tipo_narrativa) && (
+                <div className="mx-6 mt-4 px-4 py-3 rounded-xl bg-[var(--color-accent)]/5 border border-[var(--color-accent)]/15">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-accent)]/70 mb-1.5">Blueprint Ativo</p>
+                  <div className="flex flex-wrap gap-3 text-[11px] text-[var(--color-text-3)]">
+                    {blueprint.voz_narrador && <span>🎙️ <span className="text-white/60">{blueprint.voz_narrador}</span></span>}
+                    {blueprint.tipo_narrativa && <span>📖 <span className="text-white/60">{blueprint.tipo_narrativa}</span></span>}
+                  </div>
                 </div>
+              )}
+
+              <div className="flex gap-1 px-6 pt-5 pb-2">
+                {TABS.map((tab) => {
+                  const Icon = tab.icon;
+                  const isActive = activeTab === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => tab.available && setActiveTab(tab.id)}
+                      disabled={!tab.available}
+                      className={cn(
+                        'flex items-center gap-1.5 px-4 py-2 rounded-lg text-[11px] font-bold transition-all duration-200',
+                        isActive ? 'bg-[var(--color-accent)]/15 text-[var(--color-accent)] border border-[var(--color-accent)]/20'
+                          : tab.available ? 'text-[var(--color-text-3)] hover:text-white hover:bg-white/5'
+                          : 'text-white/15 cursor-not-allowed',
+                      )}
+                    >
+                      <Icon className="w-3.5 h-3.5" />{tab.label}
+                      {!tab.available && <span className="text-[9px] opacity-50 ml-0.5">em breve</span>}
+                    </button>
+                  );
+                })}
               </div>
-            )}
 
-            <div className="flex gap-1 px-6 pt-5 pb-2">
-              {TABS.map((tab) => {
-                const Icon = tab.icon;
-                const isActive = activeTab === tab.id;
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => tab.available && setActiveTab(tab.id)}
-                    disabled={!tab.available}
-                    className={cn(
-                      'flex items-center gap-1.5 px-4 py-2 rounded-lg text-[11px] font-bold transition-all duration-200',
-                      isActive ? 'bg-[var(--color-accent)]/15 text-[var(--color-accent)] border border-[var(--color-accent)]/20'
-                        : tab.available ? 'text-[var(--color-text-3)] hover:text-white hover:bg-white/5'
-                        : 'text-white/15 cursor-not-allowed',
-                    )}
-                  >
-                    <Icon className="w-3.5 h-3.5" />{tab.label}
-                    {!tab.available && <span className="text-[9px] opacity-50 ml-0.5">em breve</span>}
-                  </button>
-                );
-              })}
+              <div className="flex-1 overflow-hidden px-6 pb-6 pt-3">
+                <AnimatePresence mode="wait">
+                  {activeTab === 'roteiro' && (
+                    <motion.div key="tab-roteiro" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} className="h-full">
+                      <RoteiroTab videoId={video.id} initialParagraphs={savedParagraphs} onSaveSuccess={onScriptSaved} />
+                    </motion.div>
+                  )}
+                  {activeTab === 'audio' && (
+                    <motion.div key="tab-audio" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} className="h-full">
+                      <OuvirTab videoId={video.id} initialParagraphs={savedParagraphs} onAudioSaved={onScriptSaved} />
+                    </motion.div>
+                  )}
+                  {activeTab === 'asset' && (
+                    <motion.div key="tab-asset" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} className="h-full">
+                      <AssetTab videoId={video.id} currentThumbUrl={localThumb} onThumbSaved={(url) => { setLocalThumb(url); if(onScriptSaved) onScriptSaved(); }} />
+                    </motion.div>
+                  )}
+                  {activeTab === 'exportar' && (
+                    <motion.div key="tab-exportar" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} className="h-full">
+                      <ExportarTab videoId={video.id} videoTitle={video.titulo} paragraphs={savedParagraphs} thumbUrl={localThumb} onFinish={onClose} />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
-
-            <div className="flex-1 overflow-hidden px-6 pb-6 pt-3">
-              <AnimatePresence mode="wait">
-                {activeTab === 'roteiro' && (
-                  <motion.div key="tab-roteiro" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} className="h-full">
-                    <RoteiroTab videoId={video.id} initialParagraphs={savedParagraphs} onSaveSuccess={onScriptSaved} />
-                  </motion.div>
-                )}
-                {activeTab === 'audio' && (
-                  <motion.div key="tab-audio" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} className="h-full">
-                    <OuvirTab videoId={video.id} initialParagraphs={savedParagraphs} onAudioSaved={onScriptSaved} />
-                  </motion.div>
-                )}
-                {activeTab === 'asset' && (
-                  <motion.div key="tab-asset" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} className="h-full">
-                    <AssetTab videoId={video.id} currentThumbUrl={localThumb} onThumbSaved={(url) => { setLocalThumb(url); if(onScriptSaved) onScriptSaved(); }} />
-                  </motion.div>
-                )}
-                {activeTab === 'exportar' && (
-                  <motion.div key="tab-exportar" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} className="h-full">
-                    <ExportarTab videoId={video.id} videoTitle={video.titulo} paragraphs={savedParagraphs} thumbUrl={localThumb} onFinish={onClose} />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+            
+            <ContextualChat
+              videoId={video.id}
+              activeTab={activeTab}
+              isExpanded={isChatExpanded}
+              onToggleExpand={() => setIsChatExpanded(!isChatExpanded)}
+            />
           </motion.aside>
         </>
       )}

@@ -12,6 +12,31 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       alertas: {
@@ -24,6 +49,7 @@ export type Database = {
           mensagem: string
           tipo: string
           titulo: string
+          updated_at: string | null
           user_id: string
         }
         Insert: {
@@ -35,6 +61,7 @@ export type Database = {
           mensagem: string
           tipo: string
           titulo: string
+          updated_at?: string | null
           user_id: string
         }
         Update: {
@@ -46,6 +73,7 @@ export type Database = {
           mensagem?: string
           tipo?: string
           titulo?: string
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: [
@@ -470,6 +498,66 @@ export type Database = {
         }
         Relationships: []
       }
+      tenant_credentials: {
+        Row: {
+          api_key: string
+          base_url: string | null
+          created_at: string | null
+          daily_spend_count: number
+          id: string
+          is_limit_active: boolean | null
+          is_system_fallback: boolean | null
+          last_reset_at: string | null
+          max_daily_limit: number | null
+          model_id: string | null
+          provider_name: string
+          provider_type: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          api_key?: string
+          base_url?: string | null
+          created_at?: string | null
+          daily_spend_count?: number
+          id?: string
+          is_limit_active?: boolean | null
+          is_system_fallback?: boolean | null
+          last_reset_at?: string | null
+          max_daily_limit?: number | null
+          model_id?: string | null
+          provider_name: string
+          provider_type: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          api_key?: string
+          base_url?: string | null
+          created_at?: string | null
+          daily_spend_count?: number
+          id?: string
+          is_limit_active?: boolean | null
+          is_system_fallback?: boolean | null
+          last_reset_at?: string | null
+          max_daily_limit?: number | null
+          model_id?: string | null
+          provider_name?: string
+          provider_type?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_credentials_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+
       videos: {
         Row: {
           aprovado_por: string | null
@@ -714,6 +802,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {},
   },

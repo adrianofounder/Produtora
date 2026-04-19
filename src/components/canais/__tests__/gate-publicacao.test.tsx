@@ -1,6 +1,6 @@
 import React from 'react'
 import { render, screen } from '@testing-library/react'
-import { vi } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { PacoteTab } from '../tabs/PacoteTab'
 import * as videoDrawerHooks from '../hooks/useVideoDrawer'
 

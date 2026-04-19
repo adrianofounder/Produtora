@@ -498,6 +498,66 @@ export type Database = {
         }
         Relationships: []
       }
+      tenant_credentials: {
+        Row: {
+          api_key: string
+          base_url: string | null
+          created_at: string | null
+          daily_spend_count: number
+          id: string
+          is_limit_active: boolean | null
+          is_system_fallback: boolean | null
+          last_reset_at: string | null
+          max_daily_limit: number | null
+          model_id: string | null
+          provider_name: string
+          provider_type: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          api_key?: string
+          base_url?: string | null
+          created_at?: string | null
+          daily_spend_count?: number
+          id?: string
+          is_limit_active?: boolean | null
+          is_system_fallback?: boolean | null
+          last_reset_at?: string | null
+          max_daily_limit?: number | null
+          model_id?: string | null
+          provider_name: string
+          provider_type: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          api_key?: string
+          base_url?: string | null
+          created_at?: string | null
+          daily_spend_count?: number
+          id?: string
+          is_limit_active?: boolean | null
+          is_system_fallback?: boolean | null
+          last_reset_at?: string | null
+          max_daily_limit?: number | null
+          model_id?: string | null
+          provider_name?: string
+          provider_type?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_credentials_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+
       videos: {
         Row: {
           aprovado_por: string | null

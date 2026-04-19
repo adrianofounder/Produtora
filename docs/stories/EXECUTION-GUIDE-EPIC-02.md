@@ -134,9 +134,11 @@ git add -A && git commit -m "feat(epic-2): story-2.4 - Studio CRUD completo - EN
 | Story | Título | Sprint | Status | Responsável Design |
 |-------|--------|--------|--------|---------------------|
 | 2.1 | Supabase Seeding & Fetching | 4 | ✅ Feito | @qa |
-| 2.2 | Pipeline Real (Kanban Canais) | 4 | ✅ Em QA | @dev / QA |
+| 2.2 | Pipeline Real (Kanban Canais) | 4 | ✅ QA Aprovado | @dev / QA |
 | 2.3 | Laboratório: Transições de Estado | 5 | ✅ QA Aprovado | @qa |
 | 2.4 | Studio Blueprint de Ponta a Ponta | 5 | ✅ QA Aprovado | @qa |
+
+> **STATUS:** TODAS AS STORIES FORAM CONCLUÍDAS E TESTADAS COM SUCESSO. EPIC 100% FINALIZADO.
 
 ---
 

@@ -90,12 +90,12 @@ ok
 ```
 @[.agent/workflows/dev.md] implemente a story-2.3
 ```
-
+ok
 **Passo 3 — Validar (⚡ @qa):**
 ```
 @[.agent/workflows/qa.md] verifique a transicao entre tendencias, laboratorio e db na story-2.3
 ```
-
+ok
 **Passo 4 — Commitar:**
 ```
 git add -A && git commit -m "feat(epic-2): story-2.3 - ciclo de vida das ideias no laboratorio"

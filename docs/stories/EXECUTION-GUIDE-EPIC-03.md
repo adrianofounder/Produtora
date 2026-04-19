@@ -39,12 +39,12 @@ ok
 ```
 @[.agent/workflows/qa.md] valide a implementacao da story-3.1 (Tente ultrapassar tetos simulados ou inserir invalid keys).
 ```
-
+ok
 **Passo 4 — Commitar:**
 ```
 git add -A && git commit -m "feat(epic-3): story-3.1 - estrutura de teto de custos e apis do tenant"
 ```
-
+ok
 ---
 
 ### ⏳ Story 3.2 — Gaveta de Produção e Roteirização Flexível (LLM Abstracted)
@@ -54,7 +54,7 @@ git add -A && git commit -m "feat(epic-3): story-3.1 - estrutura de teto de cust
 ```
 @[.agent/workflows/sm.md] crie o arquivo da story-3.2 para montagem inicial da Gaveta e injecao de texto agnostica. 
 ```
-
+ok
 **Passo 2 — Implementar (🧠 @dev):**
 ```
 @[.agent/workflows/dev.md] implemente a arquitetura e gaveta da story-3.2, com design pattern e zero happy-path default.
@@ -132,7 +132,7 @@ git add -A && git commit -m "feat(epic-3): story-3.4 - compilador final de downl
 
 | Story | Título | Sprint | Status | Responsável Design |
 |-------|--------|--------|--------|---------------------|
-| 3.1 | Cofre de APIS e Limites/Teto | 6 | ⏳ A Fazer | @sm / @dev |
+| 3.1 | Cofre de APIS e Limites/Teto | 6 | ✅ Concluído | @sm / @dev / @qa |
 | 3.2 | Gaveta: Roteirização Abstrata | 6 | ⏳ A Fazer | @sm / @dev |
 | 3.3 | Gaveta: Mecanismo de TTS/Voz | 7 | ⏳ A Fazer | @sm / @dev |
 | 3.4 | Gaveta: Asset Visual Final e ZIP| 7 | ⏳ A Fazer | @sm / @dev |

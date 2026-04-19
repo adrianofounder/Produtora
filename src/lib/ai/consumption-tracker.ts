@@ -1,4 +1,5 @@
-'use server';
+// consumption-tracker.ts — utilitário de servidor (sem 'use server' — importado por Server Actions)
+// Para chamar diretamente do cliente, use Server Actions em gaveta-actions.ts
 
 /**
  * consumption-tracker.ts

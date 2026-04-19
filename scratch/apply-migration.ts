@@ -38,7 +38,7 @@ async function runSqlWithPg() {
     console.log('🎊 Migração aplicada com SUCESSO!');
     
   } catch (err) {
-    console.error('❌ Erro na migração:', err.message);
+    console.error('❌ Erro na migração:', err instanceof Error ? err.message : String(err));
     console.log('💡 Tentando conexão secundária via AWS Pooler...');
     
     // Opção B: Pooler
@@ -54,7 +54,7 @@ async function runSqlWithPg() {
       await clientPooler.query(sql);
       console.log('🎊 Migração aplicada via Pooler!');
     } catch (err2) {
-      console.error('❌ Falha total na conexão:', err2.message);
+      console.error('❌ Falha total na conexão:', err2 instanceof Error ? err2.message : String(err2));
     } finally {
       await clientPooler.end();
     }

@@ -17,6 +17,8 @@ export interface VideoCardProps {
   onMoveForward?: () => void;
   onMoveBackward?: () => void;
   isMoving?: boolean;
+  /** Abre a Gaveta de Produção para este vídeo */
+  onOpenGaveta?: () => void;
 }
 
 const statusConfig: Record<VideoStatus, { label: string }> = {
@@ -39,7 +41,8 @@ export function VideoCard({
   acaoPrimaria,
   onMoveForward,
   onMoveBackward,
-  isMoving = false
+  isMoving = false,
+  onOpenGaveta,
 }: VideoCardProps) {
   const cfg = statusConfig[status];
   const pct = Math.round((doneCount(steps) / steps.length) * 100);
@@ -122,11 +125,18 @@ export function VideoCard({
       {/* Ações (aparecem no hover + botoes de pipeline sempre visíveis ou semi-visíveis) */}
       <div className="flex flex-col items-end gap-2 shrink-0 self-center">
         <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-x-4 group-hover:translate-x-0">
+          {onOpenGaveta && (
+            <button
+              id={`btn-gaveta-${titulo.slice(0, 10).replace(/\s/g, '-').toLowerCase()}`}
+              onClick={onOpenGaveta}
+              className="btn-primary h-7 px-3 text-[10px] shadow-md shadow-purple-500/20"
+              title="Abrir Linha de Montagem"
+            >
+              ✦ Produzir
+            </button>
+          )}
           <button className="btn-ghost h-7 px-3 text-[10px] glass">
             Editar
-          </button>
-          <button className="btn-danger h-7">
-            Excluir
           </button>
         </div>
         <div className="flex items-center gap-1.5 mt-1">

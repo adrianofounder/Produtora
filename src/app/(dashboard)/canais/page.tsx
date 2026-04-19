@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback, useTransition } from 'react';
 import { Plus, Search, LayoutGrid, Activity, Filter, Loader2, AlertCircle } from 'lucide-react';
 import { updateVideoStatus } from '@/app/actions/kanban-actions';
 import { VideoCard } from '@/components/dashboard/video-card';
+import { GavetaProducao } from '@/components/gaveta/gaveta-producao';
+import type { VideoGavetaData } from '@/components/gaveta/gaveta-producao';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/ui/empty-state';
 
@@ -38,6 +40,7 @@ interface Video {
   step_montagem: boolean;
   step_thumb: boolean;
   step_agendado: boolean;
+  roteiro: string | null;
 }
 
 const STEPS_LABELS = ['Título', 'Roteiro', 'Áudio', 'Imagens', 'Montagem', 'Thumb', 'Agendado'];
@@ -85,6 +88,9 @@ export default function Canais() {
   const [loadingCanais, setLoadingCanais] = useState(true);
   const [loadingVideos, setLoadingVideos] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
+
+  // Estado da Gaveta de Produção (Story 3.2)
+  const [gavetaVideo, setGavetaVideo] = useState<VideoGavetaData | null>(null);
 
   // Estados dos Modais
   const [isCanalModalOpen, setIsCanalModalOpen] = useState(false);
@@ -528,6 +534,20 @@ export default function Canais() {
                          isMoving={movingCardId === v.id}
                          onMoveForward={canMoveForward ? () => handleMoveStatus(v.id, v.status, 'forward') : undefined}
                          onMoveBackward={canMoveBackward ? () => handleMoveStatus(v.id, v.status, 'backward') : undefined}
+                         onOpenGaveta={() => {
+                           const blueprint = null; // blueprints carregados separadamente em Story futura
+                           setGavetaVideo({
+                             id: v.id,
+                             titulo: v.titulo,
+                             eixo: v.eixo,
+                             status: v.status,
+                             roteiro: v.roteiro ?? null,
+                             canal: {
+                               nome: canal?.nome ?? '',
+                               blueprint,
+                             },
+                           });
+                         }}
                        />
                      );
                  })}
@@ -549,6 +569,14 @@ export default function Canais() {
         onClose={() => setIsVideoModalOpen(false)}
         onSuccess={() => canal && carregarVideos(canal.id)}
         canalId={canal?.id || ''}
+      />
+
+      {/* Gaveta de Produção Story 3.2 */}
+      <GavetaProducao
+        isOpen={!!gavetaVideo}
+        onClose={() => setGavetaVideo(null)}
+        video={gavetaVideo}
+        onScriptSaved={() => canal && carregarVideos(canal.id)}
       />
     </div>
   );

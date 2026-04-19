@@ -22,6 +22,8 @@ import { mockTextEngine } from '@/lib/ai/mock-text-engine';
 import { TextEngineError } from '@/lib/ai/text-engine.interface';
 import { mockVoiceEngine } from '@/lib/ai/mock-voice-engine';
 import { VoiceEngineError } from '@/lib/ai/voice-engine.interface';
+import { mockImageEngine } from '@/lib/ai/mock-image-engine';
+import { ImageEngineError } from '@/lib/ai/image-engine.interface';
 
 // ============================================================
 // Tipos de Resposta — sempre union discriminada (nunca exceção pura)
@@ -404,5 +406,167 @@ export async function generateParagraphAudioAction(
       errorCode: 'UNKNOWN',
       errorMessage: 'Falha inesperada ao tentar gerar áudio.',
     };
+  }
+}
+
+// ============================================================
+// Action 4: Gerar Thumbnail Visual (Mock)
+// ============================================================
+
+export type GenerateThumbnailResult =
+  | { success: true; thumbUrl: string; costUnits: number; promptUsed: string }
+  | { success: false; errorCode: string; errorMessage: string };
+
+export async function generateThumbnailAction(
+  videoId: string
+): Promise<GenerateThumbnailResult> {
+  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      return { success: false, errorCode: 'AUTH_REQUIRED', errorMessage: 'Faça login.' };
+    }
+
+    // 1. Busca rules de arte
+    const { data: video, error: videoError } = await supabase
+      .from('videos')
+      .select(`
+        id,
+        titulo,
+        eixo,
+        canais (
+          blueprints (
+            estetica_visual
+          )
+        )
+      `)
+      .eq('id', videoId)
+      .eq('user_id', user.id)
+      .single();
+
+    if (videoError || !video) {
+      return { success: false, errorCode: 'VIDEO_NOT_FOUND', errorMessage: 'Vídeo não encontrado.' };
+    }
+
+    // Busca cores_thumb e elemento_visual do eixo
+    let axisData = null;
+    if (video.eixo) {
+      const { data: eixoRow } = await supabase.from('eixos').select('cores_thumb, elemento_visual').eq('nome', video.eixo).maybeSingle();
+      axisData = eixoRow;
+    }
+
+    const canal = Array.isArray(video.canais) ? video.canais[0] : video.canais;
+    const blueprint = canal?.blueprints
+      ? Array.isArray(canal.blueprints)
+        ? canal.blueprints[0]
+        : canal.blueprints
+      : null;
+
+    const promptContext = [
+      video.titulo && `Assunto: ${video.titulo}`,
+      blueprint?.estetica_visual && `Estética Visual: ${blueprint.estetica_visual}`,
+      axisData?.cores_thumb && `Cores: ${axisData.cores_thumb}`,
+      axisData?.elemento_visual && `Elementos Visuais: ${axisData.elemento_visual}`
+    ].filter(Boolean).join(' | ');
+
+    const finalPrompt = promptContext.length > 5 ? promptContext : 'Generative Minimalist Thumbnail Video Concept';
+
+    // 2. Trava de Custos (Story 3.1 & 3.4) limit 'image_gen'
+    const spendCheck = await checkSpendLimit(user.id, 'image_gen');
+    if (!spendCheck.allowed) {
+      return {
+        success: false,
+        errorCode: 'SPEND_LIMIT_REACHED',
+        errorMessage: spendCheck.message ?? 'Teto de gastos atingido para Geração de Imagem.',
+      };
+    }
+
+    // 3. Engine Request
+    const result = await mockImageEngine.generate({
+      modelId: 'mock-dalle-3',
+      prompt: finalPrompt
+    });
+
+    // 4. Upload to Storage
+    const fileName = `${user.id}/${videoId}/thumb-${Date.now()}.png`;
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from('assets')
+      .upload(fileName, result.imageBuffer, {
+        contentType: 'image/png',
+        upsert: true,
+      });
+
+    if (uploadError) {
+      console.error('[gaveta-actions] Storage Thumbnail Upload Error:', uploadError);
+      return { success: false, errorCode: 'STORAGE_ERROR', errorMessage: 'Falha ao salvar a Thumbnail gerada na nuvem.' };
+    }
+
+    // 5. Connect to Video and deduct tokens
+    const { data: publicData } = supabase.storage.from('assets').getPublicUrl(fileName);
+    const thumbUrl = publicData.publicUrl;
+
+    const { error: dbUpdateError } = await supabase
+      .from('videos')
+      .update({ thumb_url: thumbUrl, thumb_aprovada: false, step_thumb: true })
+      .eq('id', videoId)
+      .eq('user_id', user.id);
+
+    if (dbUpdateError) {
+      console.error('[gaveta-actions] Failed to connect thumb URL:', dbUpdateError);
+      return { success: false, errorCode: 'DB_UPDATE_ERROR', errorMessage: 'Falha ao vincular a thumbnail no banco de dados.' };
+    }
+
+    await incrementSpend(user.id, 'image_gen', result.costUnits);
+
+    return {
+      success: true,
+      thumbUrl,
+      costUnits: result.costUnits,
+      promptUsed: finalPrompt
+    };
+  } catch (err: unknown) {
+    if (err instanceof ImageEngineError) {
+      return { success: false, errorCode: err.code, errorMessage: err.message };
+    }
+    console.error('[gaveta-actions] Unknown error in generateThumbnail:', err);
+    return { success: false, errorCode: 'UNKNOWN', errorMessage: 'Erro inesperado ao gerar a Thumb.' };
+  }
+}
+
+// ============================================================
+// Action 5: Finalizar Produção (Movimentação Kanban)
+// ============================================================
+
+export type FinalizeVideoResult = 
+  | { success: true }
+  | { success: false; errorMessage: string };
+
+export async function finalizeVideoProductionAction(videoId: string): Promise<FinalizeVideoResult> {
+  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      return { success: false, errorMessage: 'Autenticação necessária.' };
+    }
+
+    const { error } = await supabase
+      .from('videos')
+      .update({ status: 'pronto' })
+      .eq('id', videoId)
+      .eq('user_id', user.id);
+
+    if (error) {
+      console.error('[gaveta-actions] Erro na transição de status:', error);
+      return { success: false, errorMessage: 'Falha ao fechar o pacote e atualizar o Kanban.' };
+    }
+
+    revalidatePath('/canais');
+    return { success: true };
+
+  } catch (err) {
+    console.error('[gaveta-actions] Erro não tratado em finalizar:', err);
+    return { success: false, errorMessage: 'Erro inesperado na Finalização.' };
   }
 }

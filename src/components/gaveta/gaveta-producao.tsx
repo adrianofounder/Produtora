@@ -12,9 +12,10 @@ import { useState, useTransition, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X, FileText, Headphones, Image, Sparkles, Loader2, Save,
-  AlertTriangle, CheckCircle2, ZapOff, WifiOff, RefreshCw, Play, Pause, Mic
+  AlertTriangle, CheckCircle2, ZapOff, WifiOff, RefreshCw, Play, Pause, Mic, Box, Download, ArrowRight, Paintbrush
 } from 'lucide-react';
-import { generateScriptAction, saveScriptAction, generateParagraphAudioAction } from '@/app/actions/gaveta-actions';
+import { generateScriptAction, saveScriptAction, generateParagraphAudioAction, generateThumbnailAction, finalizeVideoProductionAction } from '@/app/actions/gaveta-actions';
+import { createProductionZip, ZipAsset } from '@/lib/utils/zipper-service';
 import type { GenerateScriptResult } from '@/app/actions/gaveta-actions';
 import { cn } from '@/lib/utils';
 
@@ -35,6 +36,8 @@ export interface VideoGavetaData {
   eixo?: string | null;
   status: string;
   roteiro?: string | null;
+  thumb_url?: string | null;
+  thumb_aprovada?: boolean | null;
   canal: {
     nome: string;
     blueprint?: Blueprint | null;
@@ -55,12 +58,13 @@ interface GavetaProducaoProps {
   onScriptSaved?: () => void;
 }
 
-type TabId = 'roteiro' | 'audio' | 'asset';
+type TabId = 'roteiro' | 'audio' | 'asset' | 'exportar';
 
 const TABS: { id: TabId; label: string; icon: React.ElementType; available: boolean }[] = [
   { id: 'roteiro', label: 'Roteiro', icon: FileText, available: true },
   { id: 'audio', label: 'Áudio', icon: Headphones, available: true },
-  { id: 'asset', label: 'Asset Visual', icon: Image, available: false },
+  { id: 'asset', label: 'Capa Visual', icon: Image, available: true },
+  { id: 'exportar', label: 'Empacotar', icon: Box, available: true }
 ];
 
 // ============================================================
@@ -321,11 +325,183 @@ function OuvirTab({ videoId, initialParagraphs, onAudioSaved }: OuvirTabProps) {
 }
 
 // ============================================================
+// Sub-componente: Aba Asset Visual (Thumb)
+// ============================================================
+
+interface AssetTabProps {
+  videoId: string;
+  currentThumbUrl?: string | null;
+  onThumbSaved?: (url: string) => void;
+}
+
+function AssetTab({ videoId, currentThumbUrl, onThumbSaved }: AssetTabProps) {
+  const [thumbUrl, setThumbUrl] = useState<string | null>(currentThumbUrl || null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [isGenerating, startGenerating] = useTransition();
+
+  const handleGenerate = () => {
+    setErrorMsg(null);
+    startGenerating(async () => {
+      const result = await generateThumbnailAction(videoId);
+      if (result.success) {
+        setThumbUrl(result.thumbUrl);
+        if (onThumbSaved) onThumbSaved(result.thumbUrl);
+      } else {
+        setErrorMsg(result.errorMessage);
+      }
+    });
+  };
+
+  return (
+    <div className="flex flex-col gap-4 h-full">
+      {errorMsg && (
+        <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-4 flex items-center gap-3">
+          <ZapOff className="w-5 h-5 text-amber-400 shrink-0" />
+          <p className="text-sm text-red-200">{errorMsg}</p>
+        </div>
+      )}
+
+      <div className="flex-1 rounded-xl bg-black/40 border border-white/5 flex flex-col overflow-hidden relative group">
+        {thumbUrl ? (
+          <img src={thumbUrl} alt="Thumbnail Concept" className="w-full h-[250px] object-cover" />
+        ) : (
+          <div className="w-full h-[250px] flex items-center justify-center text-white/20">
+            <Image className="w-16 h-16 opacity-50" />
+          </div>
+        )}
+
+        <div className="p-5 flex flex-col gap-4">
+          <p className="text-sm text-[var(--color-text-2)] leading-relaxed text-center">
+            A thumbnail será criada seguindo a <strong>estética visual</strong> definida no Blueprint do seu canal e adaptada ao tema geral deste vídeo.
+          </p>
+
+          <button
+            onClick={handleGenerate}
+            disabled={isGenerating}
+            className="btn-primary h-12 text-sm shadow-xl mt-auto w-full flex items-center justify-center gap-2"
+          >
+            {isGenerating ? (
+              <><Loader2 className="w-4 h-4 animate-spin" /> Mapeando Arte e Gerando...</>
+            ) : (
+              <><Paintbrush className="w-4 h-4" /> {thumbUrl ? 'Regerar Conceito' : 'Criar Capa Conceitual'}</>
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+// Sub-componente: Aba Retaguarda / Exportar (Aba 5)
+// ============================================================
+
+interface ExportarTabProps {
+  videoId: string;
+  videoTitle: string;
+  paragraphs: ScriptParagraph[];
+  thumbUrl?: string | null;
+  onFinish?: () => void;
+}
+
+function ExportarTab({ videoId, videoTitle, paragraphs, thumbUrl, onFinish }: ExportarTabProps) {
+  const [isZipping, startZipping] = useTransition();
+  const [isFinishing, startFinishing] = useTransition();
+  const [zipSuccess, setZipSuccess] = useState(false);
+  const [zipError, setZipError] = useState<string | null>(null);
+
+  const hasScript = paragraphs.some(p => p.text.trim().length > 0);
+  const audioCount = paragraphs.filter(p => p.audioUrl).length;
+  const hasThumb = !!thumbUrl;
+
+  const handleDownload = () => {
+    setZipError(null);
+    startZipping(async () => {
+      const textContent = paragraphs.map(p => p.text).join('\n\n');
+      
+      const assets: ZipAsset[] = [];
+      paragraphs.forEach((p, i) => {
+        if (p.audioUrl) {
+          assets.push({ url: p.audioUrl, filename: `paragrafo-${i+1}.mp3` });
+        }
+      });
+      if (thumbUrl) {
+        assets.push({ url: thumbUrl, filename: 'thumbnail-conceito.png' });
+      }
+
+      const res = await createProductionZip(videoTitle, textContent, assets);
+      if (res.success) {
+        setZipSuccess(true);
+        setTimeout(() => setZipSuccess(false), 3000);
+      } else {
+        setZipError(res.errorMessage || "Erro desconhecido");
+      }
+    });
+  };
+
+  const handleFinish = () => {
+    startFinishing(async () => {
+      await finalizeVideoProductionAction(videoId);
+      if (onFinish) onFinish(); // Vai invocar onClose por cima 
+    });
+  };
+
+  return (
+    <div className="flex flex-col h-full gap-5">
+      <div className="p-5 rounded-xl border border-white/10 bg-white/5">
+        <h3 className="text-sm font-bold text-white mb-4">Itens Consolidados para o Zip</h3>
+        <ul className="flex flex-col gap-3 text-sm text-[var(--color-text-2)] font-mono">
+          <li className="flex items-center gap-2">
+            {hasScript ? <CheckCircle2 className="w-4 h-4 text-green-400" /> : <AlertTriangle className="w-4 h-4 text-amber-400" />}
+            Documento Mestre (Roteiro)
+          </li>
+          <li className="flex items-center gap-2">
+            {audioCount > 0 ? <CheckCircle2 className="w-4 h-4 text-green-400" /> : <AlertTriangle className="w-4 h-4 text-amber-400" />}
+            Trilhas de Áudio: {audioCount} / {paragraphs.length} parágrafos
+          </li>
+          <li className="flex items-center gap-2">
+            {hasThumb ? <CheckCircle2 className="w-4 h-4 text-green-400" /> : <AlertTriangle className="w-4 h-4 text-amber-400" />}
+            Capa Conceito (Thumbnail)
+          </li>
+        </ul>
+      </div>
+
+      {zipError && (
+        <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-4 text-sm text-red-200">
+          {zipError}
+        </div>
+      )}
+
+      <div className="mt-auto flex flex-col gap-3">
+        <button
+          onClick={handleDownload}
+          disabled={isZipping || isFinishing}
+          className={cn('h-12 w-full rounded-xl border font-bold text-sm flex items-center justify-center gap-2 transition-all', zipSuccess ? 'bg-green-600/20 border-green-500/40 text-green-300' : 'bg-white/5 border-white/10 text-white hover:bg-white/10')}
+        >
+          {isZipping ? <><Loader2 className="w-4 h-4 animate-spin" /> Empacotando Media Localmente...</> :
+           zipSuccess ? <><CheckCircle2 className="w-4 h-4" /> Download Iniciado!</> :
+           <><Download className="w-4 h-4" /> Extrair ZIP Local</>}
+        </button>
+
+        <button
+          onClick={handleFinish}
+          disabled={isZipping || isFinishing}
+          className="btn-primary h-12 w-full text-sm flex items-center justify-center gap-2"
+        >
+          {isFinishing ? <><Loader2 className="w-4 h-4 animate-spin" /> Finalizando Status...</> : <><ArrowRight className="w-4 h-4" /> Finalizar & Enviar para Estante</>}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
 // Componente Principal: GavetaProducao
 // ============================================================
 
 export function GavetaProducao({ isOpen, onClose, video, onScriptSaved }: GavetaProducaoProps) {
   const [activeTab, setActiveTab] = useState<TabId>('roteiro');
+  const [localThumb, setLocalThumb] = useState<string | null>(video?.thumb_url || null);
 
   // Lazy parsing
   const savedParagraphs: ScriptParagraph[] = (() => {
@@ -408,6 +584,16 @@ export function GavetaProducao({ isOpen, onClose, video, onScriptSaved }: Gaveta
                 {activeTab === 'audio' && (
                   <motion.div key="tab-audio" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} className="h-full">
                     <OuvirTab videoId={video.id} initialParagraphs={savedParagraphs} onAudioSaved={onScriptSaved} />
+                  </motion.div>
+                )}
+                {activeTab === 'asset' && (
+                  <motion.div key="tab-asset" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} className="h-full">
+                    <AssetTab videoId={video.id} currentThumbUrl={localThumb} onThumbSaved={(url) => { setLocalThumb(url); if(onScriptSaved) onScriptSaved(); }} />
+                  </motion.div>
+                )}
+                {activeTab === 'exportar' && (
+                  <motion.div key="tab-exportar" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} className="h-full">
+                    <ExportarTab videoId={video.id} videoTitle={video.titulo} paragraphs={savedParagraphs} thumbUrl={localThumb} onFinish={onClose} />
                   </motion.div>
                 )}
               </AnimatePresence>

@@ -99,7 +99,7 @@ ok
 ```
 git add -A && git commit -m "feat(epic-3): story-3.3 - integracao mp3 blocks gerados na fabrica"
 ```
-
+ok
 ---
 
 ### ⏳ Story 3.4 — Empacotamento Visual e Asset Final
@@ -109,22 +109,23 @@ git add -A && git commit -m "feat(epic-3): story-3.3 - integracao mp3 blocks ger
 ```
 @[.agent/workflows/sm.md] crie o documento da story-3.4 de empacotamento visual
 ```
-
+ok
 **Passo 2 — Implementar (🎯 @dev):**
 ```
 @[.agent/workflows/dev.md] finalize a implementacao do epic-3 empacotando mídias via story-3.4
 ```
+ok
 
 **Passo 3 — Teste Completo MVP (⚡ @qa):**
 ```
 @[.agent/workflows/qa.md] implemente auditoria do fluxo "Gaveta -> Texto Aberto -> Audicao Play -> Download Pacote Completo" interceptando limites ficticios de Custos.
 ```
-
+ok
 **Passo 4 — Commitar:**
 ```
 git add -A && git commit -m "feat(epic-3): story-3.4 - compilador final de download e fim do epic3"
 ```
-
+ok
 ---
 
 ### ⏳ Story 3.5 — Chat Contextual e Personas de Produção

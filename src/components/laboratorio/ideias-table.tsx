@@ -1,6 +1,6 @@
 'use client';
 
-import { Zap, Send, Star } from 'lucide-react';
+import { Zap, Send, Star, X } from 'lucide-react';
 
 export interface IdeiaData {
   id: string | number;
@@ -8,7 +8,7 @@ export interface IdeiaData {
   premissa: string;
   notaIA: number; // 0–10
   tags: string[];
-  status: 'pendente' | 'fabrica' | 'publicado';
+  status: 'pendente' | 'fabrica' | 'publicado' | 'descartado';
 }
 
 const SCORE_COLOR = (nota: number) => {
@@ -28,9 +28,11 @@ const SCORE_LABEL = (nota: number) => {
 interface IdeiasTableProps {
   ideias: IdeiaData[];
   onSendToFabrica?: (id: string | number) => void;
+  onDescartar?: (id: string | number) => void;
+  pendingIds?: Set<string>;
 }
 
-export function IdeiasTable({ ideias, onSendToFabrica }: IdeiasTableProps) {
+export function IdeiasTable({ ideias, onSendToFabrica, onDescartar, pendingIds = new Set() }: IdeiasTableProps) {
   return (
     <div className="card overflow-hidden">
       {/* Cabeçalho da tabela */}
@@ -114,19 +116,40 @@ export function IdeiasTable({ ideias, onSendToFabrica }: IdeiasTableProps) {
           </div>
 
           {/* Ação */}
-          <div>
+          <div className="flex flex-col gap-1.5">
             {ideia.status === 'pendente' ? (
-              <button
-                className="btn-primary h-8 text-xs gap-1.5"
-                onClick={() => onSendToFabrica?.(ideia.id)}
-              >
-                <Send size={11} />
-                P/ Fábrica
-              </button>
+              <>
+                <button
+                  className="btn-primary h-8 text-xs gap-1.5 disabled:opacity-50"
+                  onClick={() => onSendToFabrica?.(ideia.id)}
+                  disabled={pendingIds.has(String(ideia.id))}
+                >
+                  {pendingIds.has(String(ideia.id)) ? (
+                    <div className="w-3 h-3 rounded-full border-2 border-white/20 border-t-white animate-spin" />
+                  ) : (
+                    <Send size={11} />
+                  )}
+                  P/ Fábrica
+                </button>
+                <button
+                  className="btn-ghost h-7 text-[10px] gap-1 border border-white/10 hover:border-red-500/40 hover:text-red-400 transition-colors disabled:opacity-50"
+                  onClick={() => onDescartar?.(ideia.id)}
+                  disabled={pendingIds.has(String(ideia.id))}
+                  title="Descartar ideia"
+                >
+                  <X size={10} />
+                  Descartar
+                </button>
+              </>
             ) : ideia.status === 'fabrica' ? (
               <span className="badge badge-accent gap-1">
                 <Zap size={9} />
                 Na Fábrica
+              </span>
+            ) : ideia.status === 'descartado' ? (
+              <span className="badge badge-muted gap-1 opacity-60">
+                <X size={9} />
+                Descartado
               </span>
             ) : (
               <span className="badge badge-success">Publicado</span>

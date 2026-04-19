@@ -69,7 +69,7 @@ ok
 ```
 git add -A && git commit -m "feat(epic-2): story-2.2 - integrar kanban do dashboard com chamadas Server Actions"
 ```
-
+ok
 ---
 
 ## 🟣 SPRINT 5 — Laboratório e Studio (CRUD MVP)
@@ -85,7 +85,7 @@ git add -A && git commit -m "feat(epic-2): story-2.2 - integrar kanban do dashbo
 ```
 @[.agent/workflows/sm.md] redija a story-2.3 detalhando a transicao de states no laboratorio e DB
 ```
-
+ok
 **Passo 2 — Implementar (🧠 @dev):**
 ```
 @[.agent/workflows/dev.md] implemente a story-2.3

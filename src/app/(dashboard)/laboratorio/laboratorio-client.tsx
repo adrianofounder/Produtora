@@ -1,10 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { Activity } from 'lucide-react';
 import { EixoData, EixoCard } from '@/components/laboratorio/eixo-card';
 import { IdeiasTable, IdeiaData } from '@/components/laboratorio/ideias-table';
 import { TrendAnalysis, TrendMetrica } from '@/components/laboratorio/trend-analysis';
+import {
+  enviarIdeiaParaFabrica,
+  enviarLoteParaFabrica,
+  descartarIdeia,
+} from '@/app/actions/laboratorio-actions';
 
 interface LaboratorioClientProps {
   initialEixos: EixoData[];
@@ -16,32 +21,118 @@ export function LaboratorioClient({ initialEixos, initialIdeias, initialTrends }
   const [eixos] = useState<EixoData[]>(initialEixos);
   const [ideias, setIdeias] = useState<IdeiaData[]>(initialIdeias);
   const [trends] = useState<TrendMetrica[]>(initialTrends);
-  
   const [activeEixoId, setActiveEixoId] = useState<string | number | null>(
     initialEixos.length > 0 ? initialEixos[0].id : null
   );
 
-  const handleSendToFabrica = async (id?: string | number) => {
-    // Se ID for passado, envia um específico. Se não, envia todos 'pendentes'.
-    const idsParaEnviar = id ? [id] : ideias.filter(i => i.status === 'pendente').map(i => i.id);
-    
-    if (idsParaEnviar.length === 0) {
-      alert('Nenhuma ideia pendente para enviar.');
-      return;
-    }
+  // IDs em trânsito (evita duplo-clique e mostra spinner nos botões)
+  const [pendingIds, setPendingIds] = useState<Set<string>>(new Set());
 
-    try {
-      // Simula o processamento em lote para a UI (no futuro, fará um PATCH route handler ou Supabase direto)
-      alert(`Enviando ${idsParaEnviar.length} ideia(s) para a Fábrica de Produção...`);
-      
-      setIdeias(prev => prev.map(i => 
-        idsParaEnviar.includes(i.id) ? { ...i, status: 'fabrica' } : i
-      ));
+  const [isPending, startTransition] = useTransition();
 
-    } catch (err) {
-      console.error('Erro ao enviar para fábrica:', err);
-    }
+  // ---------------------------------------------------------------
+  // Marcar/desmarcar IDs como pendentes
+  // ---------------------------------------------------------------
+  const addPending = (ids: string[]) =>
+    setPendingIds((prev) => new Set([...prev, ...ids]));
+
+  const removePending = (ids: string[]) =>
+    setPendingIds((prev) => {
+      const next = new Set(prev);
+      ids.forEach((id) => next.delete(id));
+      return next;
+    });
+
+  // ---------------------------------------------------------------
+  // Envio individual (AC1 / AC4)
+  // ---------------------------------------------------------------
+  const handleSendToFabrica = (id: string | number) => {
+    const strId = String(id);
+
+    // Optimistic update
+    setIdeias((prev) =>
+      prev.map((i) => (String(i.id) === strId ? { ...i, status: 'fabrica' as const } : i))
+    );
+    addPending([strId]);
+
+    startTransition(async () => {
+      const result = await enviarIdeiaParaFabrica(strId);
+
+      if (!result.success) {
+        // Rollback
+        setIdeias((prev) =>
+          prev.map((i) => (String(i.id) === strId ? { ...i, status: 'pendente' as const } : i))
+        );
+        console.error('[Lab Action Error] enviarIdeiaParaFabrica:', result.error);
+      }
+
+      removePending([strId]);
+    });
   };
+
+  // ---------------------------------------------------------------
+  // Envio em lote (AC2 / AC5)
+  // ---------------------------------------------------------------
+  const handleSendLote = () => {
+    const idsParaEnviar = ideias
+      .filter((i) => i.status === 'pendente')
+      .map((i) => String(i.id));
+
+    if (idsParaEnviar.length === 0) return;
+
+    // Optimistic update
+    setIdeias((prev) =>
+      prev.map((i) =>
+        idsParaEnviar.includes(String(i.id)) ? { ...i, status: 'fabrica' as const } : i
+      )
+    );
+    addPending(idsParaEnviar);
+
+    startTransition(async () => {
+      const result = await enviarLoteParaFabrica(idsParaEnviar);
+
+      if (!result.success) {
+        // Rollback
+        setIdeias((prev) =>
+          prev.map((i) =>
+            idsParaEnviar.includes(String(i.id)) ? { ...i, status: 'pendente' as const } : i
+          )
+        );
+        console.error('[Lab Action Error] enviarLoteParaFabrica:', result.error);
+      }
+
+      removePending(idsParaEnviar);
+    });
+  };
+
+  // ---------------------------------------------------------------
+  // Descarte (AC3 / AC4 / AC7)
+  // ---------------------------------------------------------------
+  const handleDescartar = (id: string | number) => {
+    const strId = String(id);
+
+    // Optimistic update
+    setIdeias((prev) =>
+      prev.map((i) => (String(i.id) === strId ? { ...i, status: 'descartado' as const } : i))
+    );
+    addPending([strId]);
+
+    startTransition(async () => {
+      const result = await descartarIdeia(strId);
+
+      if (!result.success) {
+        // Rollback
+        setIdeias((prev) =>
+          prev.map((i) => (String(i.id) === strId ? { ...i, status: 'pendente' as const } : i))
+        );
+        console.error('[Lab Action Error] descartarIdeia:', result.error);
+      }
+
+      removePending([strId]);
+    });
+  };
+
+  const temIdeiasParaEnviar = ideias.some((i) => i.status === 'pendente');
 
   return (
     <div className="relative flex flex-col gap-10 p-6 max-w-[1400px] mx-auto min-h-screen">
@@ -56,7 +147,7 @@ export function LaboratorioClient({ initialEixos, initialIdeias, initialTrends }
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-3xl font-bold tracking-tighter text-white">Laboratório & Marés</h1>
+              <h1 className="text-3xl font-bold tracking-tighter text-white">Laboratório &amp; Marés</h1>
               <span className="badge badge-accent animate-pulse">Live Analysis</span>
             </div>
             <p className="text-sm font-medium mt-0.5 text-[var(--color-text-3)]">
@@ -83,11 +174,11 @@ export function LaboratorioClient({ initialEixos, initialIdeias, initialTrends }
                 <p className="text-sm opacity-40">Nenhum eixo temático disponível.</p>
             </div>
           ) : eixos.map((eixo) => (
-            <EixoCard 
-              key={eixo.id} 
-              eixo={eixo} 
+            <EixoCard
+              key={eixo.id}
+              eixo={eixo}
               isActive={activeEixoId === eixo.id}
-              onClick={() => setActiveEixoId(eixo.id)} 
+              onClick={() => setActiveEixoId(eixo.id)}
             />
           ))}
         </div>
@@ -95,7 +186,7 @@ export function LaboratorioClient({ initialEixos, initialIdeias, initialTrends }
 
       {/* Row 2: Ideas + Trends - Bento Grid */}
       <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 pb-12">
-        
+
         {/* Left: Ideas Table */}
         <div className="lg:col-span-12 xl:col-span-7 flex flex-col gap-5">
           <div className="flex justify-between items-center px-1">
@@ -103,18 +194,25 @@ export function LaboratorioClient({ initialEixos, initialIdeias, initialTrends }
               Banco de Ideias Validado
               <span className="badge badge-muted font-mono px-2">{ideias.length}</span>
             </h2>
-            <button 
-              onClick={() => handleSendToFabrica()}
-              className="btn-primary h-9 px-5 text-[11px] font-bold"
+            <button
+              onClick={handleSendLote}
+              disabled={isPending || !temIdeiasParaEnviar}
+              className="btn-primary h-9 px-5 text-[11px] font-bold disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              + Enviar Lote p/ Fábrica
+              {isPending ? (
+                <div className="w-4 h-4 rounded-full border-2 border-white/20 border-t-white animate-spin" />
+              ) : (
+                '+ Enviar Lote p/ Fábrica'
+              )}
             </button>
           </div>
-          
+
           <div className="card p-1">
-             <IdeiasTable 
-               ideias={ideias} 
-               onSendToFabrica={(id) => handleSendToFabrica(id)} 
+             <IdeiasTable
+               ideias={ideias}
+               onSendToFabrica={handleSendToFabrica}
+               onDescartar={handleDescartar}
+               pendingIds={pendingIds}
              />
           </div>
         </div>

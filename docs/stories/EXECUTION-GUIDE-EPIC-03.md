@@ -160,9 +160,9 @@ git add -A && git commit -m "feat(epic-3): story-3.5 - chat contextual multitab"
 |-------|--------|--------|--------|---------------------|
 | 3.1 | Cofre de APIS e Limites/Teto | 6 | ✅ Concluído | @sm / @dev / @qa |
 | 3.2 | Gaveta: Roteirização Abstrata | 6 | ✅ Concluído | @sm / @dev / @qa |
-| 3.3 | Gaveta: Mecanismo de TTS/Voz | 7 | ⏳ A Fazer | @sm / @dev |
-| 3.4 | Gaveta: Asset Visual Final e ZIP| 7 | ⏳ A Fazer | @sm / @dev |
-| 3.5 | Gaveta: Chat Contextual e Personas | 7 | ⏳ A Fazer | @sm / @dev |
+| 3.3 | Gaveta: Mecanismo de TTS/Voz | 7 | ✅ Concluído | @sm / @dev |
+| 3.4 | Gaveta: Asset Visual Final e ZIP| 7 | ✅ Concluído | @sm / @dev |
+| 3.5 | Gaveta: Chat Contextual e Personas | 7 | ✅ Concluído | @sm / @dev |
 
 ---
 ---

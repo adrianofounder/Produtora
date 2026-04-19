@@ -350,7 +350,7 @@ ok
 ```
 git add -A && git commit -m "feat(story-3.3): integrar Sentry para error tracking em producao - OBS-01"
 ```
-
+ok
 ---
 
 ### ⏳ Story 3.4 — Estrutura Inicial de Testes Automatizados
@@ -360,17 +360,17 @@ git add -A && git commit -m "feat(story-3.3): integrar Sentry para error trackin
 ```
 @[.agent/workflows/dev.md] configure a estrutura de testes Vitest seguindo a @[docs/stories/story-3.4-testes-automatizados.md]
 ```
-
+ok
 **Passo 2 — Escrever testes iniciais (⚡ Flash / 🛠️ Low):**
 ```
 @[.agent/workflows/qa.md] escreva os primeiros testes automatizados seguindo a @[docs/stories/story-3.4-testes-automatizados.md]
 ```
-
+ok
 **Passo 3 — Configurar CI (🧠 Claude Thinking):**
 ```
 @[.agent/workflows/devops.md] configure o GitHub Actions para rodar os testes em PRs seguindo a @[docs/stories/story-3.4-testes-automatizados.md]
 ```
-
+ok
 **Passo 4 — Commitar (⚡ Flash):**
 ```
 git add -A && git commit -m "feat(story-3.4): configurar Vitest + primeiros testes automatizados + CI pipeline - TEST-01"

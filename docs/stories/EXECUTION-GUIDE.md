@@ -400,21 +400,21 @@ git add -A && git commit -m "chore(story-3.5): renomear temp-app para produtora 
 |-------|--------|--------|--------|
 | 1.1 | Hotfix gate publicação | 1 | ✅ Concluída |
 | 1.2 | Hardening Database (DB-08/01) | 1 | ✅ Concluída |
-| 1.3 | Auditoria API endpoints | 1 | ⏳ Aguardando |
-| 1.4 | ARIA acessibilidade | 1 | ⏳ Aguardando |
-| 1.5 | Refatorar VideoDrawer | 1 | 🛡️ Validada |
-| 1.6 | Criptografar tokens OAuth | 1 | ⏳ Após 1.3 |
-| 2.1 | Sincronizar database.types.ts | 2 | ⏳ Aguardando |
-| 2.2 | Resolver linting | 2 | ⏳ Aguardando |
-| 2.3 | Triggers e índices DB | 2 | ⏳ Aguardando |
+| 1.3 | Auditoria API endpoints | 1 | ✅ Concluída |
+| 1.4 | ARIA acessibilidade | 1 | ✅ Concluída |
+| 1.5 | Refatorar VideoDrawer | 1 | ✅ Concluída |
+| 1.6 | Criptografar tokens OAuth | 1 | ✅ Concluída |
+| 2.1 | Sincronizar database.types.ts | 2 | ✅ Concluída |
+| 2.2 | Resolver linting | 2 | ✅ Concluída |
+| 2.3 | Triggers e índices DB | 2 | ✅ Concluída |
 | 2.4 | Design system botões | 2 | ✅ Concluída |
 | 2.5 | Responsividade mobile | 2 | ✅ Concluída |
 | 2.6 | Otimizar Next.js config | 2 | ✅ Concluída |
-| 3.1 | Performance database | 3 | ⏳ Aguardando |
-| 3.2 | UX estados de feedback | 3 | ⏳ Aguardando |
-| 3.3 | Error tracking (Sentry) | 3 | ⏳ Aguardando |
-| 3.4 | Testes automatizados | 3 | ⏳ Aguardando |
-| 3.5 | Limpeza sistema | 3 | ⏳ Aguardando |
+| 3.1 | Performance database | 3 | ✅ Concluída |
+| 3.2 | UX estados de feedback | 3 | ✅ Concluída |
+| 3.3 | Error tracking (Sentry) | 3 | ✅ Concluída |
+| 3.4 | Testes automatizados | 3 | ✅ Concluída |
+| 3.5 | Limpeza sistema | 3 | ✅ Concluída |
 
 ---
 

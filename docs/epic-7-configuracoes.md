@@ -68,3 +68,25 @@ const APIS = [
 - [ ] Seção "Chaves de API" com painel usando `<ApiKeyCard />`
 - [ ] Layout `max-w-3xl` centralizado para melhor legibilidade
 - [ ] Remoção total do boilerplate: `glass-panel`, `border-white/5`, `text-slate-400`, `bg-red-600`, `text-emerald-400`
+
+---
+
+## 🧠 Doutrina de Engenharia e Negócios (Injetada pelo PRD)
+
+> **ATENÇÃO @dev e @qa**: Extrato do PRD (Seção 7).
+
+### 1. Camada de Integração (Chaves Third-Party)
+As chaves inseridas (`OPENAI_API_KEY`, `ELEVENLABS_KEY`, etc) são restritas por Tenant e **obrigatoriamente encriptadas no banco** (Conforme obriga o NFR03).
+Qualquer componente de `input` renderizado deve atuar em modo senha (ocultar os caracteres `••••••••••••`) no formulário.
+
+### 2. Conexões de Destino (OAuth2)
+A tabela deve suportar relacionamento 1:N entre o Canal e as integrações. A configuração prevê que o Tenant cadastre Múltiplas conexões de saída:
+*   YouTube OAuth (Para Upload Direto e Agendamento da Fábrica).
+*   TikTok OAuth.
+*   Webhook Telegram (Notificações pessoais via BOT: *"Editor 1 finalizou o vídeo"*, ou botão *"Aprova? Sim/Não"*).
+
+### 3. Editor Freelancer (Role Management)
+O Administrador do Canal pode convidar um usuário externo. A *Role* deste nível inferior é definida como **Editor Freelancer**:
+*   Ele PODE transitar e trabalhar na Gaveta de Produção (Roteirista/Thumbmaker).
+*   Ele PODE aprovar as etapas primárias.
+*   Ele **NÃO PODE** acessar a aba de Dashboard Financeiro do HQ, não gerencia faturamento global nem edita chaves de API. Sua visão do sistema é restrita somente à "Linha de Montagem" da Fábrica.

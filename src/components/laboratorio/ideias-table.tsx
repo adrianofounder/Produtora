@@ -3,7 +3,7 @@
 import { Zap, Send, Star } from 'lucide-react';
 
 export interface IdeiaData {
-  id: number;
+  id: string | number;
   titulo: string;
   premissa: string;
   notaIA: number; // 0–10
@@ -27,7 +27,7 @@ const SCORE_LABEL = (nota: number) => {
 
 interface IdeiasTableProps {
   ideias: IdeiaData[];
-  onSendToFabrica?: (id: number) => void;
+  onSendToFabrica?: (id: string | number) => void;
 }
 
 export function IdeiasTable({ ideias, onSendToFabrica }: IdeiasTableProps) {

@@ -95,3 +95,15 @@ Grid de 4 mini-cards com métricas estimadas do blueprint: Retenção Est., CTR 
 - ✅ Score ring SVG dinâmico com cores semânticas
 - ✅ Zero cores hardcoded
 - ✅ Incluído no commit `ab3b742`
+
+---
+
+## 🧠 Doutrina de Engenharia e Negócios (Injetada pelo PRD)
+
+> **ATENÇÃO @dev e @qa**: Extrato do PRD (Seção 9). O Studio não é um mero bloquinho de notas. É o injetor de Prompt Mestre.
+
+### 1. O Papel Estrutural do Blueprint
+A Inteligência de Campos (Hook Inquebrável, Emoção Dominante, Fórmula Matemática) preenchida aqui não fica no vácuo. **Ela é herdada** pelas abas de "Aprovação de Roteiro" da Gaveta de Produção da Fábrica (`Epic 2`). Sem ela, as chamadas às APIs da OpenAI baterão em "prompts em branco" e gerarão textos genéricos.
+
+### 2. Arquitetura de Redirecionamento
+Quando o usuário aciona `[🚀 CRIAR CANAL BASEADO NISTO]` na aba *Tendências*, o sistema injeta o canal via UUID e **pré-popula** todos os campos baseados na Engenharia Reversa daquela URL de Benchmark enviada via Payload.

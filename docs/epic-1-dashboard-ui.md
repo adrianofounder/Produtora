@@ -27,3 +27,21 @@
 **Agent**: `qa` / `ux-expert`
 - **Desc**: Add the `.mesh-bg` radial gradient blobs behind the main container (translating Lendária's VFX). Add hover translation (`transform: translateY(-4px)`) to all cards.
 - **Goal**: Final graphical tune-up guaranteeing the interface looks premium, dark, and highly responsive.
+
+---
+
+## 🧠 Doutrina de Engenharia e Negócios (Injetada pelo PRD)
+
+> **ATENÇÃO @dev e @qa**: Extrato do PRD (Seções 2 e 6). Cockpit/Home não é um feed estático, é o radar central executivo.
+
+### 1. Indicadores Financeiros e KPIs Globais
+Os componentes de KPI (`<MetricCard />`) na Home devem, no futuro (quando conectados no banco), rodar funções de agregação SUM() sobre as tabelas:
+*   Valores de Receita de Adsense dos canais.
+*   Custo operacional de Tokens API/Hora na Fábrica.
+*(Dashboard = Faturamento - Custo de Fábrica).*
+
+### 2. Painel de Notificações Ativas
+O Painel de Alertas não listará spam. Só registrará ocorrências severas:
+*   "API da OpenAI Fora do Ar (Kill Switch acionado)".
+*   "Strike de Copyright recebido no Canal X".
+*   "Conta Kiwify Desconectada".

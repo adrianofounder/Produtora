@@ -1,24 +1,46 @@
-'use client';
-
 import { Activity } from 'lucide-react';
-import { MatrizOceano, PontoMatriz } from '@/components/tendencias/matriz-oceano';
-import { NichoCard, GarimpoData } from '@/components/tendencias/nicho-card';
+import { MatrizOceano } from '@/components/tendencias/matriz-oceano';
+import { NichoCard } from '@/components/tendencias/nicho-card';
+import { createClient } from '@/lib/supabase/server';
+import type { Database } from '@/lib/supabase/database.types';
 
-const PONTOS: PontoMatriz[] = [
-  { id: 1, label: 'True Crime US',  type: 'lotado', x: 20, y: 30, opacity: 0.5 },
-  { id: 2, label: 'React Cristão',  type: 'lotado', x: 15, y: 70, opacity: 0.6 },
-  { id: 3, label: 'Shorts de Tech', type: 'lotado', x: 80, y: 20, opacity: 0.4 },
-  { id: 4, label: 'Relatos VIP',    type: 'gap',    x: 85, y: 80, pulse: true  },
-  { id: 5, label: 'Gringo Dublado', type: 'gap',    x: 75, y: 65, pulse: false },
-];
+type MatrizNichoRow = Database['public']['Tables']['matriz_nichos']['Row'];
+type GarimpoRow = Database['public']['Tables']['garimpos_minados']['Row'];
 
-const GARIMPOS: GarimpoData[] = [
-  { id: 1, titulo: 'The boss who lost $2M on purpose to teach a lesson', canal: 'Corporate Tales', views: '4.2M', tag: 'Gap: Relatos' },
-  { id: 2, titulo: 'Why everyone is quitting their $100k tech jobs',     canal: 'Tech Dropout',    views: '1.8M', tag: 'Gap: Carreiras' },
-  { id: 3, titulo: 'I stayed in the worlds most illegal hotel',          canal: 'Urbex Worldwide', views: '8.4M', tag: 'Lotado: Urbex' },
-];
+export default async function Tendencias() {
+  const supabase = await createClient();
 
-export default function Tendencias() {
+  // Buscar dados da Matriz Oceano Azul — Eixo Y: Concorrência, Eixo X: Sentimento Dominante (Doutrina Epic-5 §2)
+  const { data: pontosMatrix } = await supabase
+    .from('matriz_nichos')
+    .select('*')
+    .order('created_at', { ascending: true });
+
+  // Buscar Resultados do Garimpo — Algoritmo de Filtros de Nichos (Doutrina Epic-5 §1)
+  const { data: garimposMinados } = await supabase
+    .from('garimpos_minados')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  // Mapeia tipos do banco para o formato dos componentes
+  const PONTOS = (pontosMatrix as MatrizNichoRow[] | null || []).map(p => ({
+    id: p.id,
+    label: p.label,
+    type: p.tipo as 'lotado' | 'gap',
+    x: p.x,
+    y: p.y,
+    opacity: p.opacity,
+    pulse: p.pulse,
+  }));
+
+  const GARIMPOS = (garimposMinados as GarimpoRow[] | null || []).map(g => ({
+    id: g.id,
+    titulo: g.titulo,
+    canal: g.canal,
+    views: g.views_text,
+    tag: g.tag,
+  }));
+
   return (
     <div className="flex flex-col gap-6">
       <header className="flex flex-col gap-1">
@@ -54,6 +76,13 @@ export default function Tendencias() {
           {GARIMPOS.map((nicho) => (
             <NichoCard key={nicho.id} nicho={nicho} />
           ))}
+          
+          {GARIMPOS.length === 0 && (
+            <div className="col-span-full py-10 flex flex-col items-center justify-center border border-dashed rounded-lg opacity-50" style={{ borderColor: 'var(--color-border-2)' }}>
+              <span className="text-2xl mb-2">📡</span>
+              <p className="text-sm" style={{ color: 'var(--color-text-3)' }}>O Worker OpenCLI-rs ainda não processou dados hoje.</p>
+            </div>
+          )}
         </div>
       </section>
     </div>

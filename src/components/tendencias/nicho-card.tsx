@@ -3,11 +3,11 @@
 import { Rocket, Search } from 'lucide-react';
 
 export interface GarimpoData {
-  id: number;
+  id: string | number;
   titulo: string;
   canal: string;
   views: string;
-  tag: string;
+  tag?: string | null;
 }
 
 interface NichoCardProps {
@@ -15,7 +15,7 @@ interface NichoCardProps {
 }
 
 export function NichoCard({ nicho }: NichoCardProps) {
-  const isGap = nicho.tag.toLowerCase().includes('gap');
+  const isGap = nicho.tag ? nicho.tag.toLowerCase().includes('gap') : false;
 
   return (
     <div className="card-inner p-4 flex gap-4 transition-colors hover:border-[rgba(124,58,237,0.3)]">
@@ -47,11 +47,13 @@ export function NichoCard({ nicho }: NichoCardProps) {
         </p>
 
         <div className="mt-2.5 flex items-center justify-between gap-2 overflow-hidden">
-          <span 
-            className={`badge shrink-0 ${isGap ? 'badge-accent' : 'badge-error'}`}
-          >
-            {nicho.tag}
-          </span>
+          {nicho.tag && (
+            <span 
+              className={`badge shrink-0 ${isGap ? 'badge-accent' : 'badge-error'}`}
+            >
+              {nicho.tag}
+            </span>
+          )}
           <div className="flex gap-1.5 shrink-0">
             <button className="btn-ghost h-7 px-2.5 text-[10px]">
               <Search size={10} />

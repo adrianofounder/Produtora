@@ -141,3 +141,25 @@ Compor a página final usando os 3 componentes acima, com cabeçalho (`PageHeade
 - 3 componentes atômicos no design system Lendária
 - Commit: `feat(ui): Epic 4 — Laboratório & Motor de Tendências`
 - `docs/agent-context.md` atualizado: Epic 4 → ✅ Concluído, Epic 5 → ⏳ Próximo
+
+---
+
+## 🧠 Doutrina de Engenharia e Negócios (Injetada pelo PRD)
+
+> **ATENÇÃO @dev e @qa**: As regras abaixo foram extraídas do PRD (Seções 5 e 6.3). Elas governam a Lógica do Laboratório e não são apenas estéticas.
+
+### 1. Ficha Técnica do Eixo (O DNA de 20 Campos)
+A arquitetura de banco de dados deve prever ou interagir com os **20 Campos obrigatórios** da Ficha Técnica de um Eixo, divididos em:
+*   **Identidade:** Nome, Premissa, Demografia, Emoção, Gatilho.
+*   **Dramaturgia:** Protagonista, Antagonista, Conflito, Payoff, Hook.
+*   **Comercial (SEO):** Concorrência (Alta/Média/Baixa), Retenção Estimada, RPM Estimado, Safewords/Tabus.
+*   **Fábrica:** Cores da Thumb, Elemento âncora, Duração limitada.
+*(Estes dados não são digitados pelo usuário, mas preenchidos passivamente pela IA nas Madrugadas).*
+
+### 2. Ações do Motor (Botão Auto-Refill Mestre)
+O botão **`[+ Enviar Lote de 5 para a Fábrica]`**:
+*   É a ação que conecta o Módulo 5 (Laboratório) ao Módulo 4 (Canais). Despacha status lógicos `[planejamento]` no Supabase.
+*   **Regra de Auto-Refill Subliminar:** Se a fila da Fábrica cair para `< 2 vídeos`, o cronjob de background executa essa "clicada" automaticamente sem ação humana, para não deixar o canal engessado de manhã.
+
+### 3. Hierarquia do Eixo
+O card de eixo possui `onClick` permitindo intervenção humana (Master Override), anulando os algoritmos numéricos de `taxaAprovacao` para forçar um status de "VENCEU!".

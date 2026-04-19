@@ -1,13 +1,13 @@
 'use client';
 
 export interface PontoMatriz {
-  id: number;
+  id: string | number;
   label: string;
   type: 'lotado' | 'gap';
   x: number; // 0 a 100
   y: number; // 0 a 100
-  opacity?: number;
-  pulse?: boolean;
+  opacity?: number | null;
+  pulse?: boolean | null;
 }
 
 interface MatrizOceanoProps {

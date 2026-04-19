@@ -66,3 +66,25 @@ Componente atômico `<VideoCard />` que representa cada vídeo no pipeline. Exib
 - ✅ Componente `VideoCard` atômico no design system Lendária
 - ✅ Zero cores hardcoded fora do design system
 - ✅ Incluído no commit `539f97c`
+
+---
+
+## 🧠 Doutrina de Engenharia e Negócios (Injetada pelo PRD)
+
+> **ATENÇÃO @dev e @qa**: Extrato do PRD (Seções 4, 6.2 e 10). Estas são as leis da "Fábrica" que não aparecem puramente nos Mocks mas regem o Workflow.
+
+### 1. Gaveta de Produção (A Linha de Montagem)
+O clique num `<VideoCard />` abre uma modal lateral de **5 Abas Sequenciais Inquebráveis**:
+1.  `📝 Título`: IA injeta Blueprint para gerar variações.
+2.  `📜 Roteiro`: Editor de texto alimentado pela receita do Studio.
+3.  `🎙️ Narração`: Áudio ElevenLabs gerado em **blocos/parágrafos soltos**, para evitar recálculo (e CUSTO financeiro de API) no vídeo inteiro se o usuário corrigir apenas o parágrafo B.
+4.  `🖼️ Thumb`: Assets visuais e título final cravado.
+5.  `📦 Pacote`: Renderização/Auditoria Final (`.mp4 + mp3`). Auto-retry de 3x se a API do YouTube falhar o envio.
+
+### 2. Máquina de Auto-Refill (Automação Background)
+Regida pela Seção 10. O Kanban de Canal **precisa** interagir com Cronjobs:
+*   O usuário configura o **Estoque Mínimo** de produção.
+*   Se o usuário aprova 2 pacotes na Gaveta e os despacha, a coluna Diminui. A IA de madrugada roda sozinha: Extrai o Eixo em Alta, puxa o Blueprint vigente, e **gera N roteiros** injetando direto como cards novos na coluna "Em Produção".
+
+### 3. Autoria de Aprovação (Audit Trail - NFR06)
+Sempre que uma etapa da Gaveta é aprovada, o sistema deve registrar via timestamp + autor. Autor deve suportar flags lógicas: `Administrador`, `Editor Freelance` ou `[Auto-Refill Lv3 automática]`.

@@ -5,7 +5,7 @@ import { FlaskConical, Clock, Trophy } from 'lucide-react';
 export type EixoStatus = 'testando' | 'aguardando' | 'venceu';
 
 export interface EixoData {
-  id: number;
+  id: string | number;
   nome: string;
   nicho: string;
   status: EixoStatus;

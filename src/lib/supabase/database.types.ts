@@ -368,6 +368,75 @@ export type Database = {
           },
         ]
       }
+      garimpos_minados: {
+        Row: {
+          canal: string
+          created_at: string | null
+          id: string
+          publish_date: string | null
+          tag: string | null
+          titulo: string
+          views_count: number | null
+          views_text: string
+        }
+        Insert: {
+          canal: string
+          created_at?: string | null
+          id?: string
+          publish_date?: string | null
+          tag?: string | null
+          titulo: string
+          views_count?: number | null
+          views_text: string
+        }
+        Update: {
+          canal?: string
+          created_at?: string | null
+          id?: string
+          publish_date?: string | null
+          tag?: string | null
+          titulo?: string
+          views_count?: number | null
+          views_text?: string
+        }
+        Relationships: []
+      }
+      matriz_nichos: {
+        Row: {
+          created_at: string | null
+          id: string
+          label: string
+          opacity: number | null
+          pulse: boolean | null
+          tipo: string
+          updated_at: string | null
+          x: number
+          y: number
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          label: string
+          opacity?: number | null
+          pulse?: boolean | null
+          tipo: string
+          updated_at?: string | null
+          x: number
+          y: number
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          label?: string
+          opacity?: number | null
+          pulse?: boolean | null
+          tipo?: string
+          updated_at?: string | null
+          x?: number
+          y?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

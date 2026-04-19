@@ -67,3 +67,15 @@ Página de junção dos componentes num Bento Grid formal que conclui o Epic 6 e
 - [ ] Criação do `Header` da tela HQ em padrão igual às demais (Laboratório/Tendências) mas com título `HQ (God Mode)`.
 - [ ] Div Container com layout `grid-cols-1 md:grid-cols-2 lg:grid-cols-3` (A gestão financeira e de Tenant dividem o mesmo peso ou se rearranjam confomelugares disponíveis).
 - [ ] Zero resquícios do boilerplate anterior.
+
+---
+
+## 🧠 Doutrina de Engenharia e Negócios (Injetada pelo PRD)
+
+> **ATENÇÃO @dev e @qa**: Extrato do PRD (Seção 11 e NFRs). O HQ é a Sala de Guerra. Ele obedece a regras de arquitetura de Segurança Máxima.
+
+### 1. Isolamento de Segurança (God Mode)
+A rota `/hq` é absoluta e inacessível por usuários comuns (Tenants). Deve possuir um middleware ou RLS no Supabase verificando a Role `SuperAdmin` obrigatoriamente. Nenhum Cliente VIP enxerga essa rota.
+
+### 2. Kill Switch (Disjuntor Global)
+O `financial-widget.tsx` não é só leitura. Futuramente ele terá um evento de Disjuntor (Kill Switch). Se a somatória do budget derreter de madrugada ou se prever um estouro em conta, o God Mode aciona um Lock/Flag no banco impedindo que a "Máquina de Auto-Refill" consuma 1 centavo sequer na OpenAI, pausando toda a "Fábrica" imediatamente até nova ordem.

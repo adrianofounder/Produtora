@@ -4,9 +4,9 @@
 
 ## Estado Atual do Projeto
 
-**Workflow ativo**: `brownfield-ui.yaml` (`.aiox-core/development/workflows/`)
-**Fase atual**: Phase 3 — Development Cycle (iterativo por Epics)
-**Último commit**: `Epic 7` — feat(ui): Epic 7 — Configurações + Fechamento Definitivo da Fase 3
+**Workflow ativo**: `brownfield-discovery.yaml` ou `epic-orchestration.yaml`
+**Fase atual**: Phase 10 — Planning (Epic + User Stories) - Início do EPIC-02
+**Último commit**: Encerramento oficial do EPIC-01 (Resolução de Débitos Técnicos)
 
 ---
 

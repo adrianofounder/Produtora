@@ -73,3 +73,30 @@ Compor a integração da página unindo o topo (descritivo), a Matriz e a Listag
 - [ ] Importação de MatrizOceano no bloco superior (ocupando as colunas, estilo destaque).
 - [ ] Listagem grid 2 colunas com `NichoCard` na seção inferior.
 - [ ] Todos os gaps mantendo `24px` (`gap-6`) para respirar.
+
+---
+
+## 🧠 Doutrina de Engenharia e Negócios (Injetada pelo PRD)
+
+> **ATENÇÃO @dev e @qa**: As regras abaixo foram extraídas diretamente do PRD (Seção 8 - Módulo 8). Elas ditam a Lógica de Negócios (Backend/Data) que governa a estética das telas acima. Não pulem esta etapa.
+
+### 1. Regras de Classificação (Algoritmo de Filtros de Nichos)
+Os canais/ideias no Radar de Nichos NÃO são apenas listados passivamente. Eles devem ser categorizados pelo Backend E renderizados via UI nas seguintes *buckets* (Algoritmo de Filtros):
+*   **🚀 Explodindo:** `< 15 dias` postando vídeos E `> 100.000` views.
+*   **📈 Em Alta:** `15 a 30 dias` postando E `> 500.000` views.
+*   **🌱 Crescendo:** `15 a 60 dias` postando E views entre `100.000 e 500.000`.
+*   **🐣 Novos Canais:** Canais nascentes na faixa de `50.000 a 100.000` views.
+*   **🧟 Removidos:** Canais banidos/removidos pelo YouTube (identificados via erro 404/Aviso na API). 
+
+### 2. A Matriz Oceano Azul (Parâmetros Cartesianos)
+A plotagem no gráfico de dispersão `<MatrizOceano />` é gerada por duas variáveis cruzadas estritamente:
+*   **Eixo Y:** Nível de Concorrência (Quantidade de Canais detectados no Nicho).
+*   **Eixo X:** Emoção / Sentimento Dominante do Eixo.
+
+### 3. Extração Inteligente (NFR08 Híbrida)
+A pesquisa (Crawler) não deve engessar cotas de API Oficial. 
+A arquitetura "Garimpo D-1" é projetada para rodar em *Background* via `OpenCLI-rs` usando *Client-Hijacking de cookies do navegador* para extrair métricas de engajamento ocultas gratuitamente, limitando o consumo de cotas de APIs corporativas estritas (Ex: YouTube Data API v3). Isso requer a injeção posterior de Rate Limiting para simular "Human Behavior".
+
+### 4. Ações Globais na Rota
+- Ao clicar no botão **[🚀 CRIAR CANAL BASEADO NISTO]** (visto num Garimpo de Vídeo ou Insights de Canal), o front end lança o usuário para a rota do `Studio` e pré-popula o Blueprint com a URL Benchmark.
+- O botão **[📌 Salvar Ideia/Vídeo]** despacha o vídeo lido e envia um "Card em Branco" para a coluna *Planejamento* no Kanban do Canal Alvo.

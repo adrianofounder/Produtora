@@ -2,7 +2,7 @@
 
 > **Como usar:** Copie e cole o comando no chat na ordem indicada.
 > O fluxo padrão de cada story é: **Refinamento (@sm) → Implementar (@dev/@data-eng) → Validar (@qa) → Commitar**.
-> *Atenção @dev:* As NFRs de Isolamento Multi-Tenant (NFR03), Agnosticidade de Provedor (NFR01) e Trilha de Auditoria (NFR06) são **leis inquebráveis** neste EPIC. Consulte `docs/prd-core-nfrs.md` antes de codificar qualquer coisa.
+> *⚠️ Atenção @dev/@data-engineer:* As NFRs de Isolamento Multi-Tenant (NFR03), Agnosticidade de Provedor (NFR01) e Trilha de Auditoria (NFR06) são **leis inquebráveis** neste EPIC. Consulte `docs/prd-core-nfrs.md` antes de codificar qualquer coisa.
 
 ---
 
@@ -26,15 +26,16 @@
 
 > **Objetivo:** Criar as tabelas `eixos` (com os 20 campos do DNA Temático) e `ideias` no Supabase com RLS estrito multi-tenant, garantindo que Tenant A nunca acesse dados de Tenant B.
 
-**Passo 1 — Refinamento da Story (✍️ @sm):**
+**Passo 1 — Refinamento da Story (Anthropic Claude 3.7 Sonnet / Google Gemini 3.1 Pro (High) · @sm):**
 ```
 @[.agent/workflows/sm.md] crie o arquivo da story-4.1 de modelo de dados e RLS do Laboratorio baseando-se no briefing @[docs/stories/EPIC-04-LABORATORIO-BACKEND.md]
 ```
-**Passo 2 — Implementar (🧠 @data-engineer):**
+**Passo 2 — Implementar (Anthropic Claude 3.7 Opus / Claude 3.7 Sonnet Thinking Mode · @data-engineer):**
+> ⚠️ **NFR obrigatória:** Leia `docs/prd-core-nfrs.md` — NFR03 (RLS multi-tenant), NFR01 (agnosticidade de provedor).
 ```
 @[.agent/workflows/data-engineer.md] execute a story-4.1 criando as tabelas eixos e ideias com os 20 campos do DNA Tematico e configurando RLS multi-tenant rigoroso no Supabase.
 ```
-**Passo 3 — Validar (⚡ @qa):**
+**Passo 3 — Validar (Google Gemini 3.1 Flash · @qa):**
 ```
 @[.agent/workflows/qa.md] valide a story-4.1 tentando cruzar dados entre tenants diferentes e verificando que as politicas RLS bloqueiam acesso indevido.
 ```
@@ -49,15 +50,16 @@ git add -A && git commit -m "feat(epic-4): story-4.1 - schema de eixos e ideias 
 
 > **Objetivo:** Substituir todo o mock data do `/laboratorio` por dados reais do Supabase. Implementar as mutações do botão "Venceu" (Master Override) e "Enviar Lote P/ Fábrica" que transiciona Ideias para `status = 'planejamento'` no Kanban.
 
-**Passo 1 — Refinamento (✍️ @sm):**
+**Passo 1 — Refinamento (Anthropic Claude 3.7 Sonnet / Google Gemini 3.1 Pro (High) · @sm):**
 ```
 @[.agent/workflows/sm.md] crie o arquivo da story-4.2 de integracao da UI do Laboratorio com dados reais e Master Override baseando-se no @[docs/stories/EPIC-04-LABORATORIO-BACKEND.md]
 ```
-**Passo 2 — Implementar (🎯 @dev):**
+**Passo 2 — Implementar (Google Gemini 3.1 Pro (High) · @dev):**
+> ⚠️ **NFR obrigatória:** Leia `docs/prd-core-nfrs.md` — NFR03 (RLS: `.eq('tenant_id', ...)` em toda query), NFR01 (fachada `ITextEngine` ao disparar geração).
 ```
 @[.agent/workflows/dev.md] implemente a story-4.2 removendo todos os mock data do laboratorio, conectando ao Supabase e implementando o Master Override e o disparo manual para a Fabrica.
 ```
-**Passo 3 — Validar (⚡ @qa):**
+**Passo 3 — Validar (Google Gemini 3.1 Flash · @qa):**
 ```
 @[.agent/workflows/qa.md] valide a story-4.2 testando o fluxo completo: dados reais carregando no Laboratorio, Master Override reordenando o eixo vencedor, e o envio de lote transitando status no Kanban.
 ```
@@ -78,15 +80,16 @@ git add -A && git commit -m "feat(epic-4): story-4.2 - laboratorio conectado ao 
 
 > **Objetivo:** Implementar a lógica de cálculo e normalização do `score_mare` (0-100) no backend. O eixo com maior score recebe o badge `👑 LÍDER`, as barras de progresso são coloridas semanticamente e os indicadores de direção (▲▼→) são calculados a partir de dados históricos no banco. Cache obrigatório para não sobrecarregar o banco no carregamento da tela (NFR09).
 
-**Passo 1 — Refinamento (✍️ @sm):**
+**Passo 1 — Refinamento (Anthropic Claude 3.7 Sonnet / Google Gemini 3.1 Pro (High) · @sm):**
 ```
 @[.agent/workflows/sm.md] crie o arquivo da story-4.3 do Motor Mares detalhando a logica de score_mare, normalizacao das barras, indicadores de direcao e caching de analytics conforme NFR09.
 ```
-**Passo 2 — Implementar (🎯 @dev):**
+**Passo 2 — Implementar (Google Gemini 3.1 Pro (Low) / Meta Llama 3.3 70B · @dev):**
+> ⚠️ **NFR obrigatória:** Leia `docs/prd-core-nfrs.md` — NFR09 (cache: dados de analytics pré-computados, nunca consultar no `page.tsx`), NFR03 (RLS em todo acesso ao banco).
 ```
 @[.agent/workflows/dev.md] implemente a story-4.3 do Motor Mares com calculo de score_mare normalizado, coloracao semantica das barras de progresso e caching obrigatorio dos dados de analytics.
 ```
-**Passo 3 — Validar (⚡ @qa):**
+**Passo 3 — Validar (Google Gemini 3.1 Flash · @qa):**
 ```
 @[.agent/workflows/qa.md] valide a story-4.3 verificando que o eixo lider e corretamente identificado, que o cache evita queries excessivas ao banco e que os indicadores de direcao refletem dados historicos reais.
 ```
@@ -101,15 +104,16 @@ git add -A && git commit -m "feat(epic-4): story-4.3 - motor mares com score nor
 
 > **Objetivo:** Criar um endpoint seguro (`/api/cron/auto-refill`) que pode ser acionado por um scheduler externo (Vercel Cron / Supabase Edge Functions). O job verifica se a fila do Kanban tem `< 2 vídeos` em `status = 'planejamento'`, e se sim, chama o `ITextEngine` do EPIC-03 para gerar +5 ideias do Eixo Vencedor corrente. Toda geração automática deve gravar `origem = '[Automação Lvl 3]'` na trilha de auditoria (NFR06). O teto de tokens do EPIC-03 é verificado ANTES de qualquer geração — se esgotado, o job para limpo sem erro silencioso.
 
-**Passo 1 — Refinamento (✍️ @sm):**
+**Passo 1 — Refinamento (Anthropic Claude 3.7 Sonnet / Google Gemini 3.1 Pro (High) · @sm):**
 ```
 @[.agent/workflows/sm.md] crie o arquivo da story-4.4 do Auto-Refill noturno detalhando o endpoint seguro, a logica de gatilho por fila vazia, integracao com ITextEngine, auditoria NFR06 e kill-switch via configuracoes.
 ```
-**Passo 2 — Implementar (🧠 @dev + @devops):**
+**Passo 2 — Implementar (Anthropic Claude 3.7 Opus / Claude 3.7 Sonnet Thinking Mode · @dev + @devops):**
+> ⚠️ **NFR obrigatória:** Leia `docs/prd-core-nfrs.md` — NFR01 (use `ITextEngine`, nunca SDK direto), NFR06 (auditoria: gravar `[Automação Lvl 3]` em toda geração automática), NFR03 (RLS em toda escrita no banco).
 ```
 @[.agent/workflows/dev.md] implemente a story-4.4 criando o endpoint /api/cron/auto-refill com verificacao de teto de tokens, chamada ao ITextEngine, gravacao de auditoria [Automacao Lvl 3] e kill-switch global nas Configuracoes.
 ```
-**Passo 3 — Validar Completo (⚡ @qa):**
+**Passo 3 — Validar Completo (Google Gemini 3.1 Flash · @qa):**
 ```
 @[.agent/workflows/qa.md] audite a story-4.4 simulando: (1) fila vazia disparando o auto-refill, (2) teto de tokens esgotado interrompendo a geracao sem erro silencioso, (3) auditoria gravada corretamente com [Automacao Lvl 3], (4) kill-switch bloqueando o job.
 ```

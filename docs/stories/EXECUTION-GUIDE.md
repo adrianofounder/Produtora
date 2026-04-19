@@ -335,17 +335,17 @@ ok
 ```
 @[.agent/workflows/devops.md] configure o Sentry para o projeto seguindo a @[docs/stories/story-3.3-error-tracking.md]
 ```
-
+ok
 **Passo 2 — Integrar no código (🛠️ Low):**
 ```
 @[.agent/workflows/dev.md] integre o Sentry SDK no Next.js seguindo a @[docs/stories/story-3.3-error-tracking.md]
 ```
-
+ok feito pelo devops
 **Passo 3 — Validar (⚡ Flash):**
 ```
 @[.agent/workflows/qa.md] valide a @[docs/stories/story-3.3-error-tracking.md]
 ```
-
+ok
 **Passo 4 — Commitar (⚡ Flash):**
 ```
 git add -A && git commit -m "feat(story-3.3): integrar Sentry para error tracking em producao - OBS-01"

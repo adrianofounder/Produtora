@@ -61,4 +61,24 @@
 
 ---
 
+## QA Results
+
+### Auditoria de Critérios de Aceitação
+- **AC1 (Captura Cliente):** ✅ Verificado. Sentry inicializado no cliente via `instrumentation-client.ts`.
+- **AC2 (Erros de API):** ✅ Verificado. Implementação de `onRequestError` em `src/instrumentation.ts` conforme padrão Next.js 15.
+- **AC3 (DSN via Env):** ✅ Verificado. Todos os arquivos de configuração utilizam `process.env`. Nenhuma string hardcoded encontrada.
+- **AC4 (Teste de Dashboard):** ✅ Verificado. Evidência fornecida pelo usuário confirmando `SentryExampleFrontendError` e `SentryExampleAPIError` no dashboard.
+- **AC5 (User Context):** ✅ Verificado. `Sentry.setUser` implementado no `topbar.tsx` com limpeza de contexto no logout.
+
+### Testes de Integridade
+- **Build de Produção:** ✅ Sucesso. `npm run build` gerou 25 páginas estáticas sem erros de instrumentação.
+- **Segurança:** ✅ Protegido. Arquivos `.env` e tokens estão corretamente listados no `.gitignore`.
+- **Tunneling:** ✅ Configurado. Rota `/monitoring` implementada para contornar ad-blockers.
+
+**Veredito QA:** 🟢 **PASS**
+
+*Revisado por @qa (Quinn) em 19/04/2026*
+
+---
+
 *Story criada por @pm (Morgan) — EPIC-01, Sprint 3*

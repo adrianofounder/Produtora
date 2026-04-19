@@ -42,3 +42,8 @@ next-env.d.ts
 
 # Sentry Config File
 .env.sentry-build-plugin
+
+# Notas e arquivos temporarios loccais
+*.txt
+workmeu
+docs/_arquivos_temporarios/

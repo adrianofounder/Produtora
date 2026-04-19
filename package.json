@@ -1,5 +1,6 @@
 {
-  "name": "temp-app",
+  "name": "produtora",
+  "description": "AD_LABS — Plataforma de produção de conteúdo",
   "version": "0.1.0",
   "private": true,
   "scripts": {

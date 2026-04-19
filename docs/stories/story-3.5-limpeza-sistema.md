@@ -26,28 +26,28 @@
 
 ## Acceptance Criteria
 
-- [ ] **AC1:** `package.json` tem `"name": "produtora"` (ou nome definitivo do produto)
-- [ ] **AC2:** Arquivos soltos sem extensão na raiz do repositório foram removidos ou movidos
-- [ ] **AC3:** `.gitignore` inclui padrões para evitar que esse tipo de arquivo seja commitado novamente
+- [x] **AC1:** `package.json` tem `"name": "produtora"` (ou nome definitivo do produto)
+- [x] **AC2:** Arquivos soltos sem extensão na raiz do repositório foram removidos ou movidos
+- [x] **AC3:** `.gitignore` inclui padrões para evitar que esse tipo de arquivo seja commitado novamente
 
 ---
 
 ## Tasks
 
-- [ ] **T1:** Atualizar `package.json`:
+- [x] **T1:** Atualizar `package.json`:
   ```json
   { "name": "produtora", "description": "AD_LABS — Plataforma de produção de conteúdo" }
   ```
-- [ ] **T2:** Remover/mover arquivos soltos: `workmeu`, `veterano.txt` e similares
-- [ ] **T3:** Adicionar ao `.gitignore` padrões como `workmeu`, `*.txt` na raiz (se não for intencional), arquivos de notas temporárias
+- [x] **T2:** Remover/mover arquivos soltos: `workmeu`, `veterano.txt` e similares
+- [x] **T3:** Adicionar ao `.gitignore` padrões como `workmeu`, `*.txt` na raiz (se não for intencional), arquivos de notas temporárias
 
 ---
 
 ## Definition of Done
 
-- [ ] `package.json` com nome correto
-- [ ] Raiz do repositório limpa
-- [ ] `.gitignore` atualizado
+- [x] `package.json` com nome correto
+- [x] Raiz do repositório limpa
+- [x] `.gitignore` atualizado
 
 ---
 

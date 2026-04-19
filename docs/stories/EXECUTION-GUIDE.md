@@ -375,7 +375,7 @@ ok
 ```
 git add -A && git commit -m "feat(story-3.4): configurar Vitest + primeiros testes automatizados + CI pipeline - TEST-01"
 ```
-
+ok
 ---
 
 ### ⏳ Story 3.5 — Limpeza e Organização do Sistema
@@ -386,7 +386,7 @@ git add -A && git commit -m "feat(story-3.4): configurar Vitest + primeiros test
 ```
 @[.agent/workflows/dev.md] implemente a @[docs/stories/story-3.5-limpeza-sistema.md]
 ```
-
+ok
 **Passo 2 — Commitar (sem necessidade de QA) (⚡ Flash):**
 ```
 git add -A && git commit -m "chore(story-3.5): renomear temp-app para produtora e limpar arquivos soltos da raiz - SYS-01/02"

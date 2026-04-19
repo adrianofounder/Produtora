@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useTransition } from 'react';
 import { Plus, Search, LayoutGrid, Activity, Filter, Loader2, AlertCircle } from 'lucide-react';
+import { updateVideoStatus } from '@/app/actions/kanban-actions';
 import { VideoCard } from '@/components/dashboard/video-card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -13,6 +14,11 @@ interface Canal {
   nome: string;
   mare_status: 'aguardando' | 'testando' | 'ativa' | 'pausada';
   mare_eixo_ativo: string | null;
+  idioma: string;
+  frequencia_dia: number;
+  horario_padrao: string;
+  email_contato: string | null;
+  descricao: string | null;
 }
 
 import { CanalModal } from '@/components/modals/canal-modal';
@@ -83,6 +89,33 @@ export default function Canais() {
   // Estados dos Modais
   const [isCanalModalOpen, setIsCanalModalOpen] = useState(false);
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
+
+  // Pipeline Transitions
+  const [isPending, startTransition] = useTransition();
+  const [movingCardId, setMovingCardId] = useState<string | null>(null);
+
+  const handleMoveStatus = (videoId: string, currentStatus: VideoStatus, direction: 'forward' | 'backward') => {
+      const flow: VideoStatus[] = ['planejamento', 'producao', 'pronto', 'agendado', 'publicado'];
+      const idx = flow.indexOf(currentStatus);
+      if (idx === -1) return;
+      
+      let nextIdx = direction === 'forward' ? idx + 1 : idx - 1;
+      if (nextIdx < 0 || nextIdx >= flow.length) return;
+      
+      const newStatus = flow[nextIdx];
+      setMovingCardId(videoId);
+      startTransition(async () => {
+         const res = await updateVideoStatus(videoId, newStatus);
+         if (res.success) {
+            if (canais[canalAtivo]) {
+               carregarVideos(canais[canalAtivo].id);
+            }
+         } else {
+            alert(res.error);
+         }
+         setMovingCardId(null);
+      });
+  };
 
   // Carrega canais do usuário
   const carregarCanais = useCallback(async () => {
@@ -320,6 +353,40 @@ export default function Canais() {
               <div className="flex-1">
                 <p className="section-label opacity-40 mb-1">Visão Geral do Canal</p>
                 <h2 className="text-2xl font-bold text-white mb-2">{canal.nome}</h2>
+                
+                {/* Informações Extras Pedidas no PRD */}
+                <div className="flex flex-wrap gap-4 text-[11px] mt-3 mb-4 bg-white/5 border border-white/5 w-fit px-4 py-2 rounded-lg">
+                  <div className="flex items-center gap-1.5 opacity-80">
+                    <span className="text-[var(--color-text-3)]">Idioma:</span>
+                    <span className="font-bold uppercase">{canal.idioma || 'PT-BR'}</span>
+                  </div>
+                  <div className="w-[1px] h-3 bg-white/10" />
+                  <div className="flex items-center gap-1.5 opacity-80">
+                    <span className="text-[var(--color-text-3)]">Freq:</span>
+                    <span className="font-bold">{canal.frequencia_dia ? `${canal.frequencia_dia}/dia` : '1/dia'}</span>
+                  </div>
+                  <div className="w-[1px] h-3 bg-white/10" />
+                  <div className="flex items-center gap-1.5 opacity-80">
+                    <span className="text-[var(--color-text-3)]">Horário:</span>
+                    <span className="font-bold">{canal.horario_padrao || '18h00'}</span>
+                  </div>
+                  {canal.email_contato && (
+                    <>
+                      <div className="w-[1px] h-3 bg-white/10" />
+                      <div className="flex items-center gap-1.5 opacity-80">
+                        <span className="text-[var(--color-text-3)]">E-mail:</span>
+                        <span className="font-bold text-[var(--color-accent)]">{canal.email_contato}</span>
+                      </div>
+                    </>
+                  )}
+                </div>
+                
+                {canal.descricao && (
+                  <p className="text-[11px] text-[var(--color-text-2)] max-w-2xl mb-4 italic leading-relaxed border-l-2 border-[var(--color-accent)]/30 pl-3">
+                    <span className="font-bold not-italic opacity-50 mr-1">Desc:</span> {canal.descricao}
+                  </p>
+                )}
+
                 <div className="flex items-center gap-4">
                    <div className="flex items-center gap-1.5">
                      <div className={`w-2 h-2 rounded-full ${canal.mare_status === 'ativa' ? 'bg-[var(--color-accent)] animate-pulse shadow-[0_0_8px_var(--color-accent)]' : 'bg-white/20'}`} />
@@ -374,9 +441,9 @@ export default function Canais() {
               </div>
               <button 
                 onClick={() => alert('Relatórios detalhados em processamento (Fase 4)')}
-                className="btn-ghost w-full h-9 text-[11px] font-bold mt-6 group-hover:border-[var(--color-accent)]/50 transition-colors"
+                className="btn-ghost w-full h-9 text-[11px] font-bold mt-6 group-hover:border-[var(--color-accent)]/50 transition-colors flex items-center justify-center gap-2"
               >
-                Ver Relatórios Detalhados
+                <Activity className="w-3.5 h-3.5" /> Visualizar Analytics e X-Ray
               </button>
             </div>
           </div>
@@ -448,7 +515,22 @@ export default function Canais() {
               />
             ) : (
               <div className="grid grid-cols-1 gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                 {videosFiltrados.map((v) => <VideoCard key={v.id} {...videoToCardProps(v)} />)}
+                 {videosFiltrados.map((v) => {
+                     const flow: VideoStatus[] = ['planejamento', 'producao', 'pronto', 'agendado', 'publicado'];
+                     const idx = flow.indexOf(v.status);
+                     const canMoveForward = idx >= 0 && idx < flow.length - 1 && v.status !== 'erro';
+                     const canMoveBackward = idx > 0 && v.status !== 'erro';
+                     
+                     return (
+                       <VideoCard 
+                         key={v.id} 
+                         {...videoToCardProps(v)} 
+                         isMoving={movingCardId === v.id}
+                         onMoveForward={canMoveForward ? () => handleMoveStatus(v.id, v.status, 'forward') : undefined}
+                         onMoveBackward={canMoveBackward ? () => handleMoveStatus(v.id, v.status, 'backward') : undefined}
+                       />
+                     );
+                 })}
               </div>
             )}
           </div>

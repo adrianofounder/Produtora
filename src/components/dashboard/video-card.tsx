@@ -14,6 +14,9 @@ export interface VideoCardProps {
   status: VideoStatus;
   steps: VideoStep[];
   acaoPrimaria?: string;
+  onMoveForward?: () => void;
+  onMoveBackward?: () => void;
+  isMoving?: boolean;
 }
 
 const statusConfig: Record<VideoStatus, { label: string }> = {
@@ -27,7 +30,17 @@ const statusConfig: Record<VideoStatus, { label: string }> = {
 
 const doneCount = (steps: VideoStep[]) => steps.filter((s) => s.done).length;
 
-export function VideoCard({ titulo, eixo, dataPrevisao, status, steps, acaoPrimaria }: VideoCardProps) {
+export function VideoCard({ 
+  titulo, 
+  eixo, 
+  dataPrevisao, 
+  status, 
+  steps, 
+  acaoPrimaria,
+  onMoveForward,
+  onMoveBackward,
+  isMoving = false
+}: VideoCardProps) {
   const cfg = statusConfig[status];
   const pct = Math.round((doneCount(steps) / steps.length) * 100);
 
@@ -40,7 +53,7 @@ export function VideoCard({ titulo, eixo, dataPrevisao, status, steps, acaoPrima
 
   return (
     <div
-      className={`group relative flex items-start gap-4 p-4 rounded-xl cursor-pointer transition-all duration-300 card-inner depth-card ${glowClass}`}
+      className={`group relative flex items-start gap-4 p-4 rounded-xl transition-all duration-300 card-inner depth-card ${glowClass} ${isMoving ? 'opacity-50 pointer-events-none' : ''}`}
     >
       {/* Barra lateral de status (Neon Indicator) */}
       <div
@@ -69,7 +82,7 @@ export function VideoCard({ titulo, eixo, dataPrevisao, status, steps, acaoPrima
 
         {/* Título */}
         <h3
-          className="text-[15px] font-bold tracking-tight leading-snug text-[var(--color-text-1)] group-hover:text-[var(--color-accent)] transition-colors duration-300"
+          className="text-[15px] font-bold tracking-tight leading-snug text-[var(--color-text-1)] group-hover:text-[var(--color-accent)] transition-colors duration-300 cursor-pointer"
         >
           {titulo}
         </h3>
@@ -79,10 +92,10 @@ export function VideoCard({ titulo, eixo, dataPrevisao, status, steps, acaoPrima
           {steps.map((s) => (
             <span
               key={s.label}
-              className={`text-[9px] font-bold flex items-center gap-1.5 transition-opacity duration-300 ${s.done ? 'opacity-100' : 'opacity-40'}`}
-              style={{ color: s.done ? "var(--color-success)" : "var(--color-text-3)" }}
+              className={`text-[10px] font-bold flex items-center gap-1.5 transition-opacity duration-300 ${s.done ? 'opacity-100' : 'opacity-80'}`}
+              style={{ color: s.done ? "var(--color-success)" : "var(--color-text-2)" }}
             >
-              <span className={`w-1 h-1 rounded-full ${s.done ? 'bg-[var(--color-success)] shadow-[0_0_6px_rgba(16,185,129,0.5)]' : 'bg-white/20'}`} />
+              <span className={`w-1.5 h-1.5 rounded-full ${s.done ? 'bg-[var(--color-success)] shadow-[0_0_6px_rgba(16,185,129,0.5)]' : 'bg-white/20'}`} />
               {s.label}
             </span>
           ))}
@@ -106,7 +119,7 @@ export function VideoCard({ titulo, eixo, dataPrevisao, status, steps, acaoPrima
         </div>
       </div>
 
-      {/* Ações (aparecem no hover) */}
+      {/* Ações (aparecem no hover + botoes de pipeline sempre visíveis ou semi-visíveis) */}
       <div className="flex flex-col items-end gap-2 shrink-0 self-center">
         <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-x-4 group-hover:translate-x-0">
           <button className="btn-ghost h-7 px-3 text-[10px] glass">
@@ -116,11 +129,39 @@ export function VideoCard({ titulo, eixo, dataPrevisao, status, steps, acaoPrima
             Excluir
           </button>
         </div>
-        {acaoPrimaria && (
-          <button className="btn-primary h-8 px-5 text-[11px] mt-1 shadow-xl shadow-purple-500/20 active:scale-95 transition-all">
-            {acaoPrimaria}
-          </button>
-        )}
+        <div className="flex items-center gap-1.5 mt-1">
+          {onMoveBackward && (
+            <button 
+              onClick={onMoveBackward}
+              disabled={isMoving}
+              className="btn-ghost h-8 w-8 p-0 flex items-center justify-center rounded-md border border-white/10 hover:border-white/30 text-white/60 hover:text-white transition-all disabled:opacity-50"
+              title="Voltar Etapa"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            </button>
+          )}
+          {acaoPrimaria && (
+            <button className="btn-primary h-8 px-5 text-[11px] shadow-xl shadow-purple-500/20 active:scale-95 transition-all">
+              {isMoving ? (
+                 <div className="w-4 h-4 rounded-full border-2 border-white/20 border-t-white animate-spin" />
+              ) : acaoPrimaria}
+            </button>
+          )}
+          {onMoveForward && (
+            <button 
+              onClick={onMoveForward}
+              disabled={isMoving}
+              className="btn-ghost h-8 w-8 p-0 flex items-center justify-center rounded-md border border-white/10 hover:border-white/30 text-white/60 hover:text-white transition-all disabled:opacity-50"
+              title="Avançar Etapa"
+            >
+               {isMoving ? (
+                 <div className="w-4 h-4 rounded-full border-2 border-white/20 border-t-white animate-spin" />
+               ) : (
+                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+               )}
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

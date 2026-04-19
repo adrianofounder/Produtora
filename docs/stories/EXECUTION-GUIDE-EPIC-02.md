@@ -44,7 +44,7 @@ ok
 ```
 git add -A && git commit -m "feat(epic-2): story-2.1 - integrar dados base e seeding do Supabase nas rotas iniciais"
 ```
-
+ok
 ---
 
 ### ⏳ Story 2.2 — Integração Completa do Pipeline (Kanban / Canais)
@@ -54,17 +54,17 @@ git add -A && git commit -m "feat(epic-2): story-2.1 - integrar dados base e see
 ```
 @[.agent/workflows/sm.md] crie o arquivo da story-2.2 para interacao e update de status dinamico no Kanban de canais
 ```
-
+ok
 **Passo 2 — Implementar (🎯 @dev):**
 ```
 @[.agent/workflows/dev.md] implemente a story-2.2
 ```
-
+ok
 **Passo 3 — Validar (⚡ @qa):**
 ```
 @[.agent/workflows/qa.md] valide a story-2.2
 ```
-
+ok
 **Passo 4 — Commitar:**
 ```
 git add -A && git commit -m "feat(epic-2): story-2.2 - integrar kanban do dashboard com chamadas Server Actions"
@@ -132,8 +132,8 @@ git add -A && git commit -m "feat(epic-2): story-2.4 - Studio CRUD completo - EN
 
 | Story | Título | Sprint | Status | Responsável Design |
 |-------|--------|--------|--------|---------------------|
-| 2.1 | Supabase Seeding & Fetching | 4 | ⏳ Documentar | @sm |
-| 2.2 | Pipeline Real (Kanban Canais) | 4 | ⏳ Documentar | @sm |
+| 2.1 | Supabase Seeding & Fetching | 4 | ✅ Feito | @qa |
+| 2.2 | Pipeline Real (Kanban Canais) | 4 | ✅ Em QA | @dev / QA |
 | 2.3 | Laboratório: Transições de Estado | 5 | ⏳ Documentar | @sm |
 | 2.4 | Studio Blueprint de Ponta a Ponta | 5 | ⏳ Documentar | @sm |
 

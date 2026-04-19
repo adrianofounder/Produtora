@@ -59,11 +59,10 @@ ok
 ```
 @[.agent/workflows/dev.md] implemente a arquitetura e gaveta da story-3.2, com design pattern e zero happy-path default.
 ```
-
-**Passo 3 — Validar (⚡ @qa):**
+ok
+@[\.agent/workflows/qa\.md] valide a story-3\.2, testando tratamento de recusa simulada de api e atualizacao react da UI\.
 ```
-@[.agent/workflows/qa.md] valide a story-3.2, testando tratamento de recusa simulada de api e atualizacao react da UI.
-```
+ok
 
 **Passo 4 — Commitar:**
 ```
@@ -133,7 +132,7 @@ git add -A && git commit -m "feat(epic-3): story-3.4 - compilador final de downl
 | Story | Título | Sprint | Status | Responsável Design |
 |-------|--------|--------|--------|---------------------|
 | 3.1 | Cofre de APIS e Limites/Teto | 6 | ✅ Concluído | @sm / @dev / @qa |
-| 3.2 | Gaveta: Roteirização Abstrata | 6 | ⏳ A Fazer | @sm / @dev |
+| 3.2 | Gaveta: Roteirização Abstrata | 6 | ✅ Concluído | @sm / @dev / @qa |
 | 3.3 | Gaveta: Mecanismo de TTS/Voz | 7 | ⏳ A Fazer | @sm / @dev |
 | 3.4 | Gaveta: Asset Visual Final e ZIP| 7 | ⏳ A Fazer | @sm / @dev |
 

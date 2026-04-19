@@ -110,8 +110,28 @@ O vídeo que abriu a Gaveta atualizará seu status no supabase / Zustand ao salv
 
 ---
 
+## QA Results (Quinn Audit)
+
+| Critério | Status | Evidência |
+|---|---|---|
+| **Renderização Gaveta** | ✅ PASS | Componente Sheet (Framer Motion) abre com contexto de vídeo e blueprint. |
+| **Geração Mock** | ✅ PASS | Motor criativo gera 5 parágrafos com latência realista (1-2s). |
+| **VUI e Edição** | ✅ PASS | Textareas editáveis com estado local; salvamento via `saveScriptAction`. |
+| **Resiliência (Falha API)** | ✅ PASS | Painel de erro `Motor Criativo Indisponível` exibido com `failureRate: 1.0`. |
+| **Trava de Teto** | ✅ PASS | Bloqueio preventivo `SPEND_LIMIT_REACHED` validado (anti-happy path). |
+| **Persistência DB** | ✅ PASS | Roteiro salvo como JSON array na tabela `videos`. |
+| **Build Stability** | ✅ PASS | `npm run build` executado com sucesso pós-correção de tipos. |
+
+### Observações do Guardião
+- 🛡️ **Segurança:** A integração com o `consumption-tracker` está robusta e ocorre antes de qualquer chamada ao motor de IA.
+- 🎨 **UX:** Os estados de loading e erro seguem o padrão premium do design system.
+- 🏗️ **Arquitetura:** `ITextEngine` permite troca transparente de modelos no futuro.
+
+---
+
 ## 🏁 Fluxo de Handoff
-Quando validado pelo SM, chame:
+A Story está validada tecnicamente pela QA. Pronta para revisão final do SM/PO.
 ```
-@[.agent/workflows/qa.md] valide a story-3.2, testando tratamento de recusa simulada de api e atualizacao react da UI.
+*exit
 ```
+

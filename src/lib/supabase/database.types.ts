@@ -299,91 +299,124 @@ export type Database = {
         Row: {
           arquetipo_antagonista: string | null
           arquetipo_protagonista: string | null
+          auto_refill_enabled: boolean
           canal_id: string
           cenario_recorrente: string | null
           complexidade_edicao: number | null
           cores_thumb: string | null
           created_at: string | null
+          ctr: number
           duracao_max: number | null
           duracao_min: number | null
           elemento_visual: string | null
           estilo_narrativo: string | null
           formula_titulo: string | null
           gatilho_curiosidade: string | null
+          hook: string | null
           id: string
+          media_views: number
           nome: string
           palavras_negativas: string[] | null
           payoff: string | null
           premissa: string | null
           publico_alvo: string | null
+          retencao: number
           rpm_estimado: number | null
+          safewords: string[] | null
+          score_calculado_em: string | null
           score_mare: number | null
+          score_mare_anterior: number | null
           score_retencao: number | null
           sentimento_dominante: string | null
           status: string
+          taxa_aprovacao: number
           taxa_concorrencia: string | null
           tipo_conflito: string | null
           updated_at: string | null
+          videos_count: number
+          views_7d: number
           views_acumuladas: number
         }
         Insert: {
           arquetipo_antagonista?: string | null
           arquetipo_protagonista?: string | null
+          auto_refill_enabled?: boolean
           canal_id: string
           cenario_recorrente?: string | null
           complexidade_edicao?: number | null
           cores_thumb?: string | null
           created_at?: string | null
+          ctr?: number
           duracao_max?: number | null
           duracao_min?: number | null
           elemento_visual?: string | null
           estilo_narrativo?: string | null
           formula_titulo?: string | null
           gatilho_curiosidade?: string | null
+          hook?: string | null
           id?: string
+          media_views?: number
           nome: string
           palavras_negativas?: string[] | null
           payoff?: string | null
           premissa?: string | null
           publico_alvo?: string | null
+          retencao?: number
           rpm_estimado?: number | null
+          safewords?: string[] | null
+          score_calculado_em?: string | null
           score_mare?: number | null
+          score_mare_anterior?: number | null
           score_retencao?: number | null
           sentimento_dominante?: string | null
           status?: string
+          taxa_aprovacao?: number
           taxa_concorrencia?: string | null
           tipo_conflito?: string | null
           updated_at?: string | null
+          videos_count?: number
+          views_7d?: number
           views_acumuladas?: number
         }
         Update: {
           arquetipo_antagonista?: string | null
           arquetipo_protagonista?: string | null
+          auto_refill_enabled?: boolean
           canal_id?: string
           cenario_recorrente?: string | null
           complexidade_edicao?: number | null
           cores_thumb?: string | null
           created_at?: string | null
+          ctr?: number
           duracao_max?: number | null
           duracao_min?: number | null
           elemento_visual?: string | null
           estilo_narrativo?: string | null
           formula_titulo?: string | null
           gatilho_curiosidade?: string | null
+          hook?: string | null
           id?: string
+          media_views?: number
           nome?: string
           palavras_negativas?: string[] | null
           payoff?: string | null
           premissa?: string | null
           publico_alvo?: string | null
+          retencao?: number
           rpm_estimado?: number | null
+          safewords?: string[] | null
+          score_calculado_em?: string | null
           score_mare?: number | null
+          score_mare_anterior?: number | null
           score_retencao?: number | null
           sentimento_dominante?: string | null
           status?: string
+          taxa_aprovacao?: number
           taxa_concorrencia?: string | null
           tipo_conflito?: string | null
           updated_at?: string | null
+          videos_count?: number
+          views_7d?: number
           views_acumuladas?: number
         }
         Relationships: [
@@ -392,6 +425,69 @@ export type Database = {
             columns: ["canal_id"]
             isOneToOne: false
             referencedRelation: "canais"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ideias: {
+        Row: {
+          canal_id: string
+          created_at: string | null
+          eixo_id: string
+          id: string
+          nota_ia: number | null
+          /** 'Humano' | '[Automação Lvl 3]' (NFR06) */
+          origem: string
+          /** UUID do usuário autenticado. NULL se Auto-Refill */
+          origem_uuid: string | null
+          premissa: string | null
+          /** 'pendente' | 'fabrica' | 'planejamento' | 'publicado' */
+          status: string
+          tags: string[] | null
+          titulo: string
+          updated_at: string | null
+        }
+        Insert: {
+          canal_id: string
+          created_at?: string | null
+          eixo_id: string
+          id?: string
+          nota_ia?: number | null
+          origem?: string
+          origem_uuid?: string | null
+          premissa?: string | null
+          status?: string
+          tags?: string[] | null
+          titulo: string
+          updated_at?: string | null
+        }
+        Update: {
+          canal_id?: string
+          created_at?: string | null
+          eixo_id?: string
+          id?: string
+          nota_ia?: number | null
+          origem?: string
+          origem_uuid?: string | null
+          premissa?: string | null
+          status?: string
+          tags?: string[] | null
+          titulo?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ideias_canal_id_fkey"
+            columns: ["canal_id"]
+            isOneToOne: false
+            referencedRelation: "canais"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ideias_eixo_id_fkey"
+            columns: ["eixo_id"]
+            isOneToOne: false
+            referencedRelation: "eixos"
             referencedColumns: ["id"]
           },
         ]

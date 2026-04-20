@@ -87,4 +87,54 @@ BEGIN
     ('Why everyone is quitting their $100k tech jobs', 'Tech Dropout', '1.8M', 'Gap: Carreiras', 'https://i.ytimg.com/vi/aZ3fS8oGgks/mqdefault.jpg'),
     ('I stayed in the worlds most illegal hotel', 'Urbex Worldwide', '8.4M', 'Lotado: Urbex', 'https://i.ytimg.com/vi/LpG9YqByC2M/mqdefault.jpg');
 
+    -- ============================================================
+    -- EPIC-04 / Story 4.1 — Seed da tabela IDEIAS
+    -- 7 ideias cobrindo todos status + auditoria NFR06
+    -- ============================================================
+
+    -- Limpa ideias do canal de teste (idempotente)
+    DELETE FROM public.ideias WHERE canal_id = v_canal_id;
+
+    INSERT INTO public.ideias (canal_id, eixo_id, titulo, premissa, nota_ia, tags, status, origem, origem_uuid) VALUES
+
+    -- Eixo "Trabalho" (vencedor) — 3 ideias em diferentes status
+    (v_canal_id, v_eixo5_id,
+     'O chefe que não sabia de NADA e perdeu R$ 2 milhões',
+     'Estagiário descobre erro crítico do diretor e é ignorado — até a empresa quebrar.',
+     9.2, ARRAY['trabalho','exposição','justiça'], 'publicado', 'Humano', v_user_id),
+
+    (v_canal_id, v_eixo5_id,
+     'Minha chefe me humilhou — então comprei a empresa dela',
+     'Funcionária demitida por capricho volta como acionista majoritária.',
+     8.8, ARRAY['trabalho','vingança','superação'], 'planejamento', 'Humano', v_user_id),
+
+    (v_canal_id, v_eixo5_id,
+     '[Auto-Refill] Como o assistente silencioso salvou a operação em 24h',
+     'O membro mais quieto da equipe era o único que sabia o que estava acontecendo.',
+     7.5, ARRAY['trabalho','automação','insight'], 'pendente', '[Automação Lvl 3]', NULL),
+
+    -- Eixo "Igreja" — 1 ideia em fabrica
+    (v_canal_id, v_eixo3_id,
+     'Jesus e o pastor mentiroso: a confissão ao vivo',
+     'Testemunha revela fraude durante culto transmitido para milhares de fiéis.',
+     8.1, ARRAY['religião','exposição','drama'], 'fabrica', 'Humano', v_user_id),
+
+    -- Eixo "Escola" — 1 ideia pendente
+    (v_canal_id, v_eixo1_id,
+     'A professora que descobriu o esquema da diretora',
+     'Substituta temporária documenta tudo e entrega para o MEC.',
+     7.9, ARRAY['escola','corrupção','exposição'], 'pendente', 'Humano', v_user_id),
+
+    -- Eixo "Hospital" — 1 ideia pendente (Auto-Refill)
+    (v_canal_id, v_eixo2_id,
+     '[Auto-Refill] Médico descobre que o paciente em UTI era seu pai desaparecido',
+     'Revelação emocional durante plantão de emergência muda a vida de dois homens.',
+     8.6, ARRAY['hospital','emoção','família'], 'pendente', '[Automação Lvl 3]', NULL),
+
+    -- Eixo "Rua" — 1 ideia pendente
+    (v_canal_id, v_eixo4_id,
+     'O morador de rua que era o CEO mais procurado do Brasil',
+     'Investigação revela que homem em situação de rua abandonou tudo voluntariamente.',
+     8.3, ARRAY['rua','superação','mistério'], 'pendente', 'Humano', v_user_id);
+
 END $$;

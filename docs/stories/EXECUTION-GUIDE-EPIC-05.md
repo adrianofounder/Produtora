@@ -152,8 +152,8 @@ git add -A && git commit -m "feat(epic-5): story-5.5 - integracao completa entre
 
 | Story | Título | Sprint | Status | Responsável |
 |-------|--------|--------|--------|-------------|
-| 5.1 | Matriz Oceano Azul (Dispersão) | 10 | ⏳ A Fazer | @dev / @qa |
-| 5.2 | Nicho Cards (Garimpo UI) | 10 | ⏳ A Fazer | @dev / @qa |
+| 5.1 | Matriz Oceano Azul (Dispersão) | 10 | ✅ Concluído | @dev / @qa |
+| 5.2 | Nicho Cards (Garimpo UI) | 10 | ✅ Concluído | @dev / @qa |
 | 5.3 | Página Principal Bento Grid | 10 | ⏳ A Fazer | @dev / @qa |
 | 5.4 | Engine de Garimpo D-1 | 11 | ⏳ A Fazer | @data-eng / @qa |
 | 5.5 | Pontes Studio & Kanban | 11 | ⏳ A Fazer | @dev / @qa |

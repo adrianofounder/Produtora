@@ -92,7 +92,8 @@ ALTER TABLE public.ideias ENABLE ROW LEVEL SECURITY;
 
 -- Policy única FOR ALL (SELECT + INSERT + UPDATE + DELETE)
 -- Padrão: canal_id IN (SELECT id FROM canais WHERE user_id = auth.uid())
-CREATE POLICY IF NOT EXISTS "ideias_own" ON public.ideias
+DROP POLICY IF EXISTS "ideias_own" ON public.ideias;
+CREATE POLICY "ideias_own" ON public.ideias
   FOR ALL
   USING (
     canal_id IN (

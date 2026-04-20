@@ -234,4 +234,23 @@ A tabela `ideias` deve ter `canal_id` (não `user_id`) para seguir o padrão de 
 - [ ] Code review de `@dev` aprovado
 
 ---
+---
 *Story gerada por @sm (River) · Sprint 8 · EPIC-04.*
+
+## QA Results (@quinn)
+
+### Gate Decision: ✅ PASS
+
+A Story 4.1 foi validada com foco em integridade de dados e isolamento multi-tenant (NFR03).
+
+#### Verificações Realizadas:
+- **Migration Validation:** A migration foi aplicada com sucesso após correção de erro de sintaxe.
+- **Tenant Isolation (RLS):** Testes confirmaram que o `Maestro AD` (User A) não consegue ler, inserir ou modificar dados do `Tenant B`.
+- **NFR06 (Auditoria):** Validado que registros gerados por automação (`[Automação Lvl 3]`) aceitam `origem_uuid` como NULL.
+- **Schema Integrity:** Verificado que a tabela `ideias` e as novas colunas de `eixos` estão corretamente tipadas e presentes.
+
+#### Observações Técnicas:
+- Foi identificado e corrigido um erro de sintaxe na migration: `CREATE POLICY IF NOT EXISTS` não é suportado pelo PostgreSQL 17. Alterado para o padrão `DROP POLICY IF EXISTS`.
+- O isolamento RLS por indireção via `canal_id` está operando conforme a NFR03.
+
+*Validado por @quinn em 2026-04-19.*

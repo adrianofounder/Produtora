@@ -8,13 +8,15 @@ export interface TrendMetrica {
   views7d: string;
   ctr: string;
   retencao: string;
-  direcao: 'up' | 'stable' | 'down';
+  direcao: 'up' | 'stable' | 'down' | 'new';
+  isLeader?: boolean;
 }
 
 const DIRECAO_CONFIG = {
   up:     { label: '▲ Subindo',  color: 'var(--color-success)' },
   stable: { label: '→ Estável',  color: 'var(--color-warning)' },
   down:   { label: '▼ Caindo',   color: 'var(--color-error)'   },
+  new:    { label: '— Novo',     color: 'var(--color-text-3)'  },
 };
 
 interface TrendAnalysisProps {
@@ -22,8 +24,6 @@ interface TrendAnalysisProps {
 }
 
 export function TrendAnalysis({ metricas }: TrendAnalysisProps) {
-  const max = Math.max(...metricas.map((m) => m.score));
-
   return (
     <div className="card p-5 flex flex-col gap-4">
       {/* Header */}
@@ -49,8 +49,8 @@ export function TrendAnalysis({ metricas }: TrendAnalysisProps) {
       {/* Métricas por eixo */}
       <div className="flex flex-col gap-4">
         {metricas.map((m) => {
-          const isLeader = m.score === max;
-          const dir = DIRECAO_CONFIG[m.direcao];
+          const isLeader = m.isLeader;
+          const dir = DIRECAO_CONFIG[m.direcao] || DIRECAO_CONFIG.new;
 
           return (
             <div key={m.eixo} className="flex flex-col gap-2">

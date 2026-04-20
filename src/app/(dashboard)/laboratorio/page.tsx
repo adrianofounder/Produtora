@@ -3,12 +3,7 @@ import { LaboratorioClient } from './laboratorio-client';
 import { TrendMetrica } from '@/components/laboratorio/trend-analysis';
 import { EixoData } from '@/components/laboratorio/eixo-card';
 import { IdeiaData } from '@/components/laboratorio/ideias-table';
-
-// Fallback temporário para Trends (Enquanto não temos o Crawler populando o Histórico)
-const TRENDS_FALLBACK: TrendMetrica[] = [
-  { eixo: 'Trabalho (Chefe vs. Tropa)', score: 94, views7d: '2.1M', ctr: '8.4%', retencao: '73%', direcao: 'up' },
-  { eixo: 'Igreja (Fé & Conflito)',     score: 71, views7d: '980K', ctr: '6.1%', retencao: '61%', direcao: 'up' },
-];
+import { processarMares } from '@/lib/mares-engine';
 
 export default async function Laboratorio() {
   const supabase = await createClient();
@@ -33,34 +28,50 @@ export default async function Laboratorio() {
     );
   }
 
-  // 2. Busca os Eixos com base no isolamento de canal (NFR03) validado
+  // 2. Busca os Eixos com base no isolamento de canal (NFR03)
   const { data: eixosData } = await supabase
     .from('eixos')
     .select('*')
     .eq('canal_id', canalAtivo.id)
+    // Inicialmente desc by score, o Motor garante na memória
     .order('score_mare', { ascending: false });
 
-  // 3. Busca as Ideias de Gaveta com status 'pendente' e filtradas por canal
+  // 3. Executa Motor Marés localmente (NFR09) e processa
+  const eixosProcessados = processarMares(eixosData || []);
+
+  // 4. Busca as Ideias de Gaveta com status 'pendente' e filtradas por canal
   const { data: ideiasData } = await supabase
     .from('ideias')
     .select('id, titulo, premissa, nota_ia, tags, status, eixo_id, origem')
     .eq('canal_id', canalAtivo.id)
     .order('nota_ia', { ascending: false });
 
-  // 4. Mapeia para os formatos da UI (EixoData) — Story 4.1 Campos atualizados
-  const mappedEixos: EixoData[] = (eixosData || []).map((e) => ({
+  // 5. Mapeia para os formatos da UI (EixoData) — Story 4.1 & 4.3 Campos atualizados
+  const mappedEixos: EixoData[] = eixosProcessados.map((e) => ({
     id: e.id,
     nome: e.nome,
-    nicho: e.sentimento_dominante || e.gatilho_curiosidade || 'Geral',
+    nicho: e.nicho || 'Geral',
     status: (e.status as 'testando' | 'aguardando' | 'venceu') || 'aguardando',
     videos: e.videos_count ?? 0,
     mediaViews: e.media_views
       ? `${Math.round(e.media_views / 1000)}K`
-      : `${Math.floor((e.views_acumuladas || 0) / 1000)}K`,
+      : '0K',
     taxaAprovacao: e.taxa_aprovacao ?? e.score_mare ?? 0,
+    colorStyle: e.colorHexOrVar // Do motor marés!
   }));
 
-  // 5. Mapeia para os formatos da UI (IdeiaData) — Story 4.1 Campos atualizados
+  // 6. Mapeia para Trend Analysis
+  const mappedTrends: TrendMetrica[] = eixosProcessados.map((e) => ({
+    eixo: e.nome,
+    score: e.score_mare,
+    views7d: e.views_7d ? `${Math.round(e.views_7d / 1000)}K` : '0',
+    ctr: e.ctr ? `${e.ctr}%` : '0%',
+    retencao: e.retencao ? `${e.retencao}%` : '0%',
+    direcao: e.direcao,
+    isLeader: e.isLeader
+  }));
+
+  // 7. Mapeia para Ideias
   const mappedIdeias: IdeiaData[] = (ideiasData || []).map((i) => ({
     id: i.id,
     titulo: i.titulo,
@@ -74,7 +85,7 @@ export default async function Laboratorio() {
     <LaboratorioClient 
       initialEixos={mappedEixos} 
       initialIdeias={mappedIdeias}
-      initialTrends={TRENDS_FALLBACK}
+      initialTrends={mappedTrends}
     />
   );
 }

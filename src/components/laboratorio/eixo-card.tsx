@@ -12,6 +12,7 @@ export interface EixoData {
   videos: number;
   mediaViews: string;
   taxaAprovacao: number;
+  colorStyle?: string;
 }
 
 const STATUS_CONFIG: Record<EixoStatus, {
@@ -96,7 +97,7 @@ export function EixoCard({ eixo, isActive, onClick, onMasterOverride }: EixoCard
               className="h-full rounded-full transition-all duration-1000 ease-in-out"
               style={{
                 width: `${eixo.taxaAprovacao}%`,
-                background: isWinner ? 'var(--color-premium)' : 'var(--color-accent)',
+                background: isWinner ? 'var(--color-premium)' : (eixo.colorStyle || 'var(--color-accent)'),
               }}
             />
           </div>

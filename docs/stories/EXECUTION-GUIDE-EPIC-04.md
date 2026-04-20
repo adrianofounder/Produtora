@@ -128,10 +128,15 @@ git add -A && git commit -m "feat(epic-4): story-4.4 - auto-refill noturno com a
 
 | Story | Título | Sprint | Status | Responsável |
 |-------|--------|--------|--------|-------------|
-| 4.1 | Modelo de Dados e RLS do Laboratório | 8 | ⏳ A Fazer | @data-engineer / @dev |
-| 4.2 | Integração da UI e Master Override | 8 | ⏳ A Fazer | @dev / @qa |
-| 4.3 | Motor Marés (Analytics e Score) | 9 | ⏳ A Fazer | @dev / @qa |
+| 4.1 | Modelo de Dados e RLS do Laboratório | 8 | ✅ Concluído | @data-engineer / @dev |
+| 4.2 | Integração da UI e Master Override | 8 | ✅ Concluído | @dev / @qa |
+| 4.3 | Motor Marés (Analytics e Score) | 9 | ✅ Concluído | @dev / @qa |
 | 4.4 | Auto-Refill e Automação de Madrugada | 9 | ⏳ A Fazer | @dev / @devops / @qa |
+
+> [!IMPORTANT]
+> **Auditoria Consolidada de Estresse (Gate Final do Épico):**
+> Ao concluir a Story 4.4, será realizada uma injeção de dados massiva simulando 5 canais reais simultâneos para validar o isolamento de dados (NFR03), a normalização do Motor Marés em larga escala (4.3) e a resiliência do Auto-Refill (4.4).
+
 
 ---
 

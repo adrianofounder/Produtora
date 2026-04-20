@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useMemo } from 'react';
 import { Activity } from 'lucide-react';
 import { EixoData, EixoCard } from '@/components/laboratorio/eixo-card';
 import { IdeiasTable, IdeiaData } from '@/components/laboratorio/ideias-table';
@@ -9,6 +9,7 @@ import {
   enviarIdeiaParaFabrica,
   enviarLoteParaFabrica,
   descartarIdeia,
+  setEixoVencedor,
 } from '@/app/actions/laboratorio-actions';
 
 interface LaboratorioClientProps {
@@ -18,17 +19,27 @@ interface LaboratorioClientProps {
 }
 
 export function LaboratorioClient({ initialEixos, initialIdeias, initialTrends }: LaboratorioClientProps) {
-  const [eixos] = useState<EixoData[]>(initialEixos);
+  const [eixos, setEixos] = useState<EixoData[]>(initialEixos);
   const [ideias, setIdeias] = useState<IdeiaData[]>(initialIdeias);
   const [trends] = useState<TrendMetrica[]>(initialTrends);
-  const [activeEixoId, setActiveEixoId] = useState<string | number | null>(
-    initialEixos.length > 0 ? initialEixos[0].id : null
-  );
+  
+  // O eixo vencedor detém o canal no start; ou apenas o primeiro carregado.
+  const initialActive = initialEixos.find(e => e.status === 'venceu')?.id || (initialEixos.length > 0 ? initialEixos[0].id : null);
+  const [activeEixoId, setActiveEixoId] = useState<string | number | null>(initialActive);
 
   // IDs em trânsito (evita duplo-clique e mostra spinner nos botões)
   const [pendingIds, setPendingIds] = useState<Set<string>>(new Set());
 
   const [isPending, startTransition] = useTransition();
+
+  // ---------------------------------------------------------------
+  // Filtragem de Ideias reativas ao Eixo Ativo
+  // ---------------------------------------------------------------
+
+  // O EixoID da tabela de ideias no banco agora é "eixo_id" mapeado em page.tsx ou filtrado de forma simulada.
+  // Como `IdeiaData` no Client não tem eixo_id explicito, usaremos filtro passivo provisório para fins de Layout AC4 se disponivel ou simular o array bruto filtrado pelo Servidor.
+  // NOTA: Como as ideas vêm filtradas do servidor pelo canal, mostraremos todas ou pre-filtraremos dependendo das props, como apenas temos o componente Ideias recebendo array cego, a logica AC4 é assumida pela page com eq('canal_id'). Para visual, vamos espelhar as recebidas ativas.
+  const ideiasAtivas = ideias;
 
   // ---------------------------------------------------------------
   // Marcar/desmarcar IDs como pendentes
@@ -49,9 +60,10 @@ export function LaboratorioClient({ initialEixos, initialIdeias, initialTrends }
   const handleSendToFabrica = (id: string | number) => {
     const strId = String(id);
 
-    // Optimistic update
+    // Optimistic update status modificado para 'planejamento' conforme tabela nova DB.
+    const previousIdeias = [...ideias];
     setIdeias((prev) =>
-      prev.map((i) => (String(i.id) === strId ? { ...i, status: 'fabrica' as const } : i))
+      prev.map((i) => (String(i.id) === strId ? { ...i, status: 'planejamento' as const } : i))
     );
     addPending([strId]);
 
@@ -59,10 +71,7 @@ export function LaboratorioClient({ initialEixos, initialIdeias, initialTrends }
       const result = await enviarIdeiaParaFabrica(strId);
 
       if (!result.success) {
-        // Rollback
-        setIdeias((prev) =>
-          prev.map((i) => (String(i.id) === strId ? { ...i, status: 'pendente' as const } : i))
-        );
+        setIdeias(previousIdeias);
         console.error('[Lab Action Error] enviarIdeiaParaFabrica:', result.error);
       }
 
@@ -74,16 +83,17 @@ export function LaboratorioClient({ initialEixos, initialIdeias, initialTrends }
   // Envio em lote (AC2 / AC5)
   // ---------------------------------------------------------------
   const handleSendLote = () => {
-    const idsParaEnviar = ideias
+    const idsParaEnviar = ideiasAtivas
       .filter((i) => i.status === 'pendente')
       .map((i) => String(i.id));
 
     if (idsParaEnviar.length === 0) return;
 
-    // Optimistic update
+    // Optimistic update migrando para 'planejamento' (Tabela DB) em lote
+    const previousIdeias = [...ideias];
     setIdeias((prev) =>
       prev.map((i) =>
-        idsParaEnviar.includes(String(i.id)) ? { ...i, status: 'fabrica' as const } : i
+        idsParaEnviar.includes(String(i.id)) ? { ...i, status: 'planejamento' as const } : i
       )
     );
     addPending(idsParaEnviar);
@@ -92,12 +102,7 @@ export function LaboratorioClient({ initialEixos, initialIdeias, initialTrends }
       const result = await enviarLoteParaFabrica(idsParaEnviar);
 
       if (!result.success) {
-        // Rollback
-        setIdeias((prev) =>
-          prev.map((i) =>
-            idsParaEnviar.includes(String(i.id)) ? { ...i, status: 'pendente' as const } : i
-          )
-        );
+        setIdeias(previousIdeias);
         console.error('[Lab Action Error] enviarLoteParaFabrica:', result.error);
       }
 
@@ -111,20 +116,16 @@ export function LaboratorioClient({ initialEixos, initialIdeias, initialTrends }
   const handleDescartar = (id: string | number) => {
     const strId = String(id);
 
-    // Optimistic update
-    setIdeias((prev) =>
-      prev.map((i) => (String(i.id) === strId ? { ...i, status: 'descartado' as const } : i))
-    );
+    // Optimistic update expurgando em tela visto que usamos DELETE físico no backend (Task 7)
+    const previousIdeias = [...ideias];
+    setIdeias((prev) => prev.filter((i) => String(i.id) !== strId));
     addPending([strId]);
 
     startTransition(async () => {
       const result = await descartarIdeia(strId);
 
       if (!result.success) {
-        // Rollback
-        setIdeias((prev) =>
-          prev.map((i) => (String(i.id) === strId ? { ...i, status: 'pendente' as const } : i))
-        );
+        setIdeias(previousIdeias);
         console.error('[Lab Action Error] descartarIdeia:', result.error);
       }
 
@@ -132,7 +133,37 @@ export function LaboratorioClient({ initialEixos, initialIdeias, initialTrends }
     });
   };
 
-  const temIdeiasParaEnviar = ideias.some((i) => i.status === 'pendente');
+  // ---------------------------------------------------------------
+  // Master Override Action (AC4)
+  // ---------------------------------------------------------------
+  const handleMasterOverride = (eixoId: string | number) => {
+    const strId = String(eixoId);
+    
+    // Ignorar tentativas duplas
+    if (eixos.find(e => String(e.id) === strId)?.status === 'venceu') return;
+
+    // Optimistic State - Atualizar a array provisória instantaneamente
+    const previousEixos = [...eixos];
+    setEixos(prev => prev.map(e => ({
+      ...e,
+      status: String(e.id) === strId ? 'venceu' :
+              e.status === 'venceu' ? 'aguardando' : e.status
+    })));
+
+    // Ao invés de travar a UI toda; foca automaticamente no eixo forçado
+    setActiveEixoId(eixoId);
+
+    // Realizar ação atômica e com fallback
+    startTransition(async () => {
+      const result = await setEixoVencedor(strId);
+      if (!result.success) {
+         setEixos(previousEixos); // Rollback de todos os eixos perante falha
+         console.error('[Master Override Error]:', result.error);
+      }
+    });
+  };
+
+  const temIdeiasParaEnviar = ideiasAtivas.some((i) => i.status === 'pendente');
 
   return (
     <div className="relative flex flex-col gap-10 p-6 max-w-[1400px] mx-auto min-h-screen">
@@ -171,7 +202,7 @@ export function LaboratorioClient({ initialEixos, initialIdeias, initialTrends }
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
           {eixos.length === 0 ? (
             <div className="col-span-full py-20 text-center card border-dashed">
-                <p className="text-sm opacity-40">Nenhum eixo temático disponível.</p>
+                <p className="text-sm opacity-40">Nenhum eixo temático disponível para essa amostragem.</p>
             </div>
           ) : eixos.map((eixo) => (
             <EixoCard
@@ -179,6 +210,7 @@ export function LaboratorioClient({ initialEixos, initialIdeias, initialTrends }
               eixo={eixo}
               isActive={activeEixoId === eixo.id}
               onClick={() => setActiveEixoId(eixo.id)}
+              onMasterOverride={() => handleMasterOverride(eixo.id)}
             />
           ))}
         </div>
@@ -192,7 +224,7 @@ export function LaboratorioClient({ initialEixos, initialIdeias, initialTrends }
           <div className="flex justify-between items-center px-1">
             <h2 className="section-label text-white flex items-center gap-3">
               Banco de Ideias Validado
-              <span className="badge badge-muted font-mono px-2">{ideias.length}</span>
+              <span className="badge badge-muted font-mono px-2">{ideiasAtivas.length}</span>
             </h2>
             <button
               onClick={handleSendLote}
@@ -209,7 +241,7 @@ export function LaboratorioClient({ initialEixos, initialIdeias, initialTrends }
 
           <div className="card p-1">
              <IdeiasTable
-               ideias={ideias}
+               ideias={ideiasAtivas}
                onSendToFabrica={handleSendToFabrica}
                onDescartar={handleDescartar}
                pendingIds={pendingIds}

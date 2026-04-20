@@ -8,7 +8,7 @@ export interface IdeiaData {
   premissa: string;
   notaIA: number; // 0–10
   tags: string[];
-  status: 'pendente' | 'fabrica' | 'publicado' | 'descartado';
+  status: 'pendente' | 'planejamento' | 'publicado';
 }
 
 const SCORE_COLOR = (nota: number) => {
@@ -141,15 +141,10 @@ export function IdeiasTable({ ideias, onSendToFabrica, onDescartar, pendingIds =
                   Descartar
                 </button>
               </>
-            ) : ideia.status === 'fabrica' ? (
+            ) : ideia.status === 'planejamento' ? (
               <span className="badge badge-accent gap-1">
                 <Zap size={9} />
-                Na Fábrica
-              </span>
-            ) : ideia.status === 'descartado' ? (
-              <span className="badge badge-muted gap-1 opacity-60">
-                <X size={9} />
-                Descartado
+                No Planejamento
               </span>
             ) : (
               <span className="badge badge-success">Publicado</span>

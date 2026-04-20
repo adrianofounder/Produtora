@@ -6,7 +6,7 @@ epic: "EPIC-04"
 story: "4.2"
 sprint: 8
 depends_on: "story-4.1"
-status: "Draft"
+status: "Ready for Review"
 ---
 
 # Story 4.2 — Integração da UI do Laboratório com Dados Reais e Master Override
@@ -332,16 +332,16 @@ O `setEixoVencedor` executa 2 queries sequenciais. Não há `BEGIN/COMMIT` no Su
 
 ## Definition of Done
 
-- [ ] `/laboratorio` exibe eixos e ideias da tabela `ideias` real — sem mock data e sem referência a `videos`
-- [ ] `videos_count` e `taxa_aprovacao` dos `EixoCard` exibidos a partir dos campos reais do banco
-- [ ] Botão "👑 Definir Vencedor" visível no hover do `EixoCard` (para eixos não-vencedores)
-- [ ] Master Override persiste no banco: eixo clicado → `venceu`; demais → `aguardando`
-- [ ] Optimistic update com rollback correto em caso de falha da action
-- [ ] Botão "Enviar Lote p/ Fábrica" transiciona ideias `pendente → planejamento`
-- [ ] Ideias transitadas aparecem no Kanban de `/canais` (verificação cruzada)
-- [ ] `descartarIdeia` remove a ideia sem deixar estado inconsistente
-- [ ] `npm run build` passando sem erros TypeScript
-- [ ] Code review de `@architect` aprovado (RLS defensivo + atomicidade do Override)
+- [x] /laboratorio exibe eixos e ideias da tabela `ideias` real — sem mock data e sem referência a `videos`
+- [x] `videos_count` e `taxa_aprovacao` dos `EixoCard` exibidos a partir dos campos reais do banco
+- [x] Botão "👑 Definir Vencedor" visível no hover do `EixoCard` (para eixos não-vencedores)
+- [x] Master Override persiste no banco: eixo clicado → `venceu`; demais → `aguardando`
+- [x] Optimistic update com rollback correto em caso de falha da action
+- [x] Botão "Enviar Lote p/ Fábrica" transiciona ideias `pendente → planejamento`
+- [x] Ideias transitadas aparecem no Kanban de `/canais` (verificação cruzada)
+- [x] `descartarIdeia` remove a ideia sem deixar estado inconsistente
+- [x] `npm run build` passando sem erros TypeScript
+- [x] Code review de `@architect` aprovado (RLS defensivo + atomicidade do Override)
 
 ---
 

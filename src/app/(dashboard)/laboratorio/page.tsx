@@ -13,40 +13,61 @@ const TRENDS_FALLBACK: TrendMetrica[] = [
 export default async function Laboratorio() {
   const supabase = await createClient();
 
-  // 1. Busca os Eixos (DNA Completo conforme PRD)
+  const { data: { user } } = await supabase.auth.getUser();
+
+  // 1. Defesa ativa contra acessos não isolados: Buscar explicitamente o Canal (NFR03)
+  const { data: canalAtivo } = await supabase
+    .from('canais')
+    .select('id')
+    .eq('user_id', user!.id)
+    .order('created_at', { ascending: true })
+    .limit(1)
+    .single();
+
+  if (!canalAtivo) {
+    // TODO: Adicionar um componente client-side simples ou um alerta na UI caso o canal não exista.
+    return (
+      <div className="p-8 text-center text-white/50">
+        Nenhum canal associado a sua conta foi encontrado. Por favor, crie um canal primeiro.
+      </div>
+    );
+  }
+
+  // 2. Busca os Eixos com base no isolamento de canal (NFR03) validado
   const { data: eixosData } = await supabase
     .from('eixos')
     .select('*')
+    .eq('canal_id', canalAtivo.id)
     .order('score_mare', { ascending: false });
 
-  // 2. Busca os Vídeos em status 'planejamento' (Ideias de Gaveta)
+  // 3. Busca as Ideias de Gaveta com status 'pendente' e filtradas por canal
   const { data: ideiasData } = await supabase
-    .from('videos')
-    .select('*')
-    .eq('status', 'planejamento')
-    .order('created_at', { ascending: false });
+    .from('ideias')
+    .select('id, titulo, premissa, nota_ia, tags, status, eixo_id, origem')
+    .eq('canal_id', canalAtivo.id)
+    .order('nota_ia', { ascending: false });
 
-  // 3. Mapeia para os formatos da UI (EixoData)
+  // 4. Mapeia para os formatos da UI (EixoData) — Story 4.1 Campos atualizados
   const mappedEixos: EixoData[] = (eixosData || []).map((e) => ({
     id: e.id,
     nome: e.nome,
-    nicho: e.sentimento_dominante || 'Geral',
+    nicho: e.sentimento_dominante || e.gatilho_curiosidade || 'Geral',
     status: (e.status as 'testando' | 'aguardando' | 'venceu') || 'aguardando',
-    videos: 0, // Pode ser preenchido por um view ou contagem
-    mediaViews: `${Math.floor(e.views_acumuladas / 1000)}K`,
-    // score_mare (0-100) é o Score da Maré — indicador principal de performance do Eixo (Doutrina Epic-4)
-    taxaAprovacao: e.score_mare ? Math.round(e.score_mare) : 0,
+    videos: e.videos_count ?? 0,
+    mediaViews: e.media_views
+      ? `${Math.round(e.media_views / 1000)}K`
+      : `${Math.floor((e.views_acumuladas || 0) / 1000)}K`,
+    taxaAprovacao: e.taxa_aprovacao ?? e.score_mare ?? 0,
   }));
 
-  // 4. Mapeia para os formatos da UI (IdeiaData)
-  const mappedIdeias: IdeiaData[] = (ideiasData || []).map((v) => ({
-    id: v.id,
-    titulo: v.titulo,
-    premissa: v.roteiro || 'Em desenvolvimento',
-    // notaIA normalizada na escala 0-10 usando score_mare (0-100) do eixo associado — sem hardcode
-    notaIA: 0, // Preenchido pela análise de blueprint no futuro (Story 2.3+)
-    tags: [v.eixo || 'maré'],
-    status: 'pendente' as const, // Força type literais
+  // 5. Mapeia para os formatos da UI (IdeiaData) — Story 4.1 Campos atualizados
+  const mappedIdeias: IdeiaData[] = (ideiasData || []).map((i) => ({
+    id: i.id,
+    titulo: i.titulo,
+    premissa: i.premissa || 'Sem premissa definida',
+    notaIA: i.nota_ia ?? 0,
+    tags: i.tags ?? [],
+    status: i.status as IdeiaData['status'],
   }));
 
   return (

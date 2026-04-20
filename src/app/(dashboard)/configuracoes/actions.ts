@@ -141,6 +141,85 @@ export async function upsertCredential(payload: ICredentialPayload) {
 }
 
 // ============================================================
+// AUTO-REFILL KILL-SWITCH (Story 4.4)
+// ============================================================
+
+export interface AutoRefillSettings {
+  auto_refill_enabled: boolean;
+  auto_refill_last_run_at: string | null;
+  auto_refill_last_run_status: 'success' | 'skipped' | 'error' | null;
+}
+
+/**
+ * Busca as configurações de Auto-Refill do tenant logado.
+ * Retorna defaults seguros se ainda não houver registro em tenant_settings.
+ */
+export async function getAutoRefillSettings(): Promise<{
+  data: AutoRefillSettings | null;
+  error?: string;
+}> {
+  const supabase = await createClient();
+  const { data: userData, error: authError } = await supabase.auth.getUser();
+
+  if (authError || !userData?.user) {
+    return { data: null, error: 'Não autorizado' };
+  }
+
+  const { data, error } = await supabase
+    .from('tenant_settings')
+    .select('auto_refill_enabled, auto_refill_last_run_at, auto_refill_last_run_status')
+    .eq('tenant_id', userData.user.id)
+    .maybeSingle();
+
+  if (error) {
+    console.error('[actions] Erro ao buscar tenant_settings:', error.message);
+    return { data: null, error: 'Falha ao buscar configurações de automação.' };
+  }
+
+  // Tenant novo sem settings → defaults
+  const settings: AutoRefillSettings = {
+    auto_refill_enabled:         data?.auto_refill_enabled ?? true,
+    auto_refill_last_run_at:     data?.auto_refill_last_run_at ?? null,
+    auto_refill_last_run_status: (data?.auto_refill_last_run_status as AutoRefillSettings['auto_refill_last_run_status']) ?? null,
+  };
+
+  return { data: settings };
+}
+
+/**
+ * Liga ou desliga o Auto-Refill para o tenant logado.
+ * Persistido na tabela tenant_settings com upsert.
+ */
+export async function toggleAutoRefillAction(
+  enabled: boolean
+): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createClient();
+  const { data: userData, error: authError } = await supabase.auth.getUser();
+
+  if (authError || !userData?.user) {
+    return { success: false, error: 'Não autorizado' };
+  }
+
+  const { error } = await supabase
+    .from('tenant_settings')
+    .upsert(
+      {
+        tenant_id:          userData.user.id,
+        auto_refill_enabled: enabled,
+      },
+      { onConflict: 'tenant_id' }
+    );
+
+  if (error) {
+    console.error('[actions] Erro ao atualizar kill-switch do Auto-Refill:', error.message);
+    return { success: false, error: 'Falha ao salvar configuração de automação.' };
+  }
+
+  revalidatePath('/configuracoes');
+  return { success: true };
+}
+
+// ============================================================
 // DELETAR uma credencial de IA (com verificação de propriedade)
 // ============================================================
 export async function deleteCredential(providerType: string) {

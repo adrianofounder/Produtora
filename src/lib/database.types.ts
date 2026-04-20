@@ -558,6 +558,45 @@ export type Database = {
         ]
       }
 
+      tenant_settings: {
+        Row: {
+          id: string
+          tenant_id: string
+          auto_refill_enabled: boolean
+          auto_refill_last_run_at: string | null
+          auto_refill_last_run_status: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          tenant_id: string
+          auto_refill_enabled?: boolean
+          auto_refill_last_run_at?: string | null
+          auto_refill_last_run_status?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          tenant_id?: string
+          auto_refill_enabled?: boolean
+          auto_refill_last_run_at?: string | null
+          auto_refill_last_run_status?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_settings_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+
       videos: {
         Row: {
           aprovado_por: string | null

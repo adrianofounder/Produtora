@@ -5,7 +5,8 @@ import { Settings, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import { AccountCard, AccountData } from '@/components/configuracoes/account-card';
 import { ApiKeyCard, ApiData, ApiStatus } from '@/components/configuracoes/api-key-card';
 import { SegurancaForm } from '@/components/configuracoes/seguranca-form';
-import { getTenantCredentials } from './actions';
+import { AutoRefillToggle } from '@/components/configuracoes/auto-refill-toggle';
+import { getTenantCredentials, getAutoRefillSettings, toggleAutoRefillAction, AutoRefillSettings } from './actions';
 
 interface Canal { id: string; nome: string; youtube_channel_id: string | null; mare_status: string; }
 
@@ -31,16 +32,26 @@ export default function Configuracoes() {
   const [canais, setCanais]   = useState<Canal[]>([]);
   const [apis, setApis]       = useState<ApiData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [autoRefill, setAutoRefill] = useState<AutoRefillSettings>({
+    auto_refill_enabled: true,
+    auto_refill_last_run_at: null,
+    auto_refill_last_run_status: null,
+  });
 
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [canaisData, credenciaisRes] = await Promise.all([
+      const [canaisData, credenciaisRes, autoRefillRes] = await Promise.all([
         fetch('/api/canais').then((r) => (r.ok ? r.json() : [])),
         getTenantCredentials(),
+        getAutoRefillSettings(),
       ]);
 
       setCanais(Array.isArray(canaisData) ? canaisData : []);
+
+      if (autoRefillRes.data) {
+        setAutoRefill(autoRefillRes.data);
+      }
 
       // Montar lista de APIs 100% dinâmica a partir do banco
       const dynamicApis: ApiData[] = (credenciaisRes.data ?? []).map((cred, idx) => {
@@ -199,6 +210,109 @@ export default function Configuracoes() {
         ) : (
           <ApiKeyCard apis={apis} onRefresh={fetchData} />
         )}
+      </section>
+
+      <hr className="divider" />
+
+      {/* ── SEÇÃO: Automação de Conteúdo (Story 4.4) ─────────────────── */}
+      <section className="flex flex-col gap-4" aria-labelledby="automation-section-title">
+        <div>
+          <h2
+            id="automation-section-title"
+            className="text-sm font-semibold uppercase tracking-widest"
+            style={{ color: 'var(--color-text-1)' }}
+          >
+            🤖 Automação de Conteúdo
+          </h2>
+          <p className="text-[12px] mt-1" style={{ color: 'var(--color-text-3)' }}>
+            Configurações do Auto-Refill noturno — reabastece sua fila de produção durante a madrugada.
+          </p>
+        </div>
+
+        <div className="card p-4 flex flex-col gap-4">
+          {/* Header: título + toggle */}
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex flex-col gap-1">
+              <h3 className="text-sm font-semibold" style={{ color: 'var(--color-text-1)' }}>
+                Auto-Refill Noturno
+              </h3>
+              <p className="text-[12px] leading-relaxed" style={{ color: 'var(--color-text-3)' }}>
+                Quando a fila tiver menos de 2 vídeos em planejamento, o sistema gera automaticamente
+                5 novas ideias do Eixo Vencedor às 03:00 UTC.
+              </p>
+            </div>
+
+            <AutoRefillToggle
+              enabled={autoRefill.auto_refill_enabled}
+              onToggle={toggleAutoRefillAction}
+            />
+          </div>
+
+          {/* Stats da última execução */}
+          <div
+            className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-3"
+            style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}
+          >
+            {/* Última execução */}
+            <div className="card-inner flex flex-col gap-1 px-3 py-2">
+              <span className="text-[10px] uppercase tracking-wider" style={{ color: 'var(--color-text-3)' }}>
+                Última execução
+              </span>
+              <span className="text-xs" style={{ color: 'var(--color-text-2)' }}>
+                {autoRefill.auto_refill_last_run_at
+                  ? new Date(autoRefill.auto_refill_last_run_at).toLocaleString('pt-BR')
+                  : '—'}
+              </span>
+            </div>
+
+            {/* Status */}
+            <div className="card-inner flex flex-col gap-1 px-3 py-2">
+              <span className="text-[10px] uppercase tracking-wider" style={{ color: 'var(--color-text-3)' }}>
+                Status
+              </span>
+              <span
+                className="text-xs font-medium"
+                style={{
+                  color:
+                    autoRefill.auto_refill_last_run_status === 'success'
+                      ? 'var(--color-success)'
+                      : autoRefill.auto_refill_last_run_status === 'error'
+                      ? 'var(--color-error)'
+                      : 'var(--color-text-3)',
+                }}
+              >
+                {autoRefill.auto_refill_last_run_status === 'success' && '✅ Sucesso'}
+                {autoRefill.auto_refill_last_run_status === 'error'   && '❌ Erro'}
+                {autoRefill.auto_refill_last_run_status === 'skipped' && '⏭️ Ignorado'}
+                {!autoRefill.auto_refill_last_run_status              && '—'}
+              </span>
+            </div>
+
+            {/* Próxima execução */}
+            <div className="card-inner flex flex-col gap-1 px-3 py-2">
+              <span className="text-[10px] uppercase tracking-wider" style={{ color: 'var(--color-text-3)' }}>
+                Próxima execução
+              </span>
+              <span className="text-xs" style={{ color: 'var(--color-text-2)' }}>
+                {autoRefill.auto_refill_enabled ? 'Todo dia às 03:00 UTC' : '—'}
+              </span>
+            </div>
+          </div>
+
+          {/* Aviso quando desativado */}
+          {!autoRefill.auto_refill_enabled && (
+            <div
+              className="flex items-start gap-2 p-3 rounded-lg text-xs"
+              style={{ background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.1)' }}
+            >
+              <AlertCircle className="h-3.5 w-3.5 shrink-0 mt-0.5" style={{ color: 'var(--color-error)' }} />
+              <p style={{ color: 'var(--color-text-2)' }}>
+                <strong style={{ color: 'var(--color-error)' }}>Kill-switch ativo:</strong>{' '}
+                O Auto-Refill está desativado. Sua fila de produção não será reabastecida automaticamente.
+              </p>
+            </div>
+          )}
+        </div>
       </section>
 
     </div>

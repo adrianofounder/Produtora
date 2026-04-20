@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { runAutoRefill } from '@/lib/auto-refill';
 
 // ============================================================
 // Tipos agnósticos — suporta qualquer provedor de IA
@@ -247,5 +248,47 @@ export async function deleteCredential(providerType: string) {
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Erro desconhecido';
     return { success: false, error: message };
+  }
+}
+
+/**
+ * Dispara manualmente o processo de Auto-Refill para o tenant logado.
+ * Útil para testes e sincronização imediata.
+ */
+export async function triggerAutoRefillManualAction(): Promise<{ success: boolean; message?: string }> {
+  try {
+    const supabase = await createClient();
+    const { data: userData, error: authError } = await supabase.auth.getUser();
+
+    if (authError || !userData?.user) {
+      return { success: false, message: 'Não autorizado' };
+    }
+
+    const report = await runAutoRefill(userData.user.id);
+    const result = report.results[0];
+
+    revalidatePath('/configuracoes');
+
+    if (result.status === 'error') {
+      return { success: false, message: `Erro: ${result.reason}` };
+    }
+
+    if (result.status === 'skipped') {
+      const skipMessages: Record<string, string> = {
+        kill_switch_active: 'O Auto-Refill está desativado nas suas configurações.',
+        spend_limit_reached: 'Seu teto diário de tokens foi atingido.',
+        queue_sufficient: `Sua fila já possui ${result.queueSize} vídeos em planejamento.`,
+      };
+      return { success: true, message: skipMessages[result.reason || ''] || 'Sincronização ignorada.' };
+    }
+
+    return { 
+      success: true, 
+      message: `Sucesso! Foram geradas ${result.ideiasGeradas} novas ideias para o eixo "${result.eixoVencedor}".` 
+    };
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Erro desconhecido';
+    console.error('[actions] Erro no gatilho manual:', msg);
+    return { success: false, message: 'Falha crítica ao disparar automação.' };
   }
 }

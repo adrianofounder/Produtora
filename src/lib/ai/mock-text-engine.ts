@@ -72,7 +72,19 @@ export class MockTextEngine implements ITextEngine {
 
     const count = options.paragraphCount ?? 5;
     const shuffled = [...MOCK_PARAGRAPHS_POOL].sort(() => Math.random() - 0.5);
-    const paragraphs = shuffled.slice(0, Math.min(count, shuffled.length));
+    const selected = shuffled.slice(0, Math.min(count, shuffled.length));
+
+    let paragraphs = selected;
+
+    // Story 4.4: Se o prompt pedir JSON (caso do Auto-Refill), o mock deve obedecer
+    if (options.blueprintContext?.includes('JSON')) {
+      const ideias = selected.map((p, idx) => ({
+        titulo: `Ideia Mock ${idx + 1}: ${p.split(' ').slice(0, 4).join(' ')}...`,
+        premissa: p,
+        nota_ia: (8 + Math.random() * 2).toFixed(1)
+      }));
+      paragraphs = [JSON.stringify(ideias, null, 2)];
+    }
 
     // Custo simulado: ~500 tokens de input + 150 tokens/parágrafo output
     const estimatedTokens = 500 + paragraphs.length * 150;

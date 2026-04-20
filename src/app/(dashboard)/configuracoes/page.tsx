@@ -6,7 +6,8 @@ import { AccountCard, AccountData } from '@/components/configuracoes/account-car
 import { ApiKeyCard, ApiData, ApiStatus } from '@/components/configuracoes/api-key-card';
 import { SegurancaForm } from '@/components/configuracoes/seguranca-form';
 import { AutoRefillToggle } from '@/components/configuracoes/auto-refill-toggle';
-import { getTenantCredentials, getAutoRefillSettings, toggleAutoRefillAction, AutoRefillSettings } from './actions';
+import { getTenantCredentials, getAutoRefillSettings, toggleAutoRefillAction, triggerAutoRefillAction, triggerAutoRefillManualAction, AutoRefillSettings } from './actions';
+import { RefreshCw } from 'lucide-react';
 
 interface Canal { id: string; nome: string; youtube_channel_id: string | null; mare_status: string; }
 
@@ -32,6 +33,8 @@ export default function Configuracoes() {
   const [canais, setCanais]   = useState<Canal[]>([]);
   const [apis, setApis]       = useState<ApiData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [triggering, setTriggering] = useState(false);
+  const [triggerMessage, setTriggerMessage] = useState<string | null>(null);
   const [autoRefill, setAutoRefill] = useState<AutoRefillSettings>({
     auto_refill_enabled: true,
     auto_refill_last_run_at: null,
@@ -297,6 +300,39 @@ export default function Configuracoes() {
                 {autoRefill.auto_refill_enabled ? 'Todo dia às 03:00 UTC' : '—'}
               </span>
             </div>
+          </div>
+
+          {/* Ação Manual */}
+          <div className="flex items-center justify-between gap-4 pt-2">
+            <div className="flex flex-col gap-1">
+              <p className="text-[11px]" style={{ color: 'var(--color-text-3)' }}>
+                Deseja forçar uma atualização da fila agora?
+              </p>
+              {triggerMessage && (
+                <p className="text-[10px] font-medium" style={{ color: triggerMessage.includes('Erro') ? 'var(--color-error)' : 'var(--color-success)' }}>
+                  {triggerMessage}
+                </p>
+              )}
+            </div>
+            <button
+              onClick={async () => {
+                setTriggering(true);
+                setTriggerMessage(null);
+                const res = await triggerAutoRefillManualAction();
+                setTriggerMessage(res.message || null);
+                setTriggering(false);
+                fetchData(); // Atualiza stats
+              }}
+              disabled={triggering}
+              className="btn-primary py-2 px-4 flex items-center gap-2 text-xs h-9"
+            >
+              {triggering ? (
+                <Loader2 className="h-3 w-3 animate-spin" />
+              ) : (
+                <RefreshCw size={12} className={triggering ? 'animate-spin' : ''} />
+              )}
+              Sincronizar Agora
+            </button>
           </div>
 
           {/* Aviso quando desativado */}

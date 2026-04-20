@@ -149,7 +149,7 @@ async function processOneTenant(
 
   // ── PASSO 2: Teto de tokens (NFR03 via consumption-tracker) ─
   // checkSpendLimit usa o client de sessão internamente; passamos o tenantId como userId.
-  const spendCheck = await checkSpendLimit(tenantId, 'llm_text');
+  const spendCheck = await checkSpendLimit(tenantId, 'llm_text', supabase);
   if (!spendCheck.allowed) {
     console.log(
       `[Auto-Refill] Tenant ${tenantId}: Teto de tokens atingido — ${spendCheck.message}. Abortando.`
@@ -276,7 +276,7 @@ async function generateAndPersist(
   }
 
   // 7. Incrementa consumo APENAS após persistência bem-sucedida (Anti-Happy Path)
-  await incrementSpend(tenantId, 'llm_text', engineResult.costUnits);
+  await incrementSpend(tenantId, 'llm_text', engineResult.costUnits, supabase);
 
   // 8. Recalcula Motor Marés — operação secundária, falha não aborta o job
   await recalcularMares(supabase, canalId);

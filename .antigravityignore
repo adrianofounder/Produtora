@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+.aiox-core/node_modules/
+
+# Next.js Build
+.next/
+
+# Virtual environments
+.venv/
+env/
+venv/
+
+# Environment variables
+.env*
+
+# IDE / System
+.git/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Build Outputs
+dist/
+build/
+out/
+
+# AI Artifacts & Cache
+.gemini/
+scratch/
+.agent/
